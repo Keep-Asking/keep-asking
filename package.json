@@ -1,0 +1,25 @@
+{
+  "name": "fast-feedback",
+  "version": "1.0.0",
+  "description": "A system for periodically collecting feedback.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebthedev/fast-feedback.git"
+  },
+  "author": "Sebastian Hallum Clarke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sebthedev/fast-feedback/issues"
+  },
+  "homepage": "https://github.com/sebthedev/fast-feedback#readme",
+  "dependencies": {
+    "cas": "0.0.3",
+    "cookie-session": "^2.0.0-beta.3",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2"
+  }
+}
