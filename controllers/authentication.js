@@ -7,7 +7,7 @@ var CentralAuthenticationService = require('cas')
 
 // Load internal modules
 var config = require('./config.js')
-// var UserModel = require.main.require('./models/user.js')
+let User = require.main.require('./models/user.js')
 
 // Configure CAS authentication
 var casURL = 'https://fed.princeton.edu/cas/'
@@ -38,55 +38,48 @@ router.get('/verify', function (req, res) {
 
   // If the user already has a valid CAS session then send them to their destination
   if (req.session.cas) {
-    res.redirect(redirectDestination)
-    return
+    return res.redirect(redirectDestination)
   }
 
-  var ticket = req.query.ticket
+  let ticket = req.query.ticket
 
   // If the user does not have a ticket then send them to the homepage
   if (typeof (ticket) === 'undefined') {
-    res.redirect('/')
-    return
+    return res.redirect('/')
   }
 
   // Check if the user's ticket is valid
-  cas.validate(ticket, function (err, status, netid) {
+  cas.validate(ticket, function (err, status, username) {
     if (err) {
-      console.log(err)
-      res.sendStatus(500)
-      return
+      console.error(err)
+      return res.sendStatus(500)
     }
 
     // Save the user's session data
-    req.session.username = netid
+    req.session.username = username
 
-    // // Find the user in the database with this netid
-    // UserModel.findById(netid, function (err, user) {
-    //   if (err) {
-    //     console.log(err)
-    //     res.sendStatus(500)
-    //     return
-    //   }
-    //
-    //   // If the user doesn't exist, create a new user
-    //   if (user == null) {
-    //     var newUser = new UserModel({
-    //       _id: netid
-    //     })
-    //     newUser.save(function (error) {
-    //       if (error) {
-    //         console.log(error)
-    //         res.sendStatus(500)
-    //         return
-    //       }
-    //       res.redirect(redirectDestination)
-    //     })
-    //   } else {
-    //     res.redirect(redirectDestination)
-    //   }
-    // })
-    res.redirect(redirectDestination)
+    User.findById(username, function (err, user) {
+      if (err) {
+        console.error(err)
+        return res.sendStatus(500)
+      }
+
+      // Carry on to the destination if the user already exists
+      if (user) {
+        return res.redirect(redirectDestination)
+      }
+
+      let newUser = new User({
+        username: username
+      })
+      newUser.save((err, user) => {
+        if (err) {
+          console.error('New user could not be saved.', err)
+          return res.sendStatus(500)
+        }
+        return res.redirect(redirectDestination)
+      })
+    })
   })
 })
 
@@ -100,27 +93,28 @@ router.get('/logout', function (req, res) {
 module.exports.router = router
 
 // Determine whether the user sending this request is authenticated
-var userIsAuthenticated = function (req) {
+let userIsAuthenticated = function (req) {
   return (typeof (req.session.username) !== 'undefined')
 }
 module.exports.userIsAuthenticated = userIsAuthenticated
 
 // Find the details of the currently logged in user
 var loadUser = function (req, res, next) {
-  next()
-  // if (req.session.cas) {
-  //   UserModel.findOne({_id: req.session.cas.netid}, function (err, user) {
-  //     if (err) {
-  //       console.log(err)
-  //     }
-  //     if (user != null) {
-  //       // Save the user for the duration of the request
-  //       res.locals.user = user
-  //     }
-  //     next()
-  //   })
-  // } else {
-  //   next()
-  // }
+  if (!req.session.username) {
+    next()
+  }
+
+  User.findById(req.session.username, function (err, user) {
+    if (err) {
+      console.log(err)
+      return res.sendStatus(500)
+    }
+
+    // Save the user for the duration of the request
+    if (user) {
+      res.locals.user = user
+    }
+    next()
+  })
 }
 module.exports.loadUser = loadUser
