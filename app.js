@@ -39,6 +39,8 @@ app.get('/dashboard', function (req, res) {
 // Configure the EJS templating system (http://www.ejs.co)
 app.set('view engine', 'ejs')
 
+app.use(express.static('public'))
+
 app.listen(config.port, function () {
   console.log('Listening for reqs on port %d.', config.port)
 })
