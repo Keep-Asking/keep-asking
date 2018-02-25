@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <a class="navbar-brand" href="#">Fast Feedback</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -24,13 +24,17 @@
         </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
+        <a class="nav-link disabled" class="btn btn-primary btn-lg" href="#">Disabled</a>
       </li>
     </ul>
-    <% if (typeof(username) !== 'undefined') { %>
-    <span class="nav-item">
-      <a class="nav-link" href="/auth/logout">Logout</a>
-    </span>
-    <% } %>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <% if (typeof(username) !== 'undefined') { %>
+            <a class="nav-link" href="/auth/logout">Logout</a>
+          <% } else { %>
+            <a class="nav-link" href="/auth/login">Login</a>
+          <% }%>
+        </li>
+    </ul>
   </div>
 </nav>

@@ -1,5 +1,8 @@
 <%- include('./partials/head'); %>
 <%- include('./partials/header'); %>
-Welcome to Fast Feedback<% if (username) { %>, <%= username %><% } %>. Would you like to <a href="/auth/logout">logout</a>?
+<div class="container my-5">
+  <h1 class="display-4">Welcome<% if (username) { %>, <%= username %><% } %></h1>
+  <hr class="my-4">
+</div>
 
 <%- include('./partials/feet'); %>

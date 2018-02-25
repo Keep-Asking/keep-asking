@@ -2,8 +2,11 @@ let express = require('express')
 let app = express()
 let session = require('cookie-session')
 
+require('dotenv').config()
 var config = require('./controllers/config.js')
 let auth = require('./controllers/authentication.js')
+
+require('./controllers/database.js')
 
 // Configure session cookies
 app.use(session({
@@ -26,19 +29,10 @@ app.get('/', function (req, res) {
   res.render('splash', req.session)
 })
 
-// Route a request for the dashboard
-app.get('/dashboard', function (req, res) {
-  // Redirect to splash if the user is not authenticated
-  if (!auth.userIsAuthenticated(req)) {
-    res.redirect('/')
-    return
-  }
-  res.render('dashboard', req.session)
-})
-
 // Configure the EJS templating system (http://www.ejs.co)
 app.set('view engine', 'ejs')
 
+// Configure routing to the public folder
 app.use(express.static('public'))
 
 app.listen(config.port, function () {

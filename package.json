@@ -24,8 +24,10 @@
   "dependencies": {
     "cas": "0.0.3",
     "cookie-session": "^2.0.0-beta.3",
+    "dotenv": "^5.0.0",
     "ejs": "^2.5.7",
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "mongoose": "^5.0.7"
   },
   "devDependencies": {
     "bootstrap": "^4.0.0"
