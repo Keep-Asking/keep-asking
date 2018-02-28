@@ -10,8 +10,17 @@ let userSchema = mongoose.Schema({
   }
 })
 
-userSchema.method('getCohorts', function (callback) {
-  Cohort.find({owner: this.username}, function (err, cohorts) {
+userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
+  if (typeof (includeArchivedCohorts) === 'function' && !callback) {
+    callback = includeArchivedCohorts
+  }
+
+  let matchConditions = {owner: this.username}
+  if (includeArchivedCohorts !== true) {
+    matchConditions.archived = {$not: {$eq: true}}
+  }
+
+  Cohort.aggregate([{$match: matchConditions}, {$project: {name: 1, membersCount: {$size: '$members'}}}, {$sort: {name: 1}}], function (err, cohorts) {
     callback(err, cohorts)
   })
 })

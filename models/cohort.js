@@ -9,7 +9,8 @@ let cohortSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  members: [String]
+  members: [String],
+  archived: Boolean
 })
 
 let Cohort = mongoose.model('Cohort', cohortSchema)

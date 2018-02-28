@@ -25,12 +25,15 @@ app.use('/api', api.router)
 app.use('/auth', auth.router)
 
 // Route a request for the homepage
-app.get('/', function (req, res) {
+app.get('/', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
     return res.render('splash', req.session)
   }
+
+  const showArchived = typeof (req.query.archived) !== 'undefined'
+
   // Check whether the user sending this request is authenticated
-  res.locals.user.getCohorts(function (err, cohorts) {
+  res.locals.user.getCohorts(showArchived, function (err, cohorts) {
     if (err) {
       console.error(err)
     }
@@ -38,6 +41,26 @@ app.get('/', function (req, res) {
     return res.render('dashboard', {
       username: req.session.username,
       cohorts: cohorts
+    })
+  })
+})
+
+let Cohort = require('./models/cohort.js')
+app.get('/cohorts/:id/edit', function (req, res, next) {
+  if (!auth.userIsAuthenticated(req)) {
+    return res.sendStatus(403)
+  }
+  Cohort.findOne({
+    owner: res.locals.user.username,
+    _id: req.params.id
+  }, function (err, cohort) {
+    if (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
+    return res.render('cohort/edit', {
+      username: req.session.username,
+      cohort: cohort
     })
   })
 })

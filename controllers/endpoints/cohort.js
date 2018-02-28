@@ -32,7 +32,7 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
   }
 
   // Filter members for non-email addresses
-  req.body.members = req.body['members[]'].filter(member => emailRE.test(member))
+  req.body.members = Array.from(new Set(req.body['members[]'].filter(member => emailRE.test(member)))).sort()
 
   // Save the changes to the database
   if (req.body.id) { // Try to update the existing cohort if we believe it exists
@@ -67,5 +67,29 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
     })
   }
 })
+
+router.get('/:id/delete', function (req, res) {
+  console.log(req.params)
+  // return res.send('Hello')
+  if (!(req.params && req.params.id)) {
+    return res.sendStatus(400)
+  }
+
+  Cohort.remove({
+    _id: req.params.id,
+    owner: res.locals.user.username
+  }, function (err, result) {
+    if (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
+    return res.json(result)
+  })
+})
+
+// router.use('*', function (req, res, next) {
+//   console.log('api/endpoints/cohorts.js')
+//   return res.send('Hello!')
+// })
 
 module.exports = router
