@@ -3,6 +3,46 @@
 <div class="container my-5">
   <h1 class="display-4">Welcome<% if (username) { %>, <%= username %><% } %></h1>
   <hr class="my-4">
+
+  <h2>Your Cohorts and Surveys</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Number of Members</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (cohorts && cohorts.length > 0) {
+        for (let cohortIndex in cohorts) { let cohort = cohorts[cohortIndex]%>
+        <tr>
+          <td><%=cohort.name%></td>
+          <td><%=(cohort.members)?cohort.members.length:0%></td>
+          <td><a href="#">Edit Cohort</a></td>
+        </tr>
+        <% }
+      } %>
+    </tbody>
+  </table>
+
+  <div>
+    <h3>Create a New Cohort</h3>
+    <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company.</p>
+    <form id="newCohortForm">
+      <div class="form-group">
+        <label for="cohortName">Cohort Name</label>
+        <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="French Class, Management Team, Frisbee Buddies, etc…">
+        <small id="cohortNameHelp" class="form-text text-muted">Give your cohort a descriptive name.</small>
+      </div>
+      <div class="form-group">
+        <label for="cohortMemberEmails">Cohort Members</label>
+        <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…">
+        <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma or newline.</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Create New Cohort</button>
+    </form>
+  </div>
 </div>
 
 <%- include('./partials/feet'); %>

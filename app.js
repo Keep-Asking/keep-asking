@@ -1,6 +1,7 @@
 let express = require('express')
 let app = express()
 let session = require('cookie-session')
+// let bodyParser = require('body-parser')
 
 require('dotenv').config()
 var config = require('./controllers/config.js')
@@ -14,19 +15,31 @@ app.use(session({
   maxAge: 24 * 60 * 60 * 1000 * 365 // 365 days
 }))
 
+// app.use(bodyParser.json())
+
 // Attempt to load the currently logged-in user
 app.use('*', auth.loadUser)
 
+let api = require('./controllers/api.js')
+app.use('/api', api.router)
 app.use('/auth', auth.router)
 
 // Route a request for the homepage
 app.get('/', function (req, res) {
-  // Check whether the user sending this request is authenticated
-  if (auth.userIsAuthenticated(req)) {
-    res.render('dashboard', req.session)
-    return
+  if (!auth.userIsAuthenticated(req)) {
+    return res.render('splash', req.session)
   }
-  res.render('splash', req.session)
+  // Check whether the user sending this request is authenticated
+  res.locals.user.getCohorts(function (err, cohorts) {
+    if (err) {
+      console.error(err)
+    }
+    console.log('Sebastian\'s cohorts are: ', cohorts)
+    return res.render('dashboard', {
+      username: req.session.username,
+      cohorts: cohorts
+    })
+  })
 })
 
 // Configure the EJS templating system (http://www.ejs.co)

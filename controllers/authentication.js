@@ -101,7 +101,7 @@ module.exports.userIsAuthenticated = userIsAuthenticated
 // Find the details of the currently logged in user
 var loadUser = function (req, res, next) {
   if (!req.session.username) {
-    next()
+    return next()
   }
 
   User.findById(req.session.username, function (err, user) {
