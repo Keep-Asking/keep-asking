@@ -22,7 +22,19 @@ userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
 
   let getCohortsPromises = []
 
-  getCohortsPromises.push(Cohort.aggregate([{$match: matchConditions}, {$project: {archived: 1, name: 1, membersCount: {$size: '$members'}}}, {$sort: {name: 1}}]).exec())
+  getCohortsPromises.push(Cohort.aggregate([
+    {
+      $match: {owner: 'smclarke'}
+    }, {
+      $project: {archived: 1, name: 1, membersCount: {$size: '$members'}}
+    }, {
+      $sort: {name: 1}
+    }, {
+      $lookup: {
+        from: 'surveys', localField: '_id', foreignField: 'cohort', as: 'surveys'
+      }
+    }
+  ]).exec())
 
   getCohortsPromises.push(Cohort.count({owner: this.username, archived: true}).exec())
 

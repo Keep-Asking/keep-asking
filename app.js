@@ -47,6 +47,29 @@ app.get('/', function (req, res, next) {
 })
 
 let Cohort = require('./models/cohort.js')
+let Survey = require('./models/survey.js')
+app.get('/cohorts/:id/view', function (req, res, next) {
+  if (!auth.userIsAuthenticated(req)) {
+    return res.sendStatus(403)
+  }
+  Cohort.findOne({
+    owner: res.locals.user.username,
+    _id: req.params.id
+  }, function (err, cohort) {
+    if (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
+    if (!cohort) {
+      return res.sendStatus(404)
+    }
+    return res.render('cohort/view', {
+      username: req.session.username,
+      cohort: cohort
+    })
+  })
+})
+
 app.get('/cohorts/:id/edit', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
     return res.sendStatus(403)
@@ -58,6 +81,9 @@ app.get('/cohorts/:id/edit', function (req, res, next) {
     if (err) {
       console.error(err)
       return res.sendStatus(500)
+    }
+    if (!cohort) {
+      return res.sendStatus(404)
     }
     return res.render('cohort/edit', {
       username: req.session.username,
