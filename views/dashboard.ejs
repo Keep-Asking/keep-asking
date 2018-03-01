@@ -6,35 +6,49 @@
 
   <h2>Your Cohorts and Surveys</h2>
   <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company. You can create an unlilmited number of cohorts, and archive any cohorts you no longer need.</p>
+  <% if (cohorts && cohorts.length > 0) { %>
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Number of Members</th>
+        <th scope="col">Cohort Name</th>
+        <th scope="col" class="text-center">Number of Members</th>
         <th></th>
-        <th>
+        <th class="text-center">
           <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
         </th>
-        <!-- <th></th> -->
       </tr>
     </thead>
     <tbody>
-      <% if (cohorts && cohorts.length > 0) {
-        for (let cohortIndex in cohorts) { let cohort = cohorts[cohortIndex]%>
+        <% for (let cohortIndex in cohorts) { %>
+          <% let cohort = cohorts[cohortIndex]%>
+
           <tr>
             <td><%=cohort.name%></td>
-            <td><%=(cohort.membersCount)?cohort.membersCount:0%></td>
-            <td>
+            <td class="text-center"><%=(cohort.membersCount)?cohort.membersCount:0%></td>
+            <td class="text-center">
               <a href="/cohorts/<%=cohort._id%>/edit" class="btn btn-primary btn-sm">Edit Cohort</a>
             </td>
-            <td>
-              <button type="button" class="btn btn-info btn-sm">Archive Cohort</button>
-            </td>
+            <td class="text-center">
+              <% if (cohort.archived) { %>
+                <a href="/api/cohorts/<%=cohort._id%>/unarchive" class="btn btn-outline-primary btn-sm">Unarchive Cohort</button>
+              <% } else { %>
+                <a href="/api/cohorts/<%=cohort._id%>/archive" class="btn btn-outline-primary btn-sm">Archive Cohort</button>
+              <% } %>
+          </td>
           </tr>
-          <% }
-        } %>
+        <% } %>
       </tbody>
     </table>
+  <% } else { %>
+    <div class="text-center my-4">
+      <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
+    </div>
+  <% }%>
+  <% if (archivedCount > 0) { %>
+    <div class="text-center">
+      <a href="/?archived" class="btn btn-outline-secondary btn-sm">Show <%=archivedCount%> Archived Cohort<%=(archivedCount !== 0)?'s':'';%></a>
+    </div>
+  <% } %>
 </div>
 
 <!-- Modal For Creating New Cohort -->

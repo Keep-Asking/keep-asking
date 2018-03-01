@@ -8,9 +8,7 @@ let Cohort = require.main.require('./models/cohort.js')
 const emailRE = /\S+@\S+\.\S+/
 
 router.post('/update', bodyParser.urlencoded({ extended: false }), function (req, res) {
-  console.log(req.body)
-
-  // Validate name
+  // Validate cohort name
   if (!req.body.name || typeof (req.body.name) !== 'string' || req.body.name.length === 0) {
     return res.status(400).json({
       message: 'A cohort name is required.',
@@ -68,28 +66,44 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
   }
 })
 
-router.get('/:id/delete', function (req, res) {
-  console.log(req.params)
+router.get('/:id/archive', function (req, res) {
   // return res.send('Hello')
   if (!(req.params && req.params.id)) {
     return res.sendStatus(400)
   }
 
-  Cohort.remove({
+  Cohort.update({
     _id: req.params.id,
     owner: res.locals.user.username
+  }, {
+    archived: true
   }, function (err, result) {
     if (err) {
       console.error(err)
       return res.sendStatus(500)
     }
-    return res.json(result)
+    return res.redirect('/')
   })
 })
 
-// router.use('*', function (req, res, next) {
-//   console.log('api/endpoints/cohorts.js')
-//   return res.send('Hello!')
-// })
+router.get('/:id/unarchive', function (req, res) {
+  // return res.send('Hello')
+  if (!(req.params && req.params.id)) {
+    return res.sendStatus(400)
+  }
+
+  Cohort.update({
+    _id: req.params.id,
+    owner: res.locals.user.username
+  }, {
+    archived: false
+  }, function (err, result) {
+    if (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
+    return res.redirect('/?archived')
+  })
+})
 
 module.exports = router

@@ -33,14 +33,15 @@ app.get('/', function (req, res, next) {
   const showArchived = typeof (req.query.archived) !== 'undefined'
 
   // Check whether the user sending this request is authenticated
-  res.locals.user.getCohorts(showArchived, function (err, cohorts) {
+  res.locals.user.getCohorts(showArchived, function (err, cohorts, archivedCount) {
     if (err) {
       console.error(err)
+      return res.sendStatus(500)
     }
-    console.log('Sebastian\'s cohorts are: ', cohorts)
     return res.render('dashboard', {
       username: req.session.username,
-      cohorts: cohorts
+      cohorts: cohorts,
+      archivedCount: archivedCount
     })
   })
 })
