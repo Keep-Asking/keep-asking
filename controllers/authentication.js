@@ -33,6 +33,8 @@ router.get('/login', function (req, res) {
 
 // Handle replies from Princeton's CAS server about authentication
 router.get('/verify', function (req, res) {
+  console.log('GET /verify')
+
   // Check if the user has a redirection destination
   let redirectDestination = req.session.redirect || '/'
 
@@ -47,9 +49,11 @@ router.get('/verify', function (req, res) {
   if (typeof (ticket) === 'undefined') {
     return res.redirect('/')
   }
+  console.log('GET /verify performing CAS validation')
 
   // Check if the user's ticket is valid
   cas.validate(ticket, function (err, status, username) {
+    console.log('GET /verify cas status', status)
     if (err) {
       console.error(err)
       return res.sendStatus(500)
