@@ -61,15 +61,18 @@ router.get('/verify', function (req, res) {
 
     // Save the user's session data
     req.session.username = username
+    console.log('GET /verify cas status username', username)
 
     User.findById(username, function (err, user) {
       if (err) {
         console.error(err)
         return res.sendStatus(500)
       }
+      console.log('GET /verify got user from database', user)
 
       // Carry on to the destination if the user already exists
       if (user) {
+        console.log('GET /verify sendign redirect', redirectDestination)
         return res.redirect(redirectDestination)
       }
 
