@@ -45,7 +45,6 @@ $(function () {
               $('#cohortNameHelp').removeClass('text-muted').addClass('text-danger')
               break
             case 'members':
-              alert('members')
               $('#cohortMemberEmails').addClass('is-invalid')
               $('#cohortMemberEmailsHelp').removeClass('text-muted').addClass('text-danger')
               break
@@ -58,7 +57,40 @@ $(function () {
     })
   })
 
-  // $('a.delete-cohort').click(function () {
-  //
+  let generateDates = function () {
+    console.log('generateDates triggered')
+    $('#surveySendingTimes li').remove()
+
+    let scheduleString = $("#surveySchedule").val().trim()
+    let schedule = later.parse.text(scheduleString)
+    console.log(schedule)
+    if (schedule.error === -1) {
+      $('#surveySchedule').removeClass('is-invalid')
+    } else {
+      $('#surveySchedule').addClass('is-invalid')
+      console.error('An error occured at position', schedule.error, scheduleString)
+      return
+    }
+
+    console.log(schedule)
+
+    let startDate = $('#datepicker [name="start"]').datepicker('getDate')
+    let endDate = $('#datepicker [name="end"]').datepicker('getDate')
+    let scheduleInstances = later.schedule(schedule).next(10, startDate, endDate)
+    console.log(scheduleInstances)
+
+    for (let scheduleInstancesIndex in scheduleInstances) {
+      $('#surveySendingTimes').append('<li>' + scheduleInstances[scheduleInstancesIndex] + '</li>')
+    }
+    // let scheduleInstances = later.schedule(schedule).next(10, startDate, endDate)
+    // console.log(scheduleInstances)
+  }
+
+  later.date.localTime()
+  $('#surveySchedule').on('input', generateDates)
+  $('#datepicker input').datepicker().on('changeDate', generateDates)
+
+  // $('#datepicker').datepicker({
+  //   todayHighlight: true
   // })
 })
