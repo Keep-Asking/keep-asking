@@ -47,7 +47,8 @@ app.get('/', function (req, res, next) {
 })
 
 let Cohort = require('./models/cohort.js')
-let Survey = require('./models/survey.js')
+let SurveySet = require('./models/surveySet.js')
+
 app.get('/cohorts/:id/view', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
     return res.sendStatus(403)

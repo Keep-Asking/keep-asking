@@ -31,7 +31,7 @@ userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
       $sort: {name: 1}
     }, {
       $lookup: {
-        from: 'surveys', localField: '_id', foreignField: 'cohort', as: 'surveys'
+        from: 'surveysets', localField: '_id', foreignField: 'cohort', as: 'surveySets'
       }
     }
   ]).exec())

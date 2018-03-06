@@ -44,10 +44,10 @@
               <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal">New Survey</a>
             </td>
           </tr>
-            <% if (cohort.surveys) { %>
+            <% if (cohort.surveySets) { %>
               <!-- <%=JSON.stringify(cohort.surveys)%> -->
-              <% for (surveyIndex in cohort.surveys) { %>
-                <% let thisSurvey = cohort.surveys[surveyIndex] %>
+              <% for (surveyIndex in cohort.surveySets) { %>
+                <% let thisSurvey = cohort.surveySets[surveyIndex] %>
                 <tr class="collapse" data-cohort-id="<%=cohort._id%>">
                   <td colspan=100>
                     <!-- <%=JSON.stringify(thisSurvey)%> -->
