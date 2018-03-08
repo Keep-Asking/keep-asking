@@ -100,5 +100,5 @@ app.set('view engine', 'ejs')
 app.use(express.static('public'))
 
 app.listen(config.port, function () {
-  console.log('Listening for reqs on port %d.', config.port)
+  console.log('Listening for reqs on %s.', config.host)
 })

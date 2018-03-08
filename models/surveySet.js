@@ -27,22 +27,27 @@ let surveySetSchema = mongoose.Schema({
 })
 
 // Manage creation of Survey objects when the surveySet is updated
-let updateSurveysHandler = function (surveySet) {
-  if (!surveySet.sendDates || !Array.isArray(surveySet.sendDates)) {
-    return
-  }
+let updateSurveysHandler = function (updateResult) {
+  const surveySetID = updateResult.result.upserted[0]._id
 
-  Survey.remove({ // Remove any existing future surveys in this surveySet
-    surveySet: surveySet._id,
-    sent: false
+  let thisSurveySet
+
+  SurveySet.findById(surveySetID).then(function (foundSurveySet) {
+    thisSurveySet = foundSurveySet
+
+    // Remove any existing unsent surveys in this surveySet
+    return Survey.remove({
+      surveySet: thisSurveySet._id,
+      sent: false
+    })
   }).then(function () { // Create new Surveys for each of the sendDates
-    let surveyDates = surveySet.sendDates
+    let surveyDates = thisSurveySet.sendDates
     let surveyDocuments = surveyDates.filter(function (date) {
       return (date instanceof Date && date >= new Date())
     }).map(function (date) {
       return {
-        surveySet: surveySet._id,
-        cohort: surveySet.cohort,
+        surveySet: thisSurveySet._id,
+        cohort: thisSurveySet.cohort,
         sendDate: date,
         sent: false
       }
@@ -53,39 +58,10 @@ let updateSurveysHandler = function (surveySet) {
   })
 }
 
-// Bind the updateSurveysHandler to the `save` and `findOneAndUpdate` events
+// Bind the updateSurveysHandler to the update events
 surveySetSchema.post('findOneAndUpdate', updateSurveysHandler)
 surveySetSchema.post('update', updateSurveysHandler)
-surveySetSchema.post('save', updateSurveysHandler)
 
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)
 
 module.exports = SurveySet
-
-// let newSS = SurveySet({
-//   cohort: '5a98495d42c721f1b7841c68',
-//   name: 'Homework Survey',
-//   surveyURL: 'https://www.example.com',
-//   sendDates: [
-//     new Date()
-//   ]
-// })
-
-// console.log('About to save newSS')
-// newSS.save(function (err) {
-//   if (err) {
-//     return console.error(err)
-//   }
-//   console.log('saved newSS')
-// })
-
-// SurveySet.findOneAndUpdate({
-//   _id: '5aa05bed9a3f8acfd2c6729d'
-// }, {
-//   sendDates: [new Date(), new Date('2018-08-17T03:24:00'), new Date('2018-07-15T03:24:00')]
-// }, {
-//   upsert: true,
-//   new: true
-// }, function (err, doc) {
-//   console.log(err, doc)
-// })

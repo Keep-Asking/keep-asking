@@ -23,12 +23,18 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
     }
   }
 
+  // Create the owners surveySetDocument
   let surveySetDocument = {
     owner: res.locals.user.username
   }
-  if (req.body.name) surveySetDocument.name = req.body.name
-  if (req.body.surveyURL) surveySetDocument.surveyURL = req.body.surveyURL
-  if (req.body.sendDates) surveySetDocument.sendDates = req.body.sendDates
+
+  // Map keys and valyes from req.body to surveySetDocument
+  const keysToMap = ['name', 'surveyURL', 'sendDates', 'cohort']
+  keysToMap.forEach(function (key) {
+    if (req.body[key]) {
+      surveySetDocument[key] = req.body[key]
+    }
+  })
 
   SurveySet.update({
     _id: req.body.id || {$exists: false},
