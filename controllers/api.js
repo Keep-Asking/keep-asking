@@ -26,6 +26,7 @@ router.delete('*', function (req, res, next) {
 
 // Handle requests to all the API endpoints
 router.use('/cohorts', require('./endpoints/cohort.js'))
+router.use('/surveysets', require('./endpoints/surveyset.js'))
 
 // Export the routes on this router
 module.exports.router = router

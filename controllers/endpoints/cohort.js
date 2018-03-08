@@ -7,6 +7,7 @@ let Cohort = require.main.require('./models/cohort.js')
 
 const emailRE = /\S+@\S+\.\S+/
 
+// Handle creating and updating a cohort
 router.post('/update', bodyParser.urlencoded({ extended: false }), function (req, res) {
   // Validate cohort name
   if (!req.body.name || typeof (req.body.name) !== 'string' || req.body.name.length === 0) {
@@ -32,62 +33,27 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
   // Filter members for non-email addresses
   req.body.members = Array.from(new Set(req.body['members[]'].filter(member => emailRE.test(member)))).sort()
 
-  // Save the changes to the database
-  if (req.body.id) { // Try to update the existing cohort if we believe it exists
-    Cohort.update({
-      _id: req.body.id,
-      owner: res.locals.user.username
-    }, {
-      name: req.body.name,
-      members: req.body.members
-    }, function (err) {
-      if (err) {
-        return res.status(500).json({
-          message: 'An error occured while updating the existing cohort.'
-        })
-      }
-      return res.sendStatus(200)
-    })
-  } else { // Try to create the new cohort
-    let newCohort = Cohort({
-      name: req.body.name,
-      owner: res.locals.user.username,
-      members: req.body.members
-    })
-
-    newCohort.save(function (err) {
-      if (err) {
-        return res.status(500).json({
-          message: 'An error occured while saving the new cohort.'
-        })
-      }
-      return res.sendStatus(200)
-    })
-  }
-})
-
-router.get('/:id/archive', function (req, res) {
-  // return res.send('Hello')
-  if (!(req.params && req.params.id)) {
-    return res.sendStatus(400)
-  }
-
-  Cohort.update({
-    _id: req.params.id,
+  // Perform the database commands
+  Cohort.update({ // Find the cohort to update, if it exists
+    _id: req.body.id || {$exists: false},
     owner: res.locals.user.username
+  }, { // Set the values on the cohort
+    owner: res.locals.user.username,
+    name: req.body.name,
+    members: req.body.members
   }, {
-    archived: true
-  }, function (err, result) {
-    if (err) {
-      console.error(err)
-      return res.sendStatus(500)
-    }
-    return res.redirect('/')
+    upsert: true
+  }).then(function () {
+    return res.sendStatus(200)
+  }).catch(function () {
+    return res.status(500).json({
+      message: 'An error occured while updating the existing cohort.'
+    })
   })
 })
 
-router.get('/:id/unarchive', function (req, res) {
-  // return res.send('Hello')
+// Handle archiving and unarchiving a cohort
+router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function (req, res) {
   if (!(req.params && req.params.id)) {
     return res.sendStatus(400)
   }
@@ -96,13 +62,12 @@ router.get('/:id/unarchive', function (req, res) {
     _id: req.params.id,
     owner: res.locals.user.username
   }, {
-    archived: false
-  }, function (err, result) {
-    if (err) {
-      console.error(err)
-      return res.sendStatus(500)
-    }
-    return res.redirect('/?archived')
+    archived: (req.query.status === 'true')
+  }).then(function () {
+    return res.redirect('/')
+  }).catch(function (err) {
+    console.error(err)
+    return res.sendStatus(500)
   })
 })
 

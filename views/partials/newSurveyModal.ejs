@@ -1,0 +1,50 @@
+<div class="modal fade" id="newSurveyModal" tabindex="-1" role="dialog" aria-labelledby="newCohortModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newCohortModalLabel">Create a New Survey</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="newSurveyForm">
+        <input type="hidden" id="cohort-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="surveyName">Survey Name</label>
+            <input type="text" class="form-control" id="surveyName" aria-describedby="surveyNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…">
+            <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name.</small>
+          </div>
+          <div class="form-group">
+            <label for="surveyURL">Survey URL</label>
+            <input type="text" class="form-control" id="surveyURL" aria-describedby="cohortNameHelp" placeholder="https://www.example.com/form?id=abc123">
+            <small id="surveyNameHelp" class="form-text text-muted">The web address where your users can find your survey. Use Google Forms, Typeform, or some other system for online forms.</small>
+          </div>
+          <div class="form-group">
+            <label for="surveySchedule">When should your survey be sent?</label>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label for="surveySendTime">Survey Send Days</label>
+              <div id="surveyScheduleDatepicker" aria-describedby="surveyScheduleDatepickerHelp" data-date-multidate="true" data-date-week-start="1" data-date-today-highlight="true"></div>
+              <small id="surveyScheduleDatepickerHelp" class="form-text text-muted">
+                Select the days on which your survey should be sent.
+              </small>
+            </div>
+            <div class="col">
+              <label for="surveySendTime">Survey Send Time</label>
+              <input type="text" class="form-control" id="surveySendTime" aria-describedby="surveySendTimeHelp" placeholder="14:07">
+              <small id="surveySendTimeHelp" class="form-text text-muted">
+                Write the time of day that this survey should be sent. Examples: 3:15pm, 13:20
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Create New Survey</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -3,11 +3,13 @@ let mongoose = require('mongoose')
 let cohortSchema = mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   owner: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   members: [String],
   archived: Boolean

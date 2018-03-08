@@ -6,7 +6,8 @@ let userSchema = mongoose.Schema({
     type: String,
     required: true,
     lowercase: true,
-    alias: 'username'
+    alias: 'username',
+    trim: true
   }
 })
 
@@ -24,7 +25,7 @@ userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
 
   getCohortsPromises.push(Cohort.aggregate([
     {
-      $match: {owner: 'smclarke'}
+      $match: matchConditions
     }, {
       $project: {archived: 1, name: 1, membersCount: {$size: '$members'}}
     }, {

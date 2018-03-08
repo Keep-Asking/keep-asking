@@ -31,26 +31,20 @@
               <a href="/cohorts/<%=cohort._id%>/edit" class="btn btn-outline-primary btn-sm">Edit Cohort</a>
             </td>
             <td class="text-center">
-              <% if (cohort.archived) { %>
-                <a href="/api/cohorts/<%=cohort._id%>/unarchive" class="btn btn-outline-primary btn-sm">Unarchive Cohort</a>
-              <% } else { %>
-                <a href="/api/cohorts/<%=cohort._id%>/archive" class="btn btn-outline-primary btn-sm">Archive Cohort</a>
-              <% } %>
+                <a href="/api/cohorts/<%=cohort._id%>/archive?status=<%=(cohort.archived)?'false':'true';%>" class="btn btn-outline-primary btn-sm"><%=(cohort.archived)?'Unarchive':'Archive';%> Cohort</a>
             </td>
             <td class="text-center">
               <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="collapse" data-target="tr[data-cohort-id='<%=cohort._id%>']">Show Surveys</a>
             </td>
             <td class="text-center">
-              <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal">New Survey</a>
+              <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal" data-cohort-id="<%=cohort._id%>">New Survey</a>
             </td>
           </tr>
             <% if (cohort.surveySets) { %>
-              <!-- <%=JSON.stringify(cohort.surveys)%> -->
               <% for (surveyIndex in cohort.surveySets) { %>
                 <% let thisSurvey = cohort.surveySets[surveyIndex] %>
                 <tr class="collapse" data-cohort-id="<%=cohort._id%>">
                   <td colspan=100>
-                    <!-- <%=JSON.stringify(thisSurvey)%> -->
                     <span class="font-weight-bold">Survey Name</span>: <%=thisSurvey.name%><span>
                   </td>
                 </tr>
@@ -104,56 +98,6 @@
 </div>
 
 <!-- Modal For Creating New Survey -->
-<div class="modal fade" id="newSurveyModal" tabindex="-1" role="dialog" aria-labelledby="newCohortModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="newCohortModalLabel">Create a New Survey</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form id="newCohortForm">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="cohortName">Survey Name</label>
-            <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…">
-            <small id="cohortNameHelp" class="form-text text-muted">Give your survey a descriptive name.</small>
-          </div>
-          <div class="form-group">
-            <label for="cohortName">Survey URL</label>
-            <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…">
-            <small id="cohortNameHelp" class="form-text text-muted">The web address where your users can find your survey. Use Google Forms, Typeform, or some other system for online forms.</small>
-          </div>
-          <div class="form-group">
-            <label for="cohortMemberEmails">When should your survey be sent to your cohort members?</label>
-            <input type="text" class="form-control" id="surveySchedule" autocomplete="off" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="at 5:00 pm on Monday and Wednesday except on the 12th through 30th day of March also on the 1st through 10th day of April">
-            <small id="cohortMemberEmailsHelp" class="form-text text-muted">
-              Write in natural language when you would like your survey to be sent. <a href="https://bunkat.github.io/later/parsers.html#text">Learn more</a>.
-            </small>
-          </div>
-          <div class="form-row input-daterange" id="datepicker" data-provide="datepicker" data-keyboardNavigation="false">
-            <div class="form-group col-md-6">
-              <label for="startDate">Start Date</label>
-              <input type="text" id="startDate" class="input-sm form-control" name="start" value="Tue Mar 06 2018 17:30:00 GMT-0500 (EST)">
-            </div>
-            <div class="form-group col-md-6">
-              <label for="endDate">End Date</label>
-              <input type="text" id="endDate" class="input-sm form-control" name="end" value="04/01/2018">
-            </div>
-          </div>
-          <div class="card-body bg-light border" style="overflow-y: scroll; max-height: 100px;">
-            <ul id="surveySendingTimes">
-            </ul>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Create New Survey</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+<%- include('./partials/newSurveyModal'); %>
 
 <%- include('./partials/feet'); %>
