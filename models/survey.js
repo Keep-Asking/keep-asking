@@ -1,13 +1,21 @@
 let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
+// Require Cohort for population
+require('./cohort.js')
+
+// Require SurveySet for getting Cohort Members
+const SurveySet = require('./surveySet.js')
+
 let surveySchema = mongoose.Schema({
   surveySet: {
     type: ObjectId,
+    ref: 'SurveySet',
     required: true
   },
   cohort: {
     type: ObjectId,
+    ref: 'Cohort',
     required: true
   },
   sendDate: {
@@ -21,7 +29,6 @@ let surveySchema = mongoose.Schema({
   }
 })
 
-const SurveySet = require('./surveySet.js')
 surveySchema.method('getCohortMembers', function (callback) {
   SurveySet.aggregate([
     {
