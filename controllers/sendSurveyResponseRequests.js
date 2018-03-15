@@ -35,7 +35,7 @@ Survey.find({
 
       mailer.sendMail({
         from: {
-          name: 'Fast Feedback',
+          name: 'Keep Asking',
           address: 'survey@ffmail.sebthedev.com'
         },
         to: member,
