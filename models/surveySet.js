@@ -28,6 +28,7 @@ let surveySetSchema = mongoose.Schema({
 
 // Manage creation of Survey objects when the surveySet is updated
 let updateSurveysHandler = function (updateResult) {
+  console.log(updateResult)
   const surveySetID = updateResult.result.upserted[0]._id
 
   let thisSurveySet
@@ -59,8 +60,8 @@ let updateSurveysHandler = function (updateResult) {
 }
 
 // Bind the updateSurveysHandler to the update events
-surveySetSchema.post('findOneAndUpdate', updateSurveysHandler)
-surveySetSchema.post('update', updateSurveysHandler)
+// surveySetSchema.post('findOneAndUpdate', updateSurveysHandler)
+// surveySetSchema.post('update', updateSurveysHandler)
 
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)
 

@@ -47,29 +47,6 @@ app.get('/', function (req, res, next) {
 })
 
 let Cohort = require('./models/cohort.js')
-let Survey = require('./models/survey.js')
-
-app.get('/cohorts/:id/view', function (req, res, next) {
-  if (!auth.userIsAuthenticated(req)) {
-    return res.sendStatus(403)
-  }
-  Cohort.findOne({
-    owner: res.locals.user.username,
-    _id: req.params.id
-  }, function (err, cohort) {
-    if (err) {
-      console.error(err)
-      return res.sendStatus(500)
-    }
-    if (!cohort) {
-      return res.sendStatus(404)
-    }
-    return res.render('cohort/view', {
-      username: req.session.username,
-      cohort: cohort
-    })
-  })
-})
 
 app.get('/cohorts/:id/edit', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
@@ -89,6 +66,35 @@ app.get('/cohorts/:id/edit', function (req, res, next) {
     return res.render('cohort/edit', {
       username: req.session.username,
       cohort: cohort
+    })
+  })
+})
+
+let SurveySet = require('./models/surveySet.js')
+app.get('/cohorts/:cohortID/surveys/:surveyID', function (req, res, next) {
+  if (!auth.userIsAuthenticated(req)) {
+    return res.sendStatus(403)
+  }
+  SurveySet.findOne({
+    owner: res.locals.user.username,
+    cohort: req.params.cohortID,
+    _id: req.params.surveyID
+  }, function (err, survey) {
+    if (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
+    if (!survey) {
+      return res.sendStatus(404)
+    }
+    console.log('dates being sent to renderer', survey)
+
+    // if (survey.sendDates && survey.sendDates.length > 0 && survey.sendDates[0] instanceof Date) {
+    //   survey.surveyTime = moment(survey.sendDates[0][0]).format('HH:mm')
+    // }
+    return res.render('survey/edit', {
+      username: req.session.username,
+      survey: survey
     })
   })
 })

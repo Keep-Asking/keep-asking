@@ -18,6 +18,11 @@ let surveySchema = mongoose.Schema({
     ref: 'Cohort',
     required: true
   },
+  owner: {
+    type: String,
+    ref: 'User',
+    required: true
+  },
   sendDate: {
     type: Date,
     required: true

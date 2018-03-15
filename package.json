@@ -1,7 +1,7 @@
 {
   "name": "keep-asking",
   "version": "1.0.0",
-  "description": "A system for periodically collecting feedback.",
+  "description": "A system for collecting information from groups of people on a regular basis.",
   "main": "app.js",
   "scripts": {
     "watch-styles": "scss --watch public/style.scss:public/style.css",

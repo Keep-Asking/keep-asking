@@ -1,4 +1,4 @@
-$(function () {
+const initialiseTokenField = function () {
   $('.tokenfield').on('tokenfield:createtoken', function (e) {
     e.attrs.value = e.attrs.value.toLowerCase()
     e.attrs.label = e.attrs.label.toLowerCase()
@@ -12,6 +12,10 @@ $(function () {
     delimiter: [',', ' ', '\n', '\t', ';'],
     createTokensOnBlur: true
   })
+}
+
+$(function () {
+  initialiseTokenField()
 
   $('#newCohortForm').submit(function (event) {
     event.preventDefault()
@@ -56,86 +60,62 @@ $(function () {
     })
   })
 
-  let generateDates = function () {
-    console.log('generateDates triggered')
-    $('#surveySendingTimes li').remove()
-
-    let scheduleString = $('#surveySchedule').val().trim()
-    let schedule = later.parse.text(scheduleString)
-    console.log(schedule)
-    if (schedule.error === -1) {
-      $('#surveySchedule').removeClass('is-invalid')
-    } else {
-      $('#surveySchedule').addClass('is-invalid')
-      // console.error('An error occured at position', schedule.error, scheduleString)
-      return
-    }
-
-    console.log(schedule)
-
-    let startDate = $('#datepicker [name="start"]').datepicker('getDate')
-    let endDate = $('#datepicker [name="end"]').datepicker('getDate')
-    let surveyDates = later.schedule(schedule).next(10, startDate, endDate)
-    console.log(surveyDates)
-
-    for (let surveyDatesIndex in surveyDates) {
-      $('#surveySendingTimes').append('<li>' + surveyDates[surveyDatesIndex] + '</li>')
-    }
-    // let surveyDates = later.schedule(schedule).next(10, startDate, endDate)
-    // console.log(surveyDates)
-  }
-
   // Insert cohort ID into new survey set modal
   $('#newSurveyModal').on('show.bs.modal', function (event) {
     const cohortID = $(event.relatedTarget).data('cohort-id') // Extract info from data-* attributes
-    console.log(cohortID)
     $('#cohort-id').val(cohortID)
   })
 
-  later.date.localTime()
-  $('#surveySchedule').on('input', generateDates)
-  $('#datepicker input').datepicker().on('changeDate', generateDates)
   $('#surveyScheduleDatepicker').datepicker()
 
-  // Parse text time to timeMilliseconds
+  const timeFormats = ['HH:mm', 'hh:mm a']
+  // Parse text time to sendTimeMilliseconds
   $('#surveySendTime').on('blur', function () {
     const timeString = $(this).val()
-    let timeMoment = moment(timeString, ['HH:mm', 'hh:mm a'])
+    let timeMoment = moment(timeString, timeFormats)
     if (!timeMoment.isValid()) {
       return $('#surveySendTime').val('')
     }
-    const timeDisplay = timeMoment.format('HH:mm')
-    const timeMilliseconds = timeMoment.diff(moment().startOf('day'))
-    $(this).val(timeDisplay).data('timeMilliseconds', timeMilliseconds)
+    const timeDisplay = timeMoment.format(timeFormats[0])
+    const sendTimeMilliseconds = timeMoment.diff(moment().startOf('day'))
+    $(this).val(timeDisplay).data('sendTimeMilliseconds', sendTimeMilliseconds)
   })
 
-  $('#newSurveyForm').submit(function (event) {
+  $('#editSurveyForm').submit(function (event) {
     event.preventDefault()
+    $('#surveySendTime').blur()
+    window.alert('running')
 
-    // $('.is-invalid').removeClass('is-invalid')
-    // $('#cohortNameHelp').addClass('text-muted').removeClass('text-danger')
-    // $('#cohortMemberEmailsHelp').addClass('text-muted').removeClass('text-danger')
-
-    // let cohortMemberEmails = $('#cohortMemberEmails').tokenfield('getTokens').map(function (val) {
-    //   return val.value
-    // })
-
-    let selectedDates = $('#surveyScheduleDatepicker').datepicker('getDates')
-    let timeMilliseconds = $('#surveySendTime').data('timeMilliseconds')
+    const selectedDates = $('#surveyScheduleDatepicker').datepicker('getDates')
+    const sendTimeMilliseconds = $('#surveySendTime').data('sendTimeMilliseconds')
 
     let sendDates = selectedDates.map(function (selectedDate) {
-      return moment(selectedDate).add(timeMilliseconds).toDate()
+      return moment(selectedDate).startOf('day').add(sendTimeMilliseconds, 'ms').toDate()
+    }).map(function (date) {
+      return date.toJSON()
     })
 
-    const cohortID = $('#cohort-id').val().trim()
+    console.log('sending dates', sendDates)
+
+    // Construct data obejct to send to server
     let surveySetData = {
-      cohort: cohortID,
       name: $('#surveyName').val().trim(),
       surveyURL: $('#surveyURL').val().trim(),
       sendDates: sendDates
     }
 
+    // Add cohort and survey ID to surveySetData
+    const cohortID = $('#cohort-id').val().trim()
+    if (cohortID.length > 0) {
+      surveySetData.cohort = cohortID
+    }
+    const surveyID = $('#survey-id').val().trim()
+    if (surveyID.length > 0) {
+      surveySetData.survey = surveyID
+    }
+
     $.post('/api/surveysets/update', surveySetData).done(function () {
+      alert('200')
       window.location.href = '/'
     }).fail(function (err) {
       if (err && err.status === 400) {
@@ -159,9 +139,15 @@ $(function () {
     })
   })
 
-  // $('#datepicker').datepicker({
-  //   todayHighlight: true
-  // })
+  let surveyScheduleDatesString = $('#surveyScheduleDatepicker').data('date')
+  if (surveyScheduleDatesString) {
+    let surveyScheduleDates = surveyScheduleDatesString.split(',').map(function (date) {
+      return new Date(date)
+    })
+    $('#surveyScheduleDatepicker').datepicker('setDates', surveyScheduleDates)
+    if (surveyScheduleDates.length > 0) {
+      let surveySendTime = moment(surveyScheduleDates[0]).format(timeFormats[0])
+      $('#surveySendTime').val(surveySendTime).blur()
+    }
+  }
 })
-
-// m('3:15pm', ['HH:mm', 'hh:mm a']).diff(m().startOf('day')) / 3600000

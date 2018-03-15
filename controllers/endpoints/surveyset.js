@@ -4,19 +4,25 @@ let router = express.Router()
 let bodyParser = require('body-parser')
 const SurveySet = require('./../../models/surveySet.js')
 const Cohort = require('./../../models/cohort.js')
+const Survey = require('./../../models/survey.js')
 
 // Handle creating and updating a surveySet
 router.post('/update', bodyParser.urlencoded({ extended: true }), async function (req, res) {
   console.log('Request arrived at /update')
   // Verify that a cohort owned by this user exists if cohort is provided
   console.log('req.body:', req.body)
+  if (!req.body.cohort) {
+    return res.status(400).json({
+      message: 'No cohort ID provided in the request'
+    })
+  }
+
   if (req.body.cohort) {
     let cohortCount = await Cohort.count({
       _id: req.body.cohort,
       owner: res.locals.user.username
     })
     if (cohortCount === 0) {
-      console.log('cohortCount', cohortCount)
       return res.status(404).json({
         message: 'No cohort with the provided id exists for this user'
       })
@@ -28,7 +34,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
     owner: res.locals.user.username
   }
 
-  // Map keys and valyes from req.body to surveySetDocument
+  // Map keys and values from req.body to surveySetDocument
   const keysToMap = ['name', 'surveyURL', 'sendDates', 'cohort']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
@@ -36,13 +42,45 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
     }
   })
 
+  // If no change to sendDates, we're done!
+  if (!req.body.sendDates) {
+    return res.sendStatus(200)
+  }
+
+  let surveySetID
   SurveySet.update({
-    _id: req.body.id || {$exists: false},
+    _id: req.body.survey || {$exists: false},
     owner: res.locals.user.username
   }, surveySetDocument, {
     upsert: true
+  }).then(function (query) {
+    // Determine the ID of the surveySet we are saving / updating
+    surveySetID = req.body.survey || query.upserted[0]._id
+
+    // Remove any existing unsent surveys in this surveySet
+    return Survey.remove({
+      surveySet: surveySetID,
+      sent: false
+    })
+  }).then(function () { // Create new Surveys for each of the sendDates
+    console.log('req.body.sendDates', req.body.sendDates)
+    let surveyDates = req.body.sendDates.map(date => new Date(date))
+    console.log('surveyDates', surveyDates)
+    let surveyDocuments = surveyDates.filter(function (date) {
+      return (date >= new Date())
+    }).map(function (date) {
+      return {
+        surveySet: surveySetID,
+        cohort: req.body.cohort,
+        owner: res.locals.user.username,
+        sendDate: date,
+        sent: false
+      }
+    })
+    console.log(surveyDocuments)
+    return Survey.insertMany(surveyDocuments)
   }).then(function () {
-    return res.sendStatus(200)
+    res.sendStatus(200)
   }).catch(function (err) {
     console.error(err)
     return res.sendStatus(500)
