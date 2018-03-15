@@ -115,7 +115,6 @@ $(function () {
     }
 
     $.post('/api/surveysets/update', surveySetData).done(function () {
-      alert('200')
       window.location.href = '/'
     }).fail(function (err) {
       if (err && err.status === 400) {
