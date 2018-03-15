@@ -67,38 +67,9 @@
 </div>
 
 <!-- Modal For Creating New Cohort -->
-<div class="modal fade" id="newCohortModal" tabindex="-1" role="dialog" aria-labelledby="newCohortModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="newCohortModalLabel">Create a New Cohort</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form id="newCohortForm">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="cohortName">Cohort Name</label>
-            <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="French Class, Management Team, Frisbee Buddies, etc…">
-            <small id="cohortNameHelp" class="form-text text-muted">Give your cohort a descriptive name.</small>
-          </div>
-          <div class="form-group">
-            <label for="cohortMemberEmails">Cohort Members</label>
-            <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…">
-            <small id="cohortMemberEmailsHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma or newline.</small>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Create New Cohort</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+<%- include('./partials/formModal', {formName: 'Cohort'}); %>
 
 <!-- Modal For Creating New Survey -->
-<%- include('./partials/newSurveyModal'); %>
+<%- include('./partials/formModal', {formName: 'Survey'}); %>
 
 <%- include('./partials/feet'); %>

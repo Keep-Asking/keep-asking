@@ -41,7 +41,8 @@ app.get('/', function (req, res, next) {
     return res.render('dashboard', {
       username: req.session.username,
       cohorts: cohorts,
-      archivedCount: archivedCount
+      archivedCount: archivedCount,
+      pageTitle: 'Home'
     })
   })
 })
@@ -63,9 +64,11 @@ app.get('/cohorts/:id/edit', function (req, res, next) {
     if (!cohort) {
       return res.sendStatus(404)
     }
-    return res.render('cohort/edit', {
+    return res.render('edit', {
       username: req.session.username,
-      cohort: cohort
+      cohort: cohort,
+      formName: 'Cohort',
+      pageTitle: 'Edit Cohort ' + cohort.name
     })
   })
 })
@@ -87,14 +90,12 @@ app.get('/cohorts/:cohortID/surveys/:surveyID', function (req, res, next) {
     if (!survey) {
       return res.sendStatus(404)
     }
-    console.log('dates being sent to renderer', survey)
 
-    // if (survey.sendDates && survey.sendDates.length > 0 && survey.sendDates[0] instanceof Date) {
-    //   survey.surveyTime = moment(survey.sendDates[0][0]).format('HH:mm')
-    // }
-    return res.render('survey/edit', {
+    return res.render('edit', {
       username: req.session.username,
-      survey: survey
+      survey: survey,
+      formName: 'Survey',
+      pageTitle: 'Edit Survey ' + survey.name
     })
   })
 })

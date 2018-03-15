@@ -1,7 +1,7 @@
 <form id="editSurveyForm">
-  <input type="hidden" id="cohort-id" value="<%= (typeof survey !=='undefined' && typeof survey.cohort !== 'undefined') ? survey.cohort : '' %>">
-  <input type="hidden" id="survey-id" value="<%= (typeof survey !=='undefined' && typeof survey._id !== 'undefined') ? survey._id : '' %>">
-  <div class="modal-body">
+  <div class="<%= (typeof survey === 'undefined') ? 'modal-body' : '' ; %>">
+    <input type="hidden" id="cohort-id" value="<%= (typeof survey !=='undefined' && typeof survey.cohort !== 'undefined') ? survey.cohort : '' %>">
+    <input type="hidden" id="survey-id" value="<%= (typeof survey !=='undefined' && typeof survey._id !== 'undefined') ? survey._id : '' %>">
     <div class="form-group">
       <label for="surveyName">Survey Name</label>
       <input type="text" class="form-control" id="surveyName" aria-describedby="surveyNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…" value="<%= (typeof survey !=='undefined' && typeof survey.name === 'string') ? survey.name : '' %>">
@@ -9,13 +9,13 @@
     </div>
     <div class="form-group">
       <label for="surveyURL">Survey URL</label>
-      <input type="text" class="form-control" id="surveyURL" aria-describedby="cohortNameHelp" placeholder="https://www.example.com/form?id=abc123" value="<%= (typeof survey !=='undefined' && typeof survey.surveyURL === 'string') ? survey.surveyURL : '' %>">
-      <small id="surveyNameHelp" class="form-text text-muted">The web address where your users can find your survey. Use Google Forms, Typeform, or some other system for online forms.</small>
+      <input type="text" class="form-control" id="surveyURL" aria-describedby="surveyURLHelp" placeholder="https://www.example.com/form?id=abc123" value="<%= (typeof survey !=='undefined' && typeof survey.surveyURL === 'string') ? survey.surveyURL : '' %>">
+      <small id="surveyURLHelp" class="form-text text-muted">The web address where your users can find your survey. Use Google Forms, Typeform, or some other system for online forms.</small>
     </div>
     <div class="form-group">
       <label for="surveyScheduleDatepicker">When should your survey be sent?</label>
     </div>
-    <div class="row">
+    <div class="row form-group">
       <div class="col">
         <label for="surveySendTime">Survey Send Days</label>
         <div id="surveyScheduleDatepicker" aria-describedby="surveyScheduleDatepickerHelp" data-date-multidate="true" data-date-week-start="1" data-date-today-highlight="true" data-date="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined') ? survey.sendDates.map(date => date.toJSON()).join() : '' %>"></div>
@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <div class="modal-footer">
+  <div class="<%= (typeof survey === 'undefined') ? 'modal-footer' : '' ; %>">
     <% if (typeof survey === 'undefined') { %>
       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
     <% } %>

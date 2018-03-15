@@ -4,7 +4,7 @@
   <div>
     <h3>Edit Cohort</h3>
     <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company.</p>
-    <form id="newCohortForm" data-cohort-id="<%=(cohort && cohort._id)? cohort._id : ''; %>">
+    <form id="editCohortForm" data-cohort-id="<%=(cohort && cohort._id)? cohort._id : ''; %>">
       <div class="form-group">
         <label for="cohortName">Cohort Name</label>
         <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="French Class, Management Team, Frisbee Buddies, etc…" value="<%=(cohort)?cohort.name:'';%>">
@@ -17,6 +17,18 @@
       </div>
       <button type="submit" class="btn btn-primary">Create New Cohort</button>
     </form>
+  </div>
+</div>
+
+<%- include('./../partials/feet'); %>
+
+<%- include('./../partials/head'); %>
+<%- include('./../partials/header'); %>
+<div class="container my-5">
+  <div>
+    <h3>Edit Survey</h3>
+    <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company.</p>
+    <%- include('./../partials/editCohortForm'); %>
   </div>
 </div>
 

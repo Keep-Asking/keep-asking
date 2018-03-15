@@ -1,0 +1,20 @@
+<form id="editCohortForm" data-cohort-id="<%=(typeof cohort !== 'undefined' && typeof cohort._id === 'string')? cohort._id : ''; %>">
+  <div class="<%= (typeof cohort === 'undefined') ? 'modal-body' : '' ; %>">
+    <div class="form-group">
+      <label for="cohortName">Cohort Name</label>
+      <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="French Class, Management Team, Frisbee Buddies, etc…" value="<%= (typeof cohort !== 'undefined' && typeof cohort.name === 'string') ? cohort.name : '' ; %>">
+      <small id="cohortNameHelp" class="form-text text-muted">Give your cohort a descriptive name. This name will be visible to the members of your cohort.</small>
+    </div>
+    <div class="form-group">
+      <label for="cohortMemberEmails">Cohort Members</label>
+      <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.members !== 'undefined') ? cohort.members.join(',') : ''; %>">
+      <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma, space, or newline.</small>
+    </div>
+  </div>
+  <div class="<%= (typeof cohort === 'undefined') ? 'modal-footer' : '' ; %>">
+    <% if (typeof cohort === 'undefined') { %>
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <% } %>
+    <button type="submit" class="btn btn-primary"><%= (typeof cohort === 'undefined') ? 'Create New Cohort' : 'Save Cohort' ; %></button>
+  </div>
+</form>

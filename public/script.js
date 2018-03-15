@@ -13,7 +13,7 @@
 //     createTokensOnBlur: true
 //   })
 //
-//   $('#newCohortForm').submit(function (event) {
+//   $('#editCohortForm').submit(function (event) {
 //     event.preventDefault()
 //
 //     $('.is-invalid').removeClass('is-invalid')
