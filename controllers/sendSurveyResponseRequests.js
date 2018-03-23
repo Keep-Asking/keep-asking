@@ -2,25 +2,35 @@ const nodemailer = require('nodemailer')
 const sparkPostTransport = require('nodemailer-sparkpost-transport')
 const fs = require('fs')
 const heml = require('heml')
+const ejs = require('ejs')
 
 require('dotenv').config()
-require('./config.js')
+const config = require('./config.js')
 require('./database.js')
 
 const Survey = require('./../models/survey.js')
-const emailHEML = fs.readFileSync('./email.heml', 'utf8')
+const emailTemplateHEML = fs.readFileSync('./emails/surveyRequest.ejs', 'utf-8')
+const emailTemplatePlaintext = fs.readFileSync('./emails/surveyRequest.ejs', 'utf-8')
 
 const mailer = nodemailer.createTransport(sparkPostTransport())
 
-Survey.find({
+Survey.find({ // Find all the survey requests that should have been sent that have not yet been sent
   sendDate: {
     $lte: new Date()
   },
   sent: false
-}).populate('cohort').then(function (surveysToSend) {
+}).populate('cohort').populate('surveySet').then(function (surveysToSend) {
+  console.log('Found %d surveys needing sending.', surveysToSend.length)
+
+  // Calculate the number of emails to send
+  const totalEmailsToSend = surveysToSend.reduce((accumulator, currentValue) => accumulator + currentValue.cohort.members.length, 0)
+  console.log('We need to send %d total emails', totalEmailsToSend)
+  let emailsSendingAttempts = 0
+
   // Process each survey
   for (let surveyIndex in surveysToSend) {
     let thisSurvey = surveysToSend[surveyIndex]
+    console.log('\tProcessing survey in surveySet %s', thisSurvey.surveySet.name)
 
     // Ensure the survey has cohort details
     if (!thisSurvey.cohort) {
@@ -29,27 +39,48 @@ Survey.find({
     }
 
     thisSurvey.cohort.members.forEach(async (member) => {
-      console.log(member)
+      console.log('\t\tProcessing survey request for member', member)
 
-      const HEMLoutput = await heml(emailHEML)
+      // Prepare the email data
+      const emailData = {
+        survey: thisSurvey,
+        member: member,
+        host: config.host
+      }
+
+      // Render the HTML email
+      const emailHEML = ejs.render(emailTemplateHEML, emailData)
+      const emailHTML = await heml(emailHEML)
+
+      // Render the plaintext email
+      const emailPlaintext = ejs.render(emailTemplatePlaintext, emailData)
 
       mailer.sendMail({
         from: {
           name: 'Keep Asking',
-          address: 'survey@ffmail.sebthedev.com'
+          address: config.OUTBOUND_EMAIL_ADDRESS
         },
         to: member,
-        subject: 'Testing Nodemailer with Sparkpost',
-        text: 'Hello, this is a plain-text message for cohort' + thisSurvey.cohort.name,
-        html: HEMLoutput.html
+        subject: [thisSurvey.cohort.name, thisSurvey.name, 'Feedback'].join(' '),
+        text: emailPlaintext,
+        html: emailHTML.html
       }).then(info => {
-        console.log('Send successfully to', member, info)
+        console.log('\t\tSent successfully to', member, info)
+        emailsSendingAttempts++
+        if (emailsSendingAttempts >= totalEmailsToSend) {
+          console.log('Attempted to send all the emails! Quitting.')
+          process.exit(0)
+        }
       }).catch(err => {
-        console.error('Send unsuccessfully to', member, err)
+        console.error('\t\tSend unsuccessfully to', member, err)
+        emailsSendingAttempts++
+        if (emailsSendingAttempts >= totalEmailsToSend) {
+          console.log('Attempted to send all the emails! Quitting.')
+          process.exit(0)
+        }
       })
     })
   }
-  // process.exit()
 }).catch(function (err) {
   console.error(err)
 })

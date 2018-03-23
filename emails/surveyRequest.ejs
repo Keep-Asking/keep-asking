@@ -1,0 +1,41 @@
+<heml>
+  <head>
+    <subject><%= [locals.survey.cohort.name, locals.survey.name, 'Feedback'].join(' ') %></subject>
+    <preview>Give your feedback on <%= locals.survey.cohort.name %>.</preview>
+    <style>
+      a {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <container>
+      <row>
+        <column>
+          <h1>Your feedback on <%= locals.survey.cohort.name %> is requested</h1>
+          <p>
+            <%= locals.survey.owner %> would like your feedback about <%= locals.survey.surveySet.name %> as part of <%= locals.survey.cohort.name %>. Your feedback is highly valued and will help improve <%= locals.survey.cohort.name %>.
+          </p>
+        </column>
+      </row>
+      <row>
+        <column>
+          <button href="<%= locals.survey.surveySet.surveyURL %>">Give Feedback</button>
+        </column>
+      </row>
+      <row>
+        <column>
+          <p>
+            <%= locals.survey.owner %> is using <a href="<%= locals.host %>">Keep Asking</a> to automatically collect feedback about <%= locals.survey.cohort.name %>. Keep Asking will aggregate your feedback with the responses of the other members of <%= locals.survey.cohort.name %> to automatically produce a report for <%= locals.survey.owner %>. Keep Asking is free and easy to use in education, business, and teams.
+          </p>
+          <p>
+            Thanks,
+          </p>
+          <p>
+            Keep Asking
+          </p>
+        </column>
+      </row>
+    </container>
+  </body>
+</heml>
