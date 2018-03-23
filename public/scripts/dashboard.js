@@ -68,15 +68,16 @@ $(function () {
     scale: $('#question-template div[data-question-type="scale"]').html(),
     choice: $('#question-template div[data-question-type="choice"]').html()
   }
-  // const textQuestionTemplateHTML = $('#question-template div[data-question-type="text"]').html()
+
+  // Add a new question
   $('[data-action="add-question"]').click(function () {
     let questionToInsert = $(questionTemplatesHTML.basic)
     questionToInsert.find('.question-type-content').html(questionTemplatesHTML.text)
-    console.log(questionToInsert)
     questionToInsert.insertBefore($('.add-question-button-row'))
+    questionToInsert.find('[data-question-attribute="title"]').focus()
   })
 
-  $('select[data-question-attribute="kind"]').change(function () {
+  $('form').on('change', 'select[data-question-attribute="kind"]', function () {
     $(this).closest('.form-question').find('.question-type-content').html(questionTemplatesHTML[this.value])
   })
 
