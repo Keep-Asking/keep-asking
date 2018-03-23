@@ -1,3 +1,12 @@
+const $ = require('jquery')
+require('popper.js')
+require('bootstrap')
+
+require('bootstrap-datepicker')
+const uuid = require('uuid')
+const moment = require('moment')
+require('bootstrap-tokenfield')
+
 const initialiseEmailsTokenField = function () {
   $('#cohortMemberEmails').on('tokenfield:createtoken', function (e) {
     e.attrs.value = e.attrs.value.toLowerCase()
@@ -20,6 +29,25 @@ const initialiseOptionsTokenField = function () {
   })
 }
 
+const serializeQuestions = function (form) {
+  let serializedQuestions = []
+  // console.log(form.find('.form-question'))
+  form.find('.form-question').not('#question-template .form-question').each(function (questionIndex, questionElement) {
+    console.log(questionElement)
+    let thisQuestion = {}
+
+    thisQuestion.id = $(questionElement).find('[data-question-attribute="id"]').val().trim()
+    if (thisQuestion.id.length === 0) {
+      thisQuestion.id = uuid.v4()
+    }
+
+    thisQuestion.title = $(questionElement).find('[data-question-attribute="title"]').val().trim()
+
+    serializedQuestions.push(thisQuestion)
+  })
+  return serializedQuestions
+}
+
 $(function () {
   initialiseEmailsTokenField()
   initialiseOptionsTokenField()
@@ -36,8 +64,13 @@ $(function () {
 
     let cohortData = {
       name: $('#cohortName').val(),
-      members: cohortMemberEmails
+      members: cohortMemberEmails,
+      demographicQuestions: serializeQuestions($(this))
     }
+
+    console.log(cohortData)
+
+    return
 
     if ($(this).data('cohort-id')) {
       cohortData.id = $(this).data('cohort-id')

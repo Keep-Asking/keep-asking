@@ -59,3 +59,6 @@ typings/
 
 # sass
 .sass-cache/*
+
+# browserify output
+public/scripts/script.js
