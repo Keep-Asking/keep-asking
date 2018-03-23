@@ -1,11 +1,5 @@
-const $ = require('jquery')
-require('popper.js')
-require('bootstrap')
-
-require('bootstrap-datepicker')
 const uuid = require('uuid')
 const moment = require('moment')
-require('bootstrap-tokenfield')
 
 const initialiseEmailsTokenField = function () {
   $('#cohortMemberEmails').on('tokenfield:createtoken', function (e) {
@@ -34,14 +28,30 @@ const serializeQuestions = function (form) {
   // console.log(form.find('.form-question'))
   form.find('.form-question').not('#question-template .form-question').each(function (questionIndex, questionElement) {
     console.log(questionElement)
-    let thisQuestion = {}
+    let thisQuestion = {
+      id: $(questionElement).find('[data-question-attribute="id"]').val().trim(),
+      title: $(questionElement).find('[data-question-attribute="title"]').val().trim(),
+      kind: $(questionElement).find('[data-question-attribute="kind"]').val().trim()
+    }
 
-    thisQuestion.id = $(questionElement).find('[data-question-attribute="id"]').val().trim()
     if (thisQuestion.id.length === 0) {
       thisQuestion.id = uuid.v4()
     }
 
-    thisQuestion.title = $(questionElement).find('[data-question-attribute="title"]').val().trim()
+    switch (thisQuestion.kind) {
+      case 'text':
+        thisQuestion.textAreaSize = $(questionElement).find('[data-question-attribute="textAreaSize"]:checked').val().trim()
+        break
+      case 'scale':
+        thisQuestion.options = [
+          $(questionElement).find('[data-question-attribute="options[0]"]').val().trim(),
+          $(questionElement).find('[data-question-attribute="options[1]"]').val().trim()
+        ]
+        break
+      case 'choice':
+        thisQuestion.options = $(questionElement).find('[data-question-attribute="options"]').tokenfield('getTokens').map(val => val.value)
+        break
+    }
 
     serializedQuestions.push(thisQuestion)
   })
@@ -67,10 +77,6 @@ $(function () {
       members: cohortMemberEmails,
       demographicQuestions: serializeQuestions($(this))
     }
-
-    console.log(cohortData)
-
-    return
 
     if ($(this).data('cohort-id')) {
       cohortData.id = $(this).data('cohort-id')

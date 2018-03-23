@@ -1,4 +1,4 @@
-<form id="editCohortForm" data-cohort-id="<%=(typeof cohort !== 'undefined' && typeof cohort._id === 'string')? cohort._id : ''; %>">
+<form id="editCohortForm" data-cohort-id="<%=(typeof cohort !== 'undefined' && typeof cohort._id !== 'undefined')? cohort._id : ''; %>">
   <div class="<%= (typeof cohort === 'undefined') ? 'modal-body' : '' ; %>">
     <div class="form-group">
       <label for="cohortName">Cohort Name</label>

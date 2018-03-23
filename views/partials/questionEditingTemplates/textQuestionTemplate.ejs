@@ -8,11 +8,11 @@
   <div class="col-sm-10">
     <% const question_name = 'textAreaSize_' + (typeof question !== 'undefined' && typeof question.id === 'string') ? question.id : Math.random() %>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="<%=question_name;%>" id="<%=question_name;%>_small" value="small" <%= ((typeof question === 'object' && typeof question.textAreaSize === 'string' && question.textAreaSize === 'small') || (typeof question === 'object' && typeof question.textAreaSize !== 'string') || (typeof question !== 'object')) ? 'checked' : ''; %>>
+      <input class="form-check-input" data-question-attribute="textAreaSize" type="radio" name="<%=question_name;%>" id="<%=question_name;%>_small" value="small" <%= ((typeof question === 'object' && typeof question.textAreaSize === 'string' && question.textAreaSize === 'small') || (typeof question === 'object' && typeof question.textAreaSize !== 'string') || (typeof question !== 'object')) ? 'checked' : ''; %>>
       <label class="form-check-label" for="<%=question_name;%>_small">One-line Text Area</label>
     </div>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="<%=question_name;%>" id="<%=question_name;%>_large" value="large" <%= (typeof question === 'object' && typeof question.textAreaSize === 'string' && question.textAreaSize === 'large') ? 'checked' : ''; %>>
+      <input class="form-check-input" data-question-attribute="textAreaSize" type="radio" name="<%=question_name;%>" id="<%=question_name;%>_large" value="large" <%= (typeof question === 'object' && typeof question.textAreaSize === 'string' && question.textAreaSize === 'large') ? 'checked' : ''; %>>
       <label class="form-check-label" for="<%=question_name;%>_large">Multiple-line Text Area</label>
     </div>
     <small class="form-text text-muted">Choose how large you would like the text area to be.</small>

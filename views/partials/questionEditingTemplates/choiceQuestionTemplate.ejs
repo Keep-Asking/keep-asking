@@ -22,7 +22,7 @@
 <div class="form-group row">
   <label for="inputEmail3" class="col-sm-2 col-form-label">Options</label>
   <div class="col-sm-10">
-    <input type="text" class="form-control tokenfield options" aria-describedby="cohortNameHelp" placeholder="Apples, Bananas, Oranges, etc…" data-tokens="<%= (typeof question !== 'undefined' && typeof question.options === 'object' && Array.isArray(question.options)) ? question.options.join(',') : ''; %>">
+    <input type="text" class="form-control tokenfield options" data-question-attribute="options" aria-describedby="cohortNameHelp" placeholder="Apples, Bananas, Oranges, etc…" data-tokens="<%= (typeof question !== 'undefined' && typeof question.options === 'object' && Array.isArray(question.options)) ? question.options.join(',') : ''; %>">
     <small id="cohortNameHelp" class="form-text text-muted">Type the options that you want your respondents to choose from, separated by commas.</small>
   </div>
 </div>

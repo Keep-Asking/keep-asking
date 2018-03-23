@@ -8,7 +8,9 @@ let Cohort = require.main.require('./models/cohort.js')
 const emailRE = /\S+@\S+\.\S+/
 
 // Handle creating and updating a cohort
-router.post('/update', bodyParser.urlencoded({ extended: false }), function (req, res) {
+router.post('/update', bodyParser.urlencoded({ extended: true }), function (req, res) {
+  console.log(req.body)
+
   // Validate cohort name
   if (!req.body.name || typeof (req.body.name) !== 'string' || req.body.name.length === 0) {
     return res.status(400).json({
@@ -18,20 +20,17 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
   }
 
   // Validate members
-  if (!req.body['members[]']) {
+  if (!req.body.members) {
     return res.status(400).json({
       message: 'A members array is required.',
       invalidField: 'members'
     })
   }
 
-  // Coerce members to array
-  if (typeof (req.body['members[]']) === 'string') {
-    req.body['members[]'] = [req.body['members[]']]
-  }
-
   // Filter members for non-email addresses
-  req.body.members = Array.from(new Set(req.body['members[]'].filter(member => emailRE.test(member)))).sort()
+  req.body.members = Array.from(new Set(req.body['members'].filter(member => emailRE.test(member)))).sort()
+
+  console.log('Setting demographics:', req.body.demographicQuestions)
 
   // Perform the database commands
   Cohort.update({ // Find the cohort to update, if it exists
@@ -40,7 +39,8 @@ router.post('/update', bodyParser.urlencoded({ extended: false }), function (req
   }, { // Set the values on the cohort
     owner: res.locals.user.username,
     name: req.body.name,
-    members: req.body.members
+    members: req.body.members,
+    demographicQuestions: req.body.demographicQuestions
   }, {
     upsert: true
   }).then(function () {
