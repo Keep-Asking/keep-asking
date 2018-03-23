@@ -1,0 +1,19 @@
+<div class="form-group row">
+  <div class="col col-sm-10 offset-sm-2 text-muted">
+    A scale question asks the respondent to answer your question by choosing a point between two extremes.
+  </div>
+</div>
+<div class="form-group row">
+  <label class="col-sm-2 col-form-label">Scale Left Label</label>
+  <div class="col-sm-10">
+    <input class="form-control" placeholder="Green Eggs" value="<%= (typeof question !== 'undefined' && Array.isArray(question.options) && typeof question.options[0] === 'string') ? question.options[0] : '' ; %>">
+    <small class="form-text text-muted">Write the label title for the extreme left of your scale.</small>
+  </div>
+</div>
+<div class="form-group row">
+  <label class="col-sm-2 col-form-label">Scale Right Label</label>
+  <div class="col-sm-10">
+    <input class="form-control" placeholder="Ham" value="<%= (typeof question !== 'undefined' && Array.isArray(question.options) && typeof question.options[1] === 'string') ? question.options[1] : '' ; %>">
+    <small class="form-text text-muted">Write the label title for the extreme right of your scale.</small>
+  </div>
+</div>

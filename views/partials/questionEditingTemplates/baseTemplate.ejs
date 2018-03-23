@@ -1,3 +1,4 @@
+<% let XXXXquestionTypes = ['text', 'scale', 'choice']; %>
 <div class="card form-group">
   <div class="card-body">
     <div class="form-group row">
@@ -11,13 +12,18 @@
     <div class="form-group row">
       <label for="inputEmail3" class="col-sm-2 col-form-label">Question Type</label>
       <div class="col-sm-10">
-        <select class="custom-select">
-          <option value="text">Text</option>
-          <option value="scale" disabled>Scale</option>
-          <option value="choice" disabled>Choice</option>
+        <select class="custom-select form-control">
+          <% if (typeof questionTypes !== 'undefined' && Array.isArray(questionTypes)) { %>
+            <% for (questionType of questionTypes) { %>
+              <option value="<%= questionType.toLowerCase(); %>" <%= (typeof question !== 'undefined' && typeof question.kind === 'string' && question.kind === questionType)? 'selected' : ''; %>><%= questionType.charAt(0).toUpperCase() + questionType.slice(1); %></option>
+            <% } %>
+          <% } %>
         </select>
         <small class="form-text text-muted">Choose a question type.</small>
       </div>
     </div>
+    <% if (typeof question !== 'undefined' && typeof question.kind === 'string') { %>
+      <%- include(question.kind + 'QuestionTemplate'); %>
+    <% } %>
   </div>
 </div>

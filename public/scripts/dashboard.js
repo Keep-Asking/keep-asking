@@ -1,5 +1,5 @@
-const initialiseTokenField = function () {
-  $('.tokenfield').on('tokenfield:createtoken', function (e) {
+const initialiseEmailsTokenField = function () {
+  $('#cohortMemberEmails').on('tokenfield:createtoken', function (e) {
     e.attrs.value = e.attrs.value.toLowerCase()
     e.attrs.label = e.attrs.label.toLowerCase()
   }).on('tokenfield:createdtoken', function (e) {
@@ -14,8 +14,15 @@ const initialiseTokenField = function () {
   })
 }
 
+const initialiseOptionsTokenField = function () {
+  $('.tokenfield.options').tokenfield({
+    createTokensOnBlur: true
+  })
+}
+
 $(function () {
-  initialiseTokenField()
+  initialiseEmailsTokenField()
+  initialiseOptionsTokenField()
 
   $('#editCohortForm').submit(function (event) {
     event.preventDefault()

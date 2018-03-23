@@ -14,8 +14,14 @@
     <p class="form-text text-muted">
       Cohort members will be asked to respond to any demographic questions you define the first time they respond to your survey. These questions can be used to track high-level details of your cohort members. For example, a professor could ask students about their field of study and class year.
     </p>
+    <%
+    let demographicQuestions = []
+    if (typeof cohort === 'object') {
+      demographicQuestions = cohort.demographicQuestions
+    }
+    %>
     <%- include('editQuestions', {
-      questions: cohort.demographicQuestions || {}
+      questions: demographicQuestions
     }) %>
   </div>
   <div class="<%= (typeof cohort === 'undefined') ? 'modal-footer' : '' ; %>">

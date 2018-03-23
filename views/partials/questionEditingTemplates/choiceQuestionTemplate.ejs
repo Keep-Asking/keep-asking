@@ -1,0 +1,28 @@
+<div class="form-group row">
+  <div class="col col-sm-10 offset-sm-2 text-muted">
+    A choice question asks the respondent to answer your question by selecting one or more values from a set you define.
+  </div>
+</div>
+<% const rand = Math.random(); %>
+<div class="form-group row">
+  <label for="inputEmail3" class="col-sm-2 col-form-label">Multiple Selection</label>
+  <div class="col-sm-10">
+    <% const question_name = 'multipleChoice_' + (typeof question !== 'undefined' && typeof question.id === 'string') ? question.id : Math.random() %>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="<%=question_name%>" id="<%=question_name%>_multiple" value="multiple" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? '' : 'checked'; %>>
+      <label class="form-check-label" for="<%=question_name%>_multiple">Allow respondents to select multiple answers</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="<%=question_name%>" id="<%=question_name%>_single" value="single" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? 'checked' : ''; %>>
+      <label class="form-check-label" for="<%=question_name%>_single">Allow respondents to select only one answer</label>
+    </div>
+    <small class="form-text text-muted">Choose how many answers you want respondents to be able to select.</small>
+  </div>
+</div>
+<div class="form-group row">
+  <label for="inputEmail3" class="col-sm-2 col-form-label">Options</label>
+  <div class="col-sm-10">
+    <input type="text" class="form-control tokenfield options" aria-describedby="cohortNameHelp" placeholder="Apples, Bananas, Oranges, etc…" data-tokens="<%= (typeof question !== 'undefined' && typeof question.options === 'object' && Array.isArray(question.options)) ? question.options.join(',') : ''; %>">
+    <small id="cohortNameHelp" class="form-text text-muted">Type the options that you want your respondents to choose from, separated by commas.</small>
+  </div>
+</div>

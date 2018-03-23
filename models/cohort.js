@@ -27,7 +27,11 @@ let cohortSchema = mongoose.Schema({
         type: String,
         enum: ['text', 'scale', 'choice']
       },
-      options: [String]
+      options: [String],
+      textAreaSize: {
+        type: String,
+        enum: ['small', 'large']
+      }
     }
   ]
 })
