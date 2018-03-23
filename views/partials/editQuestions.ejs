@@ -5,9 +5,9 @@
     <%- include('questionEditingTemplates/baseTemplate', {question: question, questionTypes: questionTypes}) %>
   <% } %>
 <% } %>
-<div class="form-group row">
+<div class="form-group row add-question-button-row">
   <div class="col">
-    <button type="button" class="btn btn-secondary d-block mx-auto">Add Question</button>
+    <button type="button" class="btn btn-secondary d-block mx-auto" data-action="add-question">Add Question</button>
   </div>
 </div>
 <div class="d-none" id="question-template">

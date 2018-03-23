@@ -22,8 +22,10 @@
         <small class="form-text text-muted">Choose a question type.</small>
       </div>
     </div>
-    <% if (typeof question !== 'undefined' && typeof question.kind === 'string') { %>
-      <%- include(question.kind + 'QuestionTemplate'); %>
-    <% } %>
+    <div class="question-type-content">
+      <% if (typeof question !== 'undefined' && typeof question.kind === 'string') { %>
+        <%- include(question.kind + 'QuestionTemplate'); %>
+      <% } %>
+    </div>
   </div>
 </div>
