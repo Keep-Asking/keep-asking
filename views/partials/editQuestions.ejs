@@ -11,7 +11,12 @@
   </div>
 </div>
 <div class="d-none" id="question-template">
+  <div data-question-type="basic">
+    <%- include('questionEditingTemplates/baseTemplate', {questionTypes: questionTypes}) %>
+  </div>
   <% for (questionType of questionTypes) { %>
-    <%- include('questionEditingTemplates/baseTemplate', {question: { kind: questionType }, questionTypes: questionTypes}) %>
+    <div data-question-type="<%=questionType; %>">
+      <%- include('questionEditingTemplates/' + questionType + 'QuestionTemplate') %>
+    </div>
   <% } %>
 </div>

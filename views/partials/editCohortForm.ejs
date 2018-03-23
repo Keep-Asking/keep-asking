@@ -20,9 +20,7 @@
       demographicQuestions = cohort.demographicQuestions
     }
     %>
-    <%- include('editQuestions', {
-      questions: demographicQuestions
-    }) %>
+    <% include('editQuestions', { questions: demographicQuestions }) %>
   </div>
   <div class="<%= (typeof cohort === 'undefined') ? 'modal-footer' : '' ; %>">
     <% if (typeof cohort === 'undefined') { %>
