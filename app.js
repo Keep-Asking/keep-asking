@@ -15,8 +15,6 @@ app.use(session({
   maxAge: 24 * 60 * 60 * 1000 * 365 // 365 days
 }))
 
-// app.use(bodyParser.json())
-
 // Attempt to load the currently logged-in user
 app.use('*', auth.loadUser)
 

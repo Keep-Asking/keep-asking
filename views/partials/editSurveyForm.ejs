@@ -31,6 +31,17 @@
         </small>
       </div>
     </div>
+    <h6>Survey Questions</h6>
+    <p class="form-text text-muted">
+      Cohort members will be asked to respond to the questions you define at the time and dates you selected above.
+    </p>
+    <%
+    let surveyQuestions = []
+    if (typeof survey === 'object') {
+      surveyQuestions = survey.questions
+    }
+    %>
+    <%- include('editQuestions', { questions: surveyQuestions }) %>
   </div>
   <div class="<%= (typeof survey === 'undefined') ? 'modal-footer' : '' ; %>">
     <% if (typeof survey === 'undefined') { %>

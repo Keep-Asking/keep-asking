@@ -1,8 +1,7 @@
 let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
-// Require Cohort for population
-require('./cohort.js')
+const shared = require('./shared.js')
 
 // Require SurveySet for getting Cohort Members
 const SurveySet = require('./surveySet.js')
@@ -31,7 +30,8 @@ let surveySchema = mongoose.Schema({
     type: Boolean,
     required: true,
     default: false
-  }
+  },
+  questions: [shared.question]
 })
 
 surveySchema.method('getCohortMembers', function (callback) {
@@ -62,18 +62,6 @@ surveySchema.method('getCohortMembers', function (callback) {
   })
 })
 
-let Survey = mongoose.model('Survey', surveySchema)
-
-// Survey.findById('5a9eb26ef7dc7b0868d5d3a2', function (err, survey) {
-//   if (err) {
-//     return console.error(err)
-//   }
-//   survey.getCohortMembers(function (err, members) {
-//     if (err) {
-//       return console.error(err)
-//     }
-//     console.log(members)
-//   })
-// })
+const Survey = mongoose.model('Survey', surveySchema)
 
 module.exports = Survey

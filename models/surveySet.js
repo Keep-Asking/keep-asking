@@ -17,7 +17,7 @@ let surveySetSchema = mongoose.Schema({
     trim: true
   },
   sendDates: [Date],
-  surveyQuestions: [shared.question]
+  questions: [shared.question]
 })
 
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)

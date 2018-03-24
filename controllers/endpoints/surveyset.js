@@ -8,9 +8,7 @@ const Survey = require('./../../models/survey.js')
 
 // Handle creating and updating a surveySet
 router.post('/update', bodyParser.urlencoded({ extended: true }), async function (req, res) {
-  console.log('Request arrived at /update')
   // Verify that a cohort owned by this user exists if cohort is provided
-  console.log('req.body:', req.body)
   if (!req.body.cohort) {
     return res.status(400).json({
       message: 'No cohort ID provided in the request'
@@ -18,7 +16,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   }
 
   if (req.body.cohort) {
-    let cohortCount = await Cohort.count({
+    const cohortCount = await Cohort.count({
       _id: req.body.cohort,
       owner: res.locals.user.username
     })
@@ -35,7 +33,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   }
 
   // Map keys and values from req.body to surveySetDocument
-  const keysToMap = ['name', 'surveyURL', 'sendDates', 'cohort']
+  const keysToMap = ['name', 'surveyURL', 'sendDates', 'cohort', 'questions']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
       surveySetDocument[key] = req.body[key]
@@ -63,10 +61,8 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
       sent: false
     })
   }).then(function () { // Create new Surveys for each of the sendDates
-    console.log('req.body.sendDates', req.body.sendDates)
-    let surveyDates = req.body.sendDates.map(date => new Date(date))
-    console.log('surveyDates', surveyDates)
-    let surveyDocuments = surveyDates.filter(function (date) {
+    const surveyDates = req.body.sendDates.map(date => new Date(date))
+    const surveyDocuments = surveyDates.filter(function (date) {
       return (date >= new Date())
     }).map(function (date) {
       return {
@@ -77,7 +73,6 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
         sent: false
       }
     })
-    console.log(surveyDocuments)
     return Survey.insertMany(surveyDocuments)
   }).then(function () {
     res.sendStatus(200)
