@@ -30,8 +30,7 @@ let surveySchema = mongoose.Schema({
     type: Boolean,
     required: true,
     default: false
-  },
-  questions: [shared.question]
+  }
 })
 
 surveySchema.method('getCohortMembers', function (callback) {

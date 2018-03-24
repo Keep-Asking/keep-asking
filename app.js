@@ -72,7 +72,7 @@ app.get('/cohorts/:id/edit', function (req, res, next) {
 })
 
 let SurveySet = require('./models/surveySet.js')
-app.get('/cohorts/:cohortID/surveys/:surveyID', function (req, res, next) {
+app.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
     return res.sendStatus(403)
   }
@@ -96,6 +96,65 @@ app.get('/cohorts/:cohortID/surveys/:surveyID', function (req, res, next) {
       pageTitle: 'Edit Survey ' + survey.name
     })
   })
+})
+
+const Survey = require('./models/survey.js')
+const hash = require('./controllers/hash.js')
+app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (req, res, next) {
+  if (!req.query.email) {
+    return res.status(400).send('Email URL parameter is required but not present.')
+  }
+  if (!req.query.hash) {
+    return res.status(400).send('Hash URL parameter is required but not present.')
+  }
+
+  Survey.findOne({
+    cohort: req.params.cohortID,
+    surveySet: req.params.surveySetID,
+    _id: req.params.surveyID
+  }).populate('surveySet').populate('cohort').then(function (survey) {
+    console.log('result', survey)
+    if (typeof survey === 'undefined') {
+      return res.sendStatus(404)
+    }
+
+    const hashValid = hash.verifySurveyAccessHash(req.query.hash, survey.cohort._id, survey.surveySet._id, survey._id, req.query.email)
+    // console.log('generateSurveyAccessHash', hash.generateSurveyAccessHash(survey.cohort._id, survey.surveySet._id, survey._id, req.query.email))
+    if (!hashValid) {
+      return res.status(403).send('Invalid email and hash pair')
+    }
+
+    if (!survey.cohort.members.includes(req.query.email)) {
+      return res.status(403).send('The email ' + req.query.email + ' is not in the given cohort.')
+    }
+
+    // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
+    if (req.session.username !== survey.owner && (!survey.sendDate || survey.sendDate > new Date())) {
+      return res.status(403).send('Survey send date (' + survey.sendDate.toString() + ') is in the future.')
+    }
+
+    return res.json(survey)
+  }).catch(error => {
+    console.error(error)
+    return res.sendStatus(500)
+  })
+
+  // , function (err, survey) {
+  //   if (err) {
+  //     console.error(err)
+  //     return res.sendStatus(500)
+  //   }
+  //   if (!survey) {
+  //     return res.sendStatus(404)
+  //   }
+  //
+  //   return res.render('edit', {
+  //     username: req.session.username,
+  //     survey: survey,
+  //     formName: 'Survey',
+  //     pageTitle: 'Edit Survey ' + survey.name
+  //   })
+  // })
 })
 
 // Configure the EJS templating system (http://www.ejs.co)
