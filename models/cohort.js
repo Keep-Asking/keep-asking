@@ -1,39 +1,13 @@
 let mongoose = require('mongoose')
 
-const requiredTrimmedString = {
-  type: String,
-  required: true,
-  trim: true
-}
+const shared = require('./shared.js')
 
 let cohortSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  owner: {
-    type: String,
-    required: true,
-    trim: true
-  },
+  name: shared.requiredTrimmedString,
+  owner: shared.requiredTrimmedString,
   members: [String],
   archived: Boolean,
-  demographicQuestions: [
-    {
-      title: requiredTrimmedString,
-      id: requiredTrimmedString,
-      kind: {
-        type: String,
-        enum: ['text', 'scale', 'choice']
-      },
-      options: [String],
-      textAreaSize: {
-        type: String,
-        enum: ['small', 'large']
-      }
-    }
-  ]
+  demographicQuestions: [shared.question]
 })
 
 let Cohort = mongoose.model('Cohort', cohortSchema)

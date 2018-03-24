@@ -1,11 +1,7 @@
 let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
-const requiredTrimmedString = {
-  type: String,
-  required: true,
-  trim: true
-}
+const shared = require('./shared.js')
 
 let surveySetSchema = mongoose.Schema({
   cohort: {
@@ -13,25 +9,15 @@ let surveySetSchema = mongoose.Schema({
     required: true,
     lowercase: true
   },
-  owner: requiredTrimmedString,
-  name: requiredTrimmedString,
+  owner: shared.requiredTrimmedString,
+  name: shared.requiredTrimmedString,
   surveyURL: {
     type: String,
     lowercase: true,
     trim: true
   },
   sendDates: [Date],
-  surveyQuestions: [
-    {
-      title: requiredTrimmedString,
-      id: requiredTrimmedString,
-      kind: {
-        type: String,
-        enum: ['text', 'scale', 'choice']
-      },
-      options: [String]
-    }
-  ]
+  surveyQuestions: [shared.question]
 })
 
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)
