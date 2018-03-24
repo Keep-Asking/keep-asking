@@ -20,10 +20,10 @@ if (typeof (process.env.MONGODB_URI) === 'undefined') {
 module.exports.MongoDBURI = process.env.MONGODB_URI
 
 if (!process.env.SPARKPOST_API_KEY) {
-  console.error('No SparkPost API Key environment variable has been set, so emails cannot be sent.')
+  console.error('No SparkPost API Key environment variable has not been set, so emails cannot be sent.')
 }
 
 module.exports.OUTBOUND_EMAIL_ADDRESS = process.env.OUTBOUND_EMAIL_ADDRESS
 if (!process.env.OUTBOUND_EMAIL_ADDRESS) {
-  console.error('No OUTBOUND_EMAIL_ADDRESS environment variable has been set, so emails cannot be sent.')
+  console.error('No OUTBOUND_EMAIL_ADDRESS environment variable has not been set, so emails cannot be sent.')
 }
