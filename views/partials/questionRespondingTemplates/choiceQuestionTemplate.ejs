@@ -1,0 +1,11 @@
+<div class="form-group">
+  <% for (option of question.options) { %>
+    <% let random = Math.random(); %>
+    <div class="form-check">
+      <input class="form-check-input" type="<%= (question.multipleChoice) ? 'checkbox' : 'radio'; %>" name="<%= question.id %>" value="<%=option%>" id="<%=random;%>">
+      <label class="form-check-label" for="<%=random;%>">
+        <%=option%>
+      </label>
+    </div>
+  <% } %>
+</div>

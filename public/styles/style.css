@@ -1,3 +1,12 @@
+div.scale {
+  max-width: 700px; }
+  div.scale label {
+    width: 100%;
+    min-height: 50px;
+    cursor: pointer; }
+  div.scale label:first-child, div.scale label:last-child {
+    min-width: 100px; }
+
 /*!
  * Bootstrap v4.0.0 (https://getbootstrap.com)
  * Copyright 2011-2018 The Bootstrap Authors

@@ -119,8 +119,8 @@ app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (r
     }
 
     const hashValid = hash.verifySurveyAccessHash(req.query.hash, survey.cohort._id, survey.surveySet._id, survey._id, req.query.email)
-    // console.log('generateSurveyAccessHash', hash.generateSurveyAccessHash(survey.cohort._id, survey.surveySet._id, survey._id, req.query.email))
     if (!hashValid) {
+      console.log('Hash Should be:', hash.generateSurveyAccessHash(survey.cohort._id, survey.surveySet._id, survey._id, req.query.email))
       return res.status(403).send('Invalid email and hash pair')
     }
 
@@ -133,7 +133,9 @@ app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (r
       return res.status(403).send('Survey send date (' + survey.sendDate.toString() + ') is in the future.')
     }
 
-    return res.json(survey)
+    return res.render('survey', {
+      survey
+    })
   }).catch(error => {
     console.error(error)
     return res.sendStatus(500)

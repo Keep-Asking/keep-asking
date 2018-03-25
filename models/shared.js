@@ -15,7 +15,8 @@ const question = {
   textAreaSize: {
     type: String,
     enum: ['small', 'large']
-  }
+  },
+  multipleChoice: Boolean
 }
 
 module.exports = {

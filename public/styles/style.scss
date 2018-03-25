@@ -14,5 +14,17 @@
 //   "danger": #ff4137
 // );
 
+div.scale {
+  max-width: 700px;
+  label {
+    width: 100%;
+    min-height: 50px;
+    cursor: pointer;
+  }
+  label:first-child, label:last-child {
+    min-width: 100px;
+  }
+}
+
 // Bootstrap and its default variables
-@import "./../node_modules/bootstrap/scss/bootstrap";
+@import "./../../node_modules/bootstrap/scss/bootstrap";

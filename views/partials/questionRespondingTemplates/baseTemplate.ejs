@@ -1,0 +1,10 @@
+<div class="card form-group form-question">
+  <div class="card-body">
+    <div class="form-group row">
+      <div class="col">
+        <label class="h3" for="<%=question.id%>"><%= question.title %></label>
+        <%- include('./' + question.kind + 'QuestionTemplate') %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,9 +4,10 @@
   "description": "A system for collecting information from groups of people on a regular basis.",
   "main": "app.js",
   "scripts": {
-    "watch-styles": "scss --watch public/style.scss:public/style.css",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build-styles": "scss public/styles/style.scss:public/styles/style.css",
+    "watch-styles": "scss --watch public/styles/style.scss:public/styles/style.css",
     "watch-js": "watchify ./public/scripts/main.js -o ./public/scripts/script.js",
     "build-js": "browserify ./public/scripts/main.js -o ./public/scripts/script.js",
     "postinstall": "npm run build-js"

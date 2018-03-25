@@ -1,46 +1,14 @@
 <%- include('./partials/head'); %>
 <%- include('./partials/header'); %>
-  <!-- Welcome to Keep Asking. Would you like to <a href="/auth/login">login</a>? -->
-
-  <div class="container">
-    <div class="jumbotron mt-5">
-      <div class="row">
-        <div class="col-8">
-          <h1 class="display-4">What do people think?</h1>
-        </div>
-        <div class="col-4 text-right align-middle">
-          <p class="lead align-middle">
-            <a class="btn btn-primary btn-lg" href="/auth/login" role="button">Princeton CAS Login</a>
-          </p>
-        </div>
-      </div>
-      <p class="lead">Keep Asking helps you gather and analyse feedback from groups on a regular basis.</p>
-      <hr class="my-4">
-      <h3>Use Cases for Keep Asking</h3>
-      <div class="card-deck my-3">
-        <div class="card">
-          <img class="card-img-top" src="/img/teach.jpeg" alt="Students throwing their mortarboards into the air">
-          <div class="card-body">
-            <h5 class="card-title">Education</h5>
-            <p class="card-text">Teachers can use Keep Asking to learn how students react to your specific pedagogical choices and understand areas for instructor improvement.</p>
-          </div>
-        </div>
-        <div class="card">
-          <img class="card-img-top" src="/img/office.jpeg" alt="Workers in an office">
-          <div class="card-body">
-            <h5 class="card-title">Business</h5>
-            <p class="card-text">Company managers can use Keep Asking to analyse the impact of their leadership style and identify ways to improve management techniques.</p>
-          </div>
-        </div>
-        <div class="card">
-          <img class="card-img-top" src="/img/team.jpeg" alt="Players in a sports team kneeling in a grassy sports field">
-          <div class="card-body">
-            <h5 class="card-title">Groups</h5>
-            <p class="card-text">Team organisers can use Keep Asking to understand what people think of your decisions and maximise the effectiveness of your work.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="container my-5">
+    <h1 class="display-4"><%= survey.cohort.name %></h1>
+    <h2 class="display-5"><%= survey.surveySet.name %> Survey</h2>
+    <hr>
+    <form>
+      <% for (question of survey.surveySet.questions) { %>
+        <%- include('./partials/questionRespondingTemplates/baseTemplate', {question}) %>
+      <% } %>
+    </form>
   </div>
 
 <%- include('./partials/feet'); %>
