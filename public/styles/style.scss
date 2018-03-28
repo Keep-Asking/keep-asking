@@ -26,5 +26,13 @@ div.scale {
   }
 }
 
+#footer {
+  opacity: 0.2;
+  transition: opacity 1s;
+}
+#footer:hover {
+  opacity: 1;
+}
+
 // Bootstrap and its default variables
 @import "./../../node_modules/bootstrap/scss/bootstrap";

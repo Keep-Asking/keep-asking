@@ -7,6 +7,13 @@ div.scale {
   div.scale label:first-child, div.scale label:last-child {
     min-width: 100px; }
 
+#footer {
+  opacity: 0.2;
+  transition: opacity 1s; }
+
+#footer:hover {
+  opacity: 1; }
+
 /*!
  * Bootstrap v4.0.0 (https://getbootstrap.com)
  * Copyright 2011-2018 The Bootstrap Authors
