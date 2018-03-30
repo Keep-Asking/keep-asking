@@ -114,7 +114,7 @@ app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (r
     _id: req.params.surveyID
   }).populate('surveySet').populate('cohort').then(function (survey) {
     console.log('result', survey)
-    if (typeof survey === 'undefined') {
+    if (!survey) {
       return res.sendStatus(404)
     }
 
@@ -140,23 +140,6 @@ app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (r
     console.error(error)
     return res.sendStatus(500)
   })
-
-  // , function (err, survey) {
-  //   if (err) {
-  //     console.error(err)
-  //     return res.sendStatus(500)
-  //   }
-  //   if (!survey) {
-  //     return res.sendStatus(404)
-  //   }
-  //
-  //   return res.render('edit', {
-  //     username: req.session.username,
-  //     survey: survey,
-  //     formName: 'Survey',
-  //     pageTitle: 'Edit Survey ' + survey.name
-  //   })
-  // })
 })
 
 // Configure the EJS templating system (http://www.ejs.co)

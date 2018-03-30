@@ -55,7 +55,9 @@ $(function () {
   initialiseEmailsTokenField()
 
   $('#editCohortForm').submit(function (event) {
-    event.preventDefault()
+    if (event) {
+      event.preventDefault()
+    }
 
     $('.is-invalid').removeClass('is-invalid')
     $('#cohortNameHelp, #cohortMemberEmailsHelp').addClass('text-muted').removeClass('text-danger')

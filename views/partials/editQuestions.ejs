@@ -1,6 +1,6 @@
 <% // Print any existing questions %>
 <% const questionTypes = ['text', 'scale', 'choice']; %>
-<% if (typeof questions !== 'undefined') { %>
+<% if (typeof questions !== 'undefined' && questions !== null) { %>
   <% for (let question of questions) { %>
     <%- include('questionEditingTemplates/baseTemplate', {question: question, questionTypes: questionTypes}) %>
   <% } %>
