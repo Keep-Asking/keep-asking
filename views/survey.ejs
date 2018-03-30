@@ -3,6 +3,11 @@
   <div class="container my-5">
     <h1 class="display-4"><%= survey.cohort.name %></h1>
     <h2 class="display-5"><%= survey.surveySet.name %> Survey</h2>
+    <% if (preview) { %>
+      <div class="alert alert-warning" role="alert" data-survey-preview="true">
+        You are viewing a preview of this survey. This preview is only accessible to you, the owner of this survey, while you are logged in to your Keep&nbsp;Asking account. Any information submitted through this preview form will not be saved.
+      </div>
+    <% } %>
     <hr>
     <form>
       <% for (question of survey.surveySet.questions) { %>

@@ -18,6 +18,12 @@ $(function () {
   $('[data-action="add-question"]').click(function addNewQuestion () {
     let questionToInsert = $(questionTemplatesHTML.basic)
     questionToInsert.find('.question-type-content').html(questionTemplatesHTML.text)
+    const rand = Math.random()
+    questionToInsert.find('.form-check-input').attr('name', rand).each(function (i, element) {
+      const rand = Math.random()
+      $(element).attr('id', rand)
+      $(element).next().attr('for', rand)
+    })
     questionToInsert.insertBefore($('.add-question-button-row'))
     questionToInsert.find('[data-question-attribute="title"]').focus()
     initialiseOptionsTokenField()

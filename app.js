@@ -98,6 +98,25 @@ app.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next) {
   })
 })
 
+app.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, next) {
+  if (!auth.userIsAuthenticated(req)) {
+    return res.sendStatus(403)
+  }
+  Survey.findOne({
+    owner: req.session.username,
+    cohort: req.params.cohortID,
+    surveySet: req.params.surveyID
+  }).populate('cohort').then(function (survey) {
+    if (survey.cohort && survey.cohort.members.length === 0) {
+      return res.status(400).send('You can only preview surveys that have at least one cohort member. This cohort has no members.')
+    }
+    const previewEmail = survey.cohort.members[0]
+    const previewEmailHash = hash.generateSurveyAccessHash(survey.cohort._id, survey.surveySet, survey._id, previewEmail)
+    const redirectURL = '/cohorts/' + survey.cohort._id + '/surveys/' + survey.surveySet + '/respond/' + survey._id + '?' + 'email=' + previewEmail + '&hash=' + previewEmailHash + '&preview'
+    return res.redirect(redirectURL)
+  })
+})
+
 const Survey = require('./models/survey.js')
 const hash = require('./controllers/hash.js')
 app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (req, res, next) {
@@ -134,7 +153,8 @@ app.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (r
     }
 
     return res.render('survey', {
-      survey
+      survey,
+      preview: (typeof req.query.preview !== 'undefined')
     })
   }).catch(error => {
     console.error(error)
