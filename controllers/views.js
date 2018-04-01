@@ -11,7 +11,6 @@ const SurveySet = require('./../models/surveySet.js')
 const Survey = require('./../models/survey.js')
 const Respondent = require('./../models/respondent.js')
 const Response = require('./../models/response.js')
-const arrayContainsElementWithValue = require('../models/shared.js').arrayContainsElementWithValue
 
 // Homepage
 router.get('/', function (req, res, next) {

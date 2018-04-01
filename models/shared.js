@@ -30,19 +30,8 @@ const questionResponse = {
   }
 }
 
-const arrayContainsElementWithValue = function (array, path, value) {
-  if (!array) return false
-  for (const element of array) {
-    if (element[path] === value) {
-      return true
-    }
-  }
-  return false
-}
-
 module.exports = {
   question,
   requiredTrimmedString,
-  questionResponse,
-  arrayContainsElementWithValue
+  questionResponse
 }
