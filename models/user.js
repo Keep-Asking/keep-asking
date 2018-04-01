@@ -11,6 +11,12 @@ let userSchema = mongoose.Schema({
   }
 })
 
+userSchema.method('getCohortsAlt', async function () {
+  await Cohort.find({
+    owner: this.username
+  })
+})
+
 userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
   if (typeof (includeArchivedCohorts) === 'function' && !callback) {
     callback = includeArchivedCohorts
@@ -27,7 +33,7 @@ userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
     {
       $match: matchConditions
     }, {
-      $project: {archived: 1, name: 1, membersCount: {$size: '$members'}}
+      $project: {archived: 1, name: 1, membersCount: {$size: '$members'}, demographicQuestionsCount: {$size: '$demographicQuestions'}}
     }, {
       $sort: {name: 1}
     }, {

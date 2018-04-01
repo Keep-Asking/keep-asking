@@ -2,12 +2,14 @@ let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
 const shared = require('./shared.js')
+const Survey = require('./survey.js')
 
-let surveySetSchema = mongoose.Schema({
+const surveySetSchema = mongoose.Schema({
   cohort: {
     type: ObjectId,
     required: true,
-    lowercase: true
+    lowercase: true,
+    ref: 'Cohort'
   },
   owner: shared.requiredTrimmedString,
   name: shared.requiredTrimmedString,
@@ -18,6 +20,12 @@ let surveySetSchema = mongoose.Schema({
   },
   sendDates: [Date],
   questions: [shared.question]
+})
+
+surveySetSchema.method('getSurveys', async function () {
+  await Survey.find({
+    surveySet: this._id
+  })
 })
 
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)

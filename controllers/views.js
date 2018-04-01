@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const moment = require('moment')
 
 // Helpers
 const auth = require('./authentication.js')
@@ -34,14 +35,82 @@ const displayError = function (req, res, errorNumber, errorMessage) {
 }
 
 // Homepage
-router.get('/', function (req, res, next) {
+router.get('/', async function (req, res, next) {
+  // Check whether the user sending this request is authenticated
   if (!auth.userIsAuthenticated(req)) {
     return res.render('splash', req.session)
   }
 
   const showArchived = typeof (req.query.archived) !== 'undefined'
 
-  // Check whether the user sending this request is authenticated
+  // Cohort.find({
+  //   owner: req.session.username
+  // }).then(cohorts => {
+  //   for (let cohort of cohorts) {
+  //     SurveySet.find({
+  //       owner: req.session.username,
+  //       cohort: cohort.id
+  //     })
+  //   }
+  // })
+
+  // const promises = [
+  //   Cohort.find({
+  //     owner: req.session.username
+  //   }).exec(),
+  //   SurveySet.find({
+  //     owner: req.session.username
+  //   }),
+  //   Survey.find({
+  //     owner: req.session.username
+  //   })
+  // ]
+
+  // Promise.all(promises).then(results => {
+  //   const cohorts = results[0]
+  //   const surveySet = results[1]
+  //   const surveys = results[2]
+  // })
+
+  // console.log('alt:', await res.locals.user.getCohortsAlt())
+  //
+  // let matchConditions = {owner: req.session.username}
+  // if (showArchived !== true) {
+  //   matchConditions.archived = {$not: {$eq: true}}
+  // }
+  //
+  // Cohort.aggregate([
+  //   {
+  //     $match: matchConditions
+  //   }, {
+  //     $project: {archived: 1, name: 1, membersCount: {$size: '$members'}, demographicQuestionsCount: {$size: '$demographicQuestions'}}
+  //   }, {
+  //     $sort: {name: 1}
+  //   }, {
+  //     $lookup: {
+  //       from: 'surveysets', localField: '_id', foreignField: 'cohort', as: 'surveySets'
+  //     }
+  //   }, {
+  //     $lookup: {
+  //       from: 'surveys', localField: '_id', foreignField: 'cohort', as: 'surveys'
+  //     }
+  //   }
+  // ]).then(cohorts => {
+  //   // const findElementOfArrayWithKey = function() {
+  //   //
+  //   // }
+  //   // for (let cohortIndex in cohorts) {
+  //   //   const cohort = cohorts[cohortIndex]
+  //   //   for (let responseIndex in cohort.responses) {
+  //   //     const response = cohort.responses[responseIndex]
+  //   //     cohorts[cohortIndex].responses[responseIndex] = Response.hydrate(response)
+  //   //   }
+  //   // }
+  //   console.dir(cohorts, {depth: 6, colors: true})
+  // })
+
+  // ///////
+
   res.locals.user.getCohorts(showArchived, function (err, cohorts, archivedCount) {
     if (err) {
       console.error(err)
@@ -100,6 +169,73 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
       survey: survey,
       formName: 'Survey',
       pageTitle: 'Edit Survey ' + survey.name
+    })
+  }).catch(err => {
+    console.error(err)
+    return displayError(req, res, 500)
+  })
+})
+
+// Survey Results Page
+router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, next) {
+  if (!auth.userIsAuthenticated(req)) {
+    return displayError(req, res, 403)
+  }
+
+  let thisSurveySet
+
+  const initialPromises = [
+    SurveySet.findOne({ // Find the specified surveySet
+      owner: res.locals.user.username,
+      cohort: req.params.cohortID,
+      _id: req.params.surveyID
+    }).populate('cohort').exec(),
+    Survey.find({ // Find all of the surveys in this surveySet
+      owner: res.locals.user.username,
+      cohort: req.params.cohortID,
+      surveySet: req.params.surveyID
+    }).sort({
+      sendDate: 1
+    }),
+    Respondent.find({
+      cohort: req.params.cohortID
+    })
+  ]
+
+  Promise.all(initialPromises).then(results => {
+    // Convert the surveySet into a regular JavaScript obejct
+    thisSurveySet = results[0].toObject()
+
+    // Convert the surveys into regular JavaScript obejcts
+    thisSurveySet.surveys = results[1].map(survey => {
+      const thisSurvey = survey.toObject()
+      thisSurvey.sendDateText = moment(thisSurvey.sendDate).format('D MMM Y')
+      return thisSurvey
+    })
+
+    // Convert the respondents into regular JavaScript obejcts
+    thisSurveySet.respondents = results[2].map(respondent => respondent.toObject())
+
+    // Find all of the responses for each of the surveys
+    const responsePromises = []
+    for (let thisSurvey of thisSurveySet.surveys) {
+      responsePromises.push(Response.find({
+        cohort: req.params.cohortID,
+        surveySet: req.params.surveyID,
+        survey: thisSurvey._id
+      }))
+    }
+    return Promise.all(responsePromises)
+  }).then(responses => {
+    for (let thisSurveyIndex in thisSurveySet.surveys) {
+      thisSurveySet.surveys[thisSurveyIndex].responses = responses[thisSurveyIndex]
+    }
+
+    console.log(thisSurveySet)
+    return res.render('results', {
+      username: req.session.username,
+      surveyResults: thisSurveySet,
+      pageTitle: 'Survey Results'
     })
   }).catch(err => {
     console.error(err)

@@ -1,70 +1,74 @@
 <%- include('./partials/head'); %>
 <%- include('./partials/header'); %>
 <div class="container my-5">
-  <h1 class="display-4">Welcome<% if (username) { %>, <%= username %><% } %></h1>
+  <%
+  const pageSubtitles = ['What shall we ask today?', 'Who shall we ask today?', 'What can we learn today?', 'How can we improve today?']
+  const pageSubtitle = pageSubtitles[Math.floor(Math.random() * pageSubtitles.length)];
+  %>
+  <h1 class="d-inline display-4">Keep Asking</h1>
+  <!-- <h2 class="text-muted"><%= pageSubtitle %></h2> -->
+  <!-- <h2 class="text-muted"><%= pageSubtitle %></h2> -->
+  <!-- <h1 class="display-4">Welcome<% if (username) { %>, <%= username %><% } %></h1> -->
   <hr class="my-4">
 
   <h2>Your Cohorts and Surveys</h2>
   <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company. You can create an unlilmited number of cohorts, and archive any cohorts you no longer need.</p>
   <% if (cohorts && cohorts.length > 0) { %>
-  <table class="table table-responsive-sm">
-    <thead>
-      <tr>
-        <th scope="col">Cohort Name</th>
-        <th scope="col" class="text-center">Number of Members</th>
-        <th class="text-center">
-          <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
-        </th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-        <% for (let cohortIndex in cohorts) { %>
-          <% let cohort = cohorts[cohortIndex]%>
-
-          <tr>
-            <td><%=cohort.name%></td>
-            <td class="text-center"><%=(cohort.membersCount)?cohort.membersCount:0%></td>
-            <td class="text-center">
+    <% for (cohort of cohorts) { %>
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-md-row">
+            <div class="mr-auto">
+              <h3>
+                <%= cohort.name %>
+              </h3>
+            </div>
+            <div class="mx-md-2 my-1">
               <a href="/cohorts/<%=cohort._id%>/edit" class="btn btn-outline-primary btn-sm">Edit Cohort</a>
-            </td>
-            <td class="text-center">
-                <a href="/api/cohorts/<%=cohort._id%>/archive?status=<%=(cohort.archived)?'false':'true';%>" class="btn btn-outline-primary btn-sm"><%=(cohort.archived)?'Unarchive':'Archive';%> Cohort</a>
-            </td>
-            <td class="text-center">
-              <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="collapse" data-target="tr[data-cohort-id='<%=cohort._id%>']">Show Surveys</a>
-            </td>
-            <td class="text-center">
-              <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal" data-cohort-id="<%=cohort._id%>">New Survey</a>
-            </td>
-          </tr>
-            <% if (cohort.surveySets) { %>
-              <% for (surveyIndex in cohort.surveySets) { %>
-                <% let thisSurvey = cohort.surveySets[surveyIndex] %>
-                <tr class="collapse" data-cohort-id="<%=cohort._id%>">
-                  <td colspan=100>
-                    <span class="font-weight-bold">Survey Name</span>: <%=thisSurvey.name%><span>
-                    <a href="/cohorts/<%=cohort._id%>/surveys/<%=thisSurvey._id%>/edit">Edit</a>
-                    <a href="/cohorts/<%=cohort._id%>/surveys/<%=thisSurvey._id%>/preview">Preview</a>
-                  </td>
-                </tr>
-              <% } %>
+              <a href="/api/cohorts/<%=cohort._id%>/archive?status=<%=(cohort.archived)?'false':'true';%>" class="btn btn-outline-primary btn-sm"><%=(cohort.archived)?'Unarchive':'Archive';%> Cohort</a>
+              <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal" data-cohort-id="<%=cohort._id%>">Create New Survey</a>
+            </div>
+          </div>
+
+          <div>
+            <%
+            const pluralise = function (noun, count) {
+              return noun + ((count !== 1) ? 's' : '');
+            }
+            const membersCount = cohort.membersCount || 0
+            const surveySetCount = cohort.surveySets.length || 0
+            const demographicQuestionsCount = cohort.demographicQuestionsCount || 0
+
+            const membersPhrase = [membersCount, 'Cohort', pluralise('Member', membersCount)].join('&nbsp;')
+            const surveysPhrase = [surveySetCount, pluralise('Survey', surveySetCount)].join('&nbsp;')
+            const demographicQuestionsPhrase = [demographicQuestionsCount, 'Demographic', pluralise('Question', demographicQuestionsCount)].join('&nbsp;')
+            %>
+            <%- [membersPhrase, surveysPhrase, demographicQuestionsPhrase].join(', ') %>
+          </div>
+          <% if (cohort.surveySets) { %>
+            <% for (surveySet of cohort.surveySets) { %>
+              <div class="d-flex flex-column flex-md-row">
+                <div class="mt-2">
+                  <h5>
+                    <%= surveySet.name %>
+                  </h5>
+                  <a class="btn btn-outline-primary btn-sm" href="/cohorts/<%=cohort._id%>/surveys/<%=surveySet._id%>/edit">Edit Survey</a>
+                  <a class="btn btn-outline-primary btn-sm" href="/cohorts/<%=cohort._id%>/surveys/<%=surveySet._id%>/preview">Preview Survey</a>
+                  <a class="btn btn-outline-primary btn-sm" href="/cohorts/<%=cohort._id%>/surveys/<%=surveySet._id%>/results">View Survey Results</a>
+                </div>
+              </div>
             <% } %>
-        <% } %>
-      </tbody>
-    </table>
-  <% } else { %>
-    <div class="text-center my-4">
-      <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
-    </div>
-  <% }%>
-  <% if (archivedCount > 0) { %>
-    <div class="text-center">
-      <a href="/?archived" class="btn btn-outline-secondary btn-sm">Show <%=archivedCount%> Archived Cohort<%=(archivedCount !== 0)?'s':'';%></a>
-    </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
   <% } %>
+    <div class="text-center my-4">
+      <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
+      <% if (archivedCount > 0) { %>
+        <a href="/?archived" class="btn btn-outline-secondary">Show <%=archivedCount%> Archived Cohort<%=(archivedCount !== 0)?'s':'';%></a>
+      <% } %>
+    </div>
 </div>
 
 <!-- Modal For Creating New Cohort -->

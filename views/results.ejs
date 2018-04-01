@@ -1,0 +1,68 @@
+<%- include('./partials/head'); %>
+<%- include('./partials/header'); %>
+<div class="container my-5">
+  <h1><%= surveyResults.name %> <span class="text-muted">Results</span></h1>
+  <h5><span class="text-muted">Cohort:</span> <%= surveyResults.cohort.name %></h5>
+  <div class="card my-4">
+    <div class="card-body">
+      <h3>Response Frequency</h3>
+      <table class="table">
+        <tr>
+          <td>Survey Date</td>
+          <% for (survey of surveyResults.surveys) { %>
+            <td>
+              <%= survey.sendDateText %>
+            </td>
+          <% } %>
+        </tr>
+        <tr>
+          <td>Response Rate</td>
+          <% for (survey of surveyResults.surveys) { %>
+            <td>
+              <% if (survey.sendDate > new Date()) { %>
+                <span class="font-italic text-muted">Future</span>
+              <% } else { %>
+                <%= (survey.responses.length / surveyResults.cohort.members.length * 100).toFixed(0) %>&nbsp;%
+              <% }%>
+            </td>
+          <% } %>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="card my-4">
+    <div class="card-body">
+      <h3>Cohort Member Demographics</h3>
+      <table class="table">
+        <tr>
+          <td>Survey Date</td>
+          <% for (survey of surveyResults.surveys) { %>
+            <td>
+              <%= survey.sendDateText %>
+            </td>
+          <% } %>
+        </tr>
+        <tr>
+          <td>Response Rate</td>
+          <% for (survey of surveyResults.surveys) { %>
+            <td>
+              <% if (survey.sendDate > new Date()) { %>
+                <span class="font-italic text-muted">Future</span>
+              <% } else { %>
+                <%= (survey.responses.length / surveyResults.cohort.members.length * 100).toFixed(0) %>&nbsp;%
+              <% }%>
+            </td>
+          <% } %>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <hr>
+  <h2>Survey Questions</h2>
+
+  <div>
+    <code><%= JSON.stringify(surveyResults) %></code>
+  </div>
+</div>
+
+<%- include('./partials/feet'); %>

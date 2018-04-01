@@ -1,8 +1,6 @@
 let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
-const shared = require('./shared.js')
-
 // Require SurveySet for getting Cohort Members
 const SurveySet = require('./surveySet.js')
 
