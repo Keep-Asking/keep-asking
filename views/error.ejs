@@ -1,0 +1,20 @@
+<%- include('./partials/head'); %>
+<%- include('./partials/header'); %>
+  <div class="container my-5">
+    <h1 class="display-5">An Error Has Occured</h1>
+    <h4 class="display-5 mb-3"><%- (typeof errorMessage === 'string') ? errorMessage : 'An unexpected error occured. Please try again later.' ; %></h4>
+    <div class="alert alert-danger" role="alert">
+      <div><strong>Error Message:</strong>&nbsp;<code><%- (typeof errorMessage === 'string') ? errorMessage : 'An unexpected error occured. Please try again later.' ; %></code></div>
+      <% if (typeof errorNumber === 'number') { %>
+        <div><strong>Error Number:</strong>&nbsp;<code><%= errorNumber %></code></div>
+      <% } %>
+      <% if (typeof path === 'string') { %>
+        <div><strong>Request URL:</strong>&nbsp;<code><%= path %></code></div>
+      <% } %>
+    </div>
+    <div>
+      Try going <a href="javascript:history.go(-1)">back</a> to your previous page, or to the <a href="/">Keep Asking homepage</a>?
+    </div>
+  </div>
+
+<%- include('./partials/feet'); %>

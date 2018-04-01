@@ -30,6 +30,11 @@ app.set('view engine', 'ejs')
 // Configure routing to the public folder
 app.use(express.static('public'))
 
+// Catch 404 NOT FOUND errors
+app.use(function (req, res, next) {
+  return views.displayError(req, res, 404)
+})
+
 // Start our group of clusters to handle requests
 if (cluster.isMaster) {
   const os = require('os')

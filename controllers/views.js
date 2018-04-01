@@ -12,6 +12,27 @@ const Survey = require('./../models/survey.js')
 const Respondent = require('./../models/respondent.js')
 const Response = require('./../models/response.js')
 
+const errorMessages = {
+  403: 'You do not have permission to access the requested item. Ensure you are logged in to the correct account.',
+  404: 'The requested resource could not be found.',
+  500: 'An internal server error occured.'
+}
+
+const displayError = function (req, res, errorNumber, errorMessage) {
+  if (!errorNumber) {
+    errorNumber = 500
+  }
+  if (!errorMessage && errorMessages[errorNumber]) {
+    errorMessage = errorMessages[errorNumber]
+  }
+  return res.status(errorNumber).render('error', {
+    errorMessage,
+    errorNumber,
+    path: req.originalUrl,
+    pageTitle: 'Error'
+  })
+}
+
 // Homepage
 router.get('/', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
@@ -24,7 +45,7 @@ router.get('/', function (req, res, next) {
   res.locals.user.getCohorts(showArchived, function (err, cohorts, archivedCount) {
     if (err) {
       console.error(err)
-      return res.sendStatus(500)
+      return displayError(req, res, 500)
     }
     return res.render('dashboard', {
       username: req.session.username,
@@ -38,7 +59,7 @@ router.get('/', function (req, res, next) {
 // Edit cohort page
 router.get('/cohorts/:id/edit', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
-    return res.sendStatus(403)
+    return displayError(req, res, 403)
   }
   Cohort.findOne({
     owner: res.locals.user.username,
@@ -46,10 +67,10 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
   }, function (err, cohort) {
     if (err) {
       console.error(err)
-      return res.sendStatus(500)
+      return displayError(req, res, 500)
     }
     if (!cohort) {
-      return res.sendStatus(404)
+      return displayError(req, res, 404)
     }
     return res.render('edit', {
       username: req.session.username,
@@ -63,19 +84,15 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
 // Edit survey page
 router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
-    return res.sendStatus(403)
+    return displayError(req, res, 403)
   }
   SurveySet.findOne({
     owner: res.locals.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
-  }, function (err, survey) {
-    if (err) {
-      console.error(err)
-      return res.sendStatus(500)
-    }
+  }).then(survey => {
     if (!survey) {
-      return res.sendStatus(404)
+      return displayError(req, res, 404)
     }
 
     return res.render('edit', {
@@ -84,12 +101,15 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
       formName: 'Survey',
       pageTitle: 'Edit Survey ' + survey.name
     })
+  }).catch(err => {
+    console.error(err)
+    return displayError(req, res, 500)
   })
 })
 
 router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, next) {
   if (!auth.userIsAuthenticated(req)) {
-    return res.sendStatus(403)
+    return displayError(req, res, 403)
   }
   Survey.findOne({
     owner: req.session.username,
@@ -97,23 +117,29 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, n
     surveySet: req.params.surveyID
   }).populate('cohort').then(function (survey) {
     if (survey.cohort && survey.cohort.members.length === 0) {
-      return res.status(400).send('You can only preview surveys that have at least one cohort member. This cohort has no members.')
+      return displayError(req, res, 400, 'You can only preview surveys that have at least one cohort member. This cohort has no members.')
     }
     const previewEmail = survey.cohort.members[0]
     const previewEmailHash = hash.generateSurveyAccessHash(survey.cohort._id, survey.surveySet, survey._id, previewEmail)
     const redirectURL = '/cohorts/' + survey.cohort._id + '/surveys/' + survey.surveySet + '/respond/' + survey._id + '?' + 'email=' + previewEmail + '&hash=' + previewEmailHash + '&preview'
     return res.redirect(redirectURL)
+  }).catch(err => {
+    console.error(err)
+    return displayError(req, res, 500)
   })
 })
 
 // Respond to survey
 router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (req, res, next) {
   if (!req.query.email) {
-    return res.status(400).send('Email URL parameter is required but not present.')
+    return displayError(req, res, 400, 'An email URL parameter is required was not present in the request URL.')
   }
   if (!req.query.hash) {
-    return res.status(400).send('Hash URL parameter is required but not present.')
+    return displayError(req, res, 400, 'A hash URL parameter is required was not present in the request URL.')
   }
+
+  // Are we viewing a survey owner preview?
+  const preview = (typeof req.query.preview !== 'undefined')
 
   const promises = [
     // Search for the requested survey
@@ -135,22 +161,22 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     console.log('thisSurvey', thisSurvey)
 
     if (!thisSurvey) {
-      return res.sendStatus(404)
+      return displayError(req, res, 404)
     }
 
     const hashValid = hash.verifySurveyAccessHash(req.query.hash, thisSurvey.cohort._id, thisSurvey.surveySet._id, thisSurvey._id, req.query.email)
     if (!hashValid) {
       console.log('Hash Should be:', hash.generateSurveyAccessHash(thisSurvey.cohort._id, thisSurvey.surveySet._id, thisSurvey._id, req.query.email))
-      return res.status(403).send('Invalid email and hash pair')
+      return displayError(req, res, 403, 'You do not have permission to access this survey because the email and hash pair provided in the request URL do not match.')
     }
 
     if (!thisSurvey.cohort.members.includes(req.query.email)) {
-      return res.status(403).send('The email ' + req.query.email + ' is not in the given cohort.')
+      return displayError(req, res, 403, `You do not have permission to access this survey because the email address <code>${req.query.email}</code> is not in the cohort ${thisSurvey.cohort.name}.`)
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
     if (req.session.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
-      return res.status(403).send(`This survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
+      return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
     const responseCount = await Response.count({
@@ -160,8 +186,8 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
       survey: thisSurvey._id
     })
 
-    if (responseCount !== 0) {
-      return res.status(400).send('You have already responded to this survey. You can only respond to each survey once.')
+    if (responseCount !== 0 && !preview) {
+      return displayError(req, res, 400, 'You have already responded to this survey. You can only respond to each survey once.')
     }
 
     // Determine whether to ask the demographic questions
@@ -181,13 +207,14 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
       respondentEmail: req.query.email,
       responseHash: req.query.hash,
       demographicQuestionsToAsk,
-      preview: (typeof req.query.preview !== 'undefined')
+      preview: preview
     })
   }).catch(error => {
     console.error(error)
-    return res.sendStatus(500)
+    return displayError(req, res, 500)
   })
 })
 
 // Export the routes on this router
 module.exports.router = router
+module.exports.displayError = displayError
