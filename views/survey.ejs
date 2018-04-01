@@ -9,11 +9,26 @@
       </div>
     <% } %>
     <hr>
-    <form>
+    <form id="survey" data-cohort-id="<%= survey.cohort._id %>" data-surveyset-id="<%= survey.surveySet._id %>" data-survey-id="<%= survey._id %>" data-respondent-email="<%= respondentEmail %>" data-response-hash="<%= responseHash %>">
+      <% for (question of demographicQuestionsToAsk) { %>
+        <%- include('./partials/questionRespondingTemplates/baseTemplate', {question, demographic: true}) %>
+      <% } %>
       <% for (question of survey.surveySet.questions) { %>
         <%- include('./partials/questionRespondingTemplates/baseTemplate', {question}) %>
       <% } %>
+      <div class="<%= (typeof survey === 'undefined') ? 'modal-footer' : '' ; %>">
+        <button type="submit" class="btn btn-primary btn-lg">Submit Response</button>
+      </div>
     </form>
+    <div class="alert alert-success survey-completion-alert" role="alert" style="display: none;">
+      Your response has been successfully submitted.
+    </div>
+    <div class="alert alert-danger survey-completion-alert" role="alert" style="display: none;">
+      An error occured and your response may not have been successfully submitted. Please try again later.
+    </div>
+    <div class="alert alert-info survey-completion-alert" role="alert" style="display: none;">
+      You are in preview mode, so your response was not submitted.
+    </div>
   </div>
 
 <%- include('./partials/feet'); %>

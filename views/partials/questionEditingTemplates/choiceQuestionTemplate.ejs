@@ -9,11 +9,11 @@
   <div class="col-sm-10">
     <% const question_name = 'multipleChoice_' + ((typeof question !== 'undefined' && typeof question.id === 'string') ? question.id : Math.random()) %>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="<%=question_name%>" id="<%=question_name%>_multiple" value="multiple" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? '' : 'checked'; %>>
+      <input class="form-check-input" type="radio" name="<%=question_name%>" data-question-attribute="multipleChoice" id="<%=question_name%>_multiple" value="multiple" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? '' : 'checked'; %>>
       <label class="form-check-label" for="<%=question_name%>_multiple">Allow respondents to select multiple answers</label>
     </div>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="<%=question_name%>" id="<%=question_name%>_single" value="single" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? 'checked' : ''; %>>
+      <input class="form-check-input" type="radio" name="<%=question_name%>" data-question-attribute="multipleChoice" id="<%=question_name%>_single" value="single" <%= (typeof question === 'object' && typeof question.multipleChoice === 'boolean' && question.multipleChoice === false) ? 'checked' : ''; %>>
       <label class="form-check-label" for="<%=question_name%>_single">Allow respondents to select only one answer</label>
     </div>
     <small class="form-text text-muted">Choose how many answers you want respondents to be able to select.</small>

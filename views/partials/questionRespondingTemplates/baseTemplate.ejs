@@ -1,4 +1,4 @@
-<div class="card form-group form-question">
+<div class="card form-group form-question" data-question-id="<%= question.id %>" data-question-type="<%= question.kind %>" <%= (typeof demographic !== 'undefined' && demographic === true) ? 'data-question-demographic' : '' ; %>>
   <div class="card-body">
     <div class="form-group row">
       <div class="col">

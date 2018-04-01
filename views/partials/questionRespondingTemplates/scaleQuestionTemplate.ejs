@@ -1,25 +1,4 @@
 <div class="form-group">
-  <!-- <ul class="scale">
-    <li>
-      <label for="<%= question.id %>-1">
-        <%= question.options[0]%>
-      </label>
-    </li>
-    <% for (let i = 1; i <= 5; i++) { %>
-      <li>
-        <label>
-          <input type="radio" class="position-static" name="<%= question.id %>" value="<%= i %>" id="<%= question.id %>-<%= i %>" />
-        </label>
-      </li>
-    <% } %>
-    <li>
-      <label for="<%= question.id %>-5">
-        <%= question.options[1]%>
-      </label>
-    </li>
-  </ul> -->
-
-
   <div class="d-flex justify-content-between scale">
     <label for="<%= question.id %>-1" class="d-flex align-items-center justify-content-center">
       <%= question.options[0]%>

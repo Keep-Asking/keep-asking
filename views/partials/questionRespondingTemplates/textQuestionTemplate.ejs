@@ -1,3 +1,7 @@
 <div class="form-group">
-    <input class="form-control" id="<%=question.id%>">
+  <% if (question.textAreaSize !== 'large') { %>
+    <input class="form-control" data-question-attribute="answer" id="<%=question.id%>">
+  <% } else { %>
+    <textarea class="form-control" data-question-attribute="answer" id="<%=question.id%>" rows="3"></textarea>
+  <% } %>
 </div>
