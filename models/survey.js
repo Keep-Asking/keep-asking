@@ -31,34 +31,6 @@ let surveySchema = mongoose.Schema({
   }
 })
 
-surveySchema.method('getCohortMembers', function (callback) {
-  SurveySet.aggregate([
-    {
-      $match: {
-        _id: this.surveySet
-      }
-    },
-    {
-      $lookup: {
-        from: 'cohorts', localField: 'cohort', foreignField: '_id', as: 'cohort'
-      }
-    },
-    {
-      $project: {
-        'cohort.members': 1
-      }
-    }
-  ], function (err, result) {
-    if (err) {
-      return callback(err)
-    }
-    // console.log('aggregate results ', result)
-    if (result && result[0] && result[0].cohort && result[0].cohort[0]) {
-      callback(null, result[0].cohort[0].members)
-    }
-  })
-})
-
 const Survey = mongoose.model('Survey', surveySchema)
 
 module.exports = Survey

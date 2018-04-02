@@ -11,25 +11,21 @@ let userSchema = mongoose.Schema({
   }
 })
 
-userSchema.method('getCohortsAlt', async function () {
-  await Cohort.find({
-    owner: this.username
-  })
+userSchema.method('getCohortCount', function (query) {
+  if (!query) {
+    query = {}
+  }
+  query.owner = this.username
+  return Cohort.count(query).exec()
 })
 
-userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
-  if (typeof (includeArchivedCohorts) === 'function' && !callback) {
-    callback = includeArchivedCohorts
-  }
-
+userSchema.method('getCohorts', function (includeArchivedCohorts) {
   let matchConditions = {owner: this.username}
   if (includeArchivedCohorts !== true) {
     matchConditions.archived = {$not: {$eq: true}}
   }
 
-  let getCohortsPromises = []
-
-  getCohortsPromises.push(Cohort.aggregate([
+  return Cohort.aggregate([
     {
       $match: matchConditions
     }, {
@@ -41,15 +37,7 @@ userSchema.method('getCohorts', function (includeArchivedCohorts, callback) {
         from: 'surveysets', localField: '_id', foreignField: 'cohort', as: 'surveySets'
       }
     }
-  ]).exec())
-
-  getCohortsPromises.push(Cohort.count({owner: this.username, archived: true}).exec())
-
-  Promise.all(getCohortsPromises).then(function (results) {
-    callback(null, results[0], results[1])
-  }).catch(function (error) {
-    callback(error)
-  })
+  ]).exec()
 })
 
 let User = mongoose.model('User', userSchema)
