@@ -1,15 +1,7 @@
-<% console.log('question', question) %>
-<%# const dataPoints %>
-
 <table class="table">
   <thead>
-    <th>Survey Date</th>
-    <th><%= question.options[0] %></th>
-    <th>2</th>
-    <th>3</th>
-    <th>4</th>
-    <th><%= question.options[0] %>  </th>
-    <th>Average</th>
+    <th style="min-width: 200px">Survey Date</th>
+    <th>Responses</th>
   </thead>
   <tbody>
     <% for (let responseDate in question.responses) { %>
@@ -17,21 +9,12 @@
         <td>
           <%= responseDate %>
         </td>
-        <% for (let responseValueCount of question.responses[responseDate]) { %>
-          <td>
-            <%= responseValueCount %>
-          </td>
-        <% } %>
         <td>
-          <%
-          const weightedSum = question.responses[responseDate].reduce((accumulator, value, index) => accumulator += value * (index + 1), 0)
-          const sum = question.responses[responseDate].reduce((accumulator, value) => accumulator += value, 0)
-          const average = weightedSum / sum
-          %>
-          <%= average.toFixed(1) %>
+          <div class="chart-container" style="height: 200px;">
+            <canvas class="scaleChoiceChart" data-responses="<%= JSON.stringify(question.responses[responseDate]) %>" data-options="<%= JSON.stringify([question.options[0], '', '', '', question.options[1]]) %>"></canvas>
+          </div>
         </td>
       </tr>
     <% } %>
   </tbody>
 </table>
-<!-- <canvas id="myChart" width="300" height="100"></canvas> -->

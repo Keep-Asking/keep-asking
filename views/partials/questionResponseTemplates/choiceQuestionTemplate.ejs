@@ -1,2 +1,26 @@
-choice!
-<%# console.log('question', question) %>
+<table class="table">
+  <thead>
+    <th style="min-width: 200px">Survey Date</th>
+    <th>Responses</th>
+  </thead>
+  <tbody>
+    <% for (let responseDate in question.responses) { %>
+      <tr>
+        <td>
+          <%= responseDate %>
+        </td>
+        <td>
+          <%
+          const responses = []
+          for (const option of question.options) {
+            responses.push(question.responses[responseDate][option])
+          }
+          %>
+          <div class="chart-container" style="height: 200px;">
+            <canvas class="scaleChoiceChart" data-responses="<%= JSON.stringify(responses) %>" data-options="<%= JSON.stringify(question.options) %>"></canvas>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
