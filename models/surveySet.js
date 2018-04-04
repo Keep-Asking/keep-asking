@@ -52,7 +52,7 @@ surveySetSchema.method('getSurveys', function (callback) {
       })
 
       // Convert the respondents into regular JavaScript obejcts
-      thisSurveySet.respondents = results[0].map(respondent => respondent.toObject())
+      thisSurveySet.respondents = results[1].map(respondent => respondent.toObject())
 
       // Find all of the responses for each of the surveys
       const responsePromises = []

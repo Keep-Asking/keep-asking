@@ -1,0 +1,37 @@
+<% console.log('question', question) %>
+<%# const dataPoints %>
+
+<table class="table">
+  <thead>
+    <th>Survey Date</th>
+    <th><%= question.options[0] %></th>
+    <th>2</th>
+    <th>3</th>
+    <th>4</th>
+    <th><%= question.options[0] %>  </th>
+    <th>Average</th>
+  </thead>
+  <tbody>
+    <% for (let responseDate in question.responses) { %>
+      <tr>
+        <td>
+          <%= responseDate %>
+        </td>
+        <% for (let responseValueCount of question.responses[responseDate]) { %>
+          <td>
+            <%= responseValueCount %>
+          </td>
+        <% } %>
+        <td>
+          <%
+          const weightedSum = question.responses[responseDate].reduce((accumulator, value, index) => accumulator += value * (index + 1), 0)
+          const sum = question.responses[responseDate].reduce((accumulator, value) => accumulator += value, 0)
+          const average = weightedSum / sum
+          %>
+          <%= average.toFixed(1) %>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
+<!-- <canvas id="myChart" width="300" height="100"></canvas> -->

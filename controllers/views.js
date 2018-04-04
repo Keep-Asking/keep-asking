@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const moment = require('moment')
 
 // Helpers
 const auth = require('./authentication.js')
@@ -130,10 +131,53 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
     if (!surveySet) {
       return displayError(req, res, 404)
     }
+
+    for (let question of surveySet.questions) {
+      if (!question.responses) {
+        question.responses = {}
+      }
+      for (let survey of surveySet.surveys) {
+        for (let response of survey.responses) {
+          for (let questionAnswer of response.questionAnswers) {
+            if (questionAnswer.id === question.id) {
+              switch (question.kind) {
+                case 'text':
+                  if (!question.responses[survey.sendDateText]) {
+                    question.responses[survey.sendDateText] = []
+                  }
+                  question.responses[survey.sendDateText].push(questionAnswer.answer)
+                  break
+                case 'scale':
+                  if (!question.responses[survey.sendDateText]) {
+                    question.responses[survey.sendDateText] = new Array(5).fill(0)
+                  }
+                  question.responses[survey.sendDateText][parseInt(questionAnswer.answer) - 1]++
+                  break
+                case 'choice':
+                  if (!question.responses[survey.sendDateText]) {
+                    question.responses[survey.sendDateText] = {}
+                    for (let option of question.options) {
+                      question.responses[survey.sendDateText][option] = 0
+                    }
+                  }
+                  for (let answerOption of questionAnswer.answer) {
+                    question.responses[survey.sendDateText][answerOption]++
+                  }
+                  break
+              }
+              break
+            }
+          }
+        }
+      }
+    }
+    console.dir(surveySet, {depth: 10})
+
+    // console.log('surveySet', surveySet)
     return res.render('results', {
       username: req.session.username,
-      surveyResults: surveySet,
-      pageTitle: 'Survey Results'
+      surveySet: surveySet,
+      pageTitle: surveySet.name + ' Results',
     })
   }).catch(err => {
     console.error(err)
