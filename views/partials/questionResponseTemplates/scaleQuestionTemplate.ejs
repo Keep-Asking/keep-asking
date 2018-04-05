@@ -1,20 +1,3 @@
-<table class="table">
-  <thead>
-    <th style="min-width: 200px">Survey Date</th>
-    <th>Responses</th>
-  </thead>
-  <tbody>
-    <% for (let responseDate in question.responses) { %>
-      <tr>
-        <td>
-          <%= responseDate %>
-        </td>
-        <td>
-          <div class="chart-container" style="height: 200px;">
-            <canvas class="scaleChoiceChart" data-responses="<%= JSON.stringify(question.responses[responseDate]) %>" data-options="<%= JSON.stringify([question.options[0], '', '', '', question.options[1]]) %>"></canvas>
-          </div>
-        </td>
-      </tr>
-    <% } %>
-  </tbody>
-</table>
+<div class="chart-container" style="height: 200px;">
+  <canvas class="scaleChoiceChart" data-responses="<%= JSON.stringify(question.responses[responseDate]) %>" data-options="<%= JSON.stringify([question.options[0], '', '', '', question.options[1]]) %>"></canvas>
+</div>
