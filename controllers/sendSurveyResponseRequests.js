@@ -10,9 +10,34 @@ require('./database.js')
 
 const Survey = require('./../models/survey.js')
 const emailTemplateHEML = fs.readFileSync('./emails/surveyRequest.ejs', 'utf-8')
-const emailTemplatePlaintext = fs.readFileSync('./emails/surveyRequest.ejs', 'utf-8')
+const emailTemplatePlaintext = fs.readFileSync('./emails/surveyRequestPlaintext.ejs', 'utf-8')
+
+// Determine whether this is a dry run (skip sending emails)
+const dryRun = (process.argv[2] === '--dry-run')
+if (dryRun) {
+  console.log('Running a dry-run. No emails will actually be sent.')
+}
 
 const mailer = nodemailer.createTransport(sparkPostTransport())
+
+// Workaround for HEML bug (see https://github.com/SparkPost/heml/issues/44)
+let HEMLrunning = false
+const renderHEML = function (emailHEML) {
+  return new Promise((resolve, reject) => {
+    return setTimeout(function () {
+      if (!HEMLrunning) {
+        HEMLrunning = true
+        const emailHTML = heml(emailHEML)
+        HEMLrunning = false
+        return resolve(emailHTML)
+      } else {
+        return setTimeout(function () {
+          return resolve(renderHEML(emailHEML))
+        }, Math.random() * 1000)
+      }
+    }, Math.random() * 200)
+  })
+}
 
 Survey.find({ // Find all the survey requests that should have been sent that have not yet been sent
   sendDate: {
@@ -25,7 +50,8 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
   // Calculate the number of emails to send
   const totalEmailsToSend = surveysToSend.reduce((accumulator, currentValue) => accumulator + currentValue.cohort.members.length, 0)
   console.log('We need to send %d total emails', totalEmailsToSend)
-  let emailsSendingAttempts = 0
+
+  let allSurveyEmailSendingPromises = []
 
   // Process each survey
   for (let surveyIndex in surveysToSend) {
@@ -38,9 +64,7 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
       continue
     }
 
-    thisSurvey.cohort.members.forEach(async (member) => {
-      console.log('\t\tProcessing survey request for member', member)
-
+    const thisSurveyEmailSendingPromises = thisSurvey.cohort.members.map(member => {
       // Prepare the email data
       const emailData = {
         survey: thisSurvey,
@@ -50,37 +74,41 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
 
       // Render the HTML email
       const emailHEML = ejs.render(emailTemplateHEML, emailData)
-      const emailHTML = await heml(emailHEML)
 
       // Render the plaintext email
       const emailPlaintext = ejs.render(emailTemplatePlaintext, emailData)
 
-      mailer.sendMail({
-        from: {
-          name: 'Keep Asking',
-          address: config.OUTBOUND_EMAIL_ADDRESS
-        },
-        to: member,
-        subject: [thisSurvey.cohort.name, thisSurvey.name, 'Feedback'].join(' '),
-        text: emailPlaintext,
-        html: emailHTML.html
+      return renderHEML(emailHEML).then(emailHTML => {
+        const emailConfiguration = {
+          from: {
+            name: 'Keep Asking',
+            address: config.OUTBOUND_EMAIL_ADDRESS
+          },
+          to: member,
+          subject: [thisSurvey.cohort.name, thisSurvey.name, 'Feedback'].join(' '),
+          text: emailPlaintext,
+          html: emailHTML.html
+        }
+
+        if (dryRun) {
+          return member
+        }
+
+        return mailer.sendMail(emailConfiguration)
       }).then(info => {
-        console.log('\t\tSent successfully to', member, info)
-        emailsSendingAttempts++
-        if (emailsSendingAttempts >= totalEmailsToSend) {
-          console.log('Attempted to send all the emails! Quitting.')
-          process.exit(0)
-        }
-      }).catch(err => {
-        console.error('\t\tSend unsuccessfully to', member, err)
-        emailsSendingAttempts++
-        if (emailsSendingAttempts >= totalEmailsToSend) {
-          console.log('Attempted to send all the emails! Quitting.')
-          process.exit(0)
-        }
+        return member
       })
     })
+
+    // Append the promises for sending the emails for this survey to all of the other promises
+    allSurveyEmailSendingPromises = allSurveyEmailSendingPromises.concat(thisSurveyEmailSendingPromises)
   }
+  return Promise.all(allSurveyEmailSendingPromises)
+}).then(results => {
+  console.log(`Successfully sent emails to ${results.length} recipients.`)
+  console.log('Recipients:', results.join(', '))
+  process.exit(0)
 }).catch(function (err) {
-  console.error(err)
+  console.error('Fatal error caught:', err)
+  process.exit(1)
 })

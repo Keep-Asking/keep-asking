@@ -14,7 +14,7 @@
   <h2>Your Cohorts and Surveys</h2>
   <p>A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company. You can create an unlilmited number of cohorts, and archive any cohorts you no longer need.</p>
   <% if (cohorts && cohorts.length > 0) { %>
-    <% for (cohort of cohorts) { %>
+    <% for (let cohort of cohorts) { %>
       <div class="card mb-3">
         <div class="card-body">
           <div class="d-flex flex-column flex-md-row">
@@ -46,7 +46,7 @@
             <%- [membersPhrase, surveysPhrase, demographicQuestionsPhrase].join(', ') %>
           </div>
           <% if (cohort.surveySets) { %>
-            <% for (surveySet of cohort.surveySets) { %>
+            <% for (let surveySet of cohort.surveySets) { %>
               <div class="d-flex flex-column flex-md-row">
                 <div class="mt-2">
                   <h5>

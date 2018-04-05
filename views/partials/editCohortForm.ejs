@@ -8,11 +8,11 @@
     <div class="form-group">
       <label for="cohortMemberEmails">Cohort Members</label>
       <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.members !== 'undefined') ? cohort.members.join(',') : ''; %>">
-      <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma, space, or newline.</small>
+      <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma, space, or newline. Any non-email items will be ignored.</small>
     </div>
     <h6>Cohort Demographic Questions</h6>
     <p class="form-text text-muted">
-      Cohort members will be asked to respond to any demographic questions you define the first time they respond to your survey. These questions can be used to track high-level details of your cohort members. For example, a professor could ask students about their field of study and class year.
+      Cohort members will be asked to respond to any demographic questions you define the first time they respond to your survey. These questions can be used to gather information about your cohort members that will not change. For example, a professor could ask students about their field of study and class year. You can then analyse your survey responses segmented by the responses to the demographic questions.
     </p>
     <%
     let demographicQuestions = []

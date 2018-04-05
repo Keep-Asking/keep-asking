@@ -9,28 +9,22 @@ const emailRE = /\S+@\S+\.\S+/
 
 // Handle creating and updating a cohort
 router.post('/update', bodyParser.urlencoded({ extended: true }), function (req, res) {
-  console.log(req.body)
-
   // Validate cohort name
   if (!req.body.name || typeof (req.body.name) !== 'string' || req.body.name.length === 0) {
-    return res.status(400).json({
-      message: 'A cohort name is required.',
-      invalidField: 'name'
-    })
+    req.body.name = 'Unnamed Cohort'
   }
 
   // Validate members
   if (!req.body.members) {
-    return res.status(400).json({
-      message: 'A members array is required.',
-      invalidField: 'members'
-    })
+    req.body.members = []
   }
 
   // Filter members for non-email addresses
   req.body.members = Array.from(new Set(req.body['members'].filter(member => emailRE.test(member)))).sort()
 
-  console.log('Setting demographics:', req.body.demographicQuestions)
+  if (!Array.isArray(req.body.demographicQuestions)) {
+    req.body.demographicQuestions = []
+  }
 
   // Perform the database commands
   Cohort.update({ // Find the cohort to update, if it exists
