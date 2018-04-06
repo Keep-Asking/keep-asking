@@ -4,6 +4,9 @@ let router = express.Router()
 // Load internal modules
 let auth = require('./authentication.js')
 
+// Allow submission without authenticating
+router.use('/survey', require('./endpoints/survey.js'))
+
 // Check that the user is authenticated
 router.all('*', function (req, res, next) {
   if (auth.userIsAuthenticated(req)) {
