@@ -1,0 +1,20 @@
+<p>
+  Hi <%= member.split('@')[0] %>,
+</p>
+<p>
+  <%= locals.survey.owner %> would like your feedback about <%= emailTopic %> as part of <%= locals.survey.cohort.name %>. <%= locals.survey.owner %> is using Keep Asking to ask for your feedback on a regular basis. Your feedback is highly valued and will help <%= locals.survey.owner %> to make improvements.
+</p>
+<p>
+  Please <a href="<%- surveyURL %>">complete <%= locals.survey.owner %>'s survey</a> within the next 48 hours.
+</p>
+<p>
+  Thanks,
+</p>
+<p>
+  The Keep Asking Team
+</p>
+
+<br>
+<p style="font-size: 10px;">
+  You're receiving this email because <%= locals.survey.owner %> added you to a Keep Asking survey cohort. To stop receiving these emails, please contact <%= locals.survey.owner %>. Keep Asking is located at 35 Olden Street, Princeton, New Jersey, USA.
+</p>

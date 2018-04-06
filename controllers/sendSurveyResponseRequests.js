@@ -7,10 +7,13 @@ const ejs = require('ejs')
 require('dotenv').config()
 const config = require('./config.js')
 require('./database.js')
+const generateSurveyAccessHash = require('./hash.js').generateSurveyAccessHash
 
 const Survey = require('./../models/survey.js')
-const emailTemplateHEML = fs.readFileSync('./emails/surveyRequest.ejs', 'utf-8')
-const emailTemplatePlaintext = fs.readFileSync('./emails/surveyRequestPlaintext.ejs', 'utf-8')
+const emailTemplateSimplePlaintext = fs.readFileSync('./emails/surveyRequestSimplePlaintext.ejs', 'utf-8')
+const emailTemplateSimpleHTML = fs.readFileSync('./emails/surveyRequestSimple.ejs', 'utf-8')
+
+const sentSurveys = new Set()
 
 // Determine whether this is a dry run (skip sending emails)
 const dryRun = (process.argv[2] === '--dry-run')
@@ -18,7 +21,13 @@ if (dryRun) {
   console.log('Running a dry-run. No emails will actually be sent.')
 }
 
-const mailer = nodemailer.createTransport(sparkPostTransport())
+const mailer = nodemailer.createTransport(sparkPostTransport({
+  options: {
+    open_tracking: true,
+    click_tracking: false,
+    transactional: true
+  }
+}))
 
 // Workaround for HEML bug (see https://github.com/SparkPost/heml/issues/44)
 let HEMLrunning = false
@@ -65,37 +74,40 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
     }
 
     const thisSurveyEmailSendingPromises = thisSurvey.cohort.members.map(member => {
+      const emailTopic = thisSurvey.surveySet.name.split(' ').filter(word => (!['survey', 'feedback'].includes(word.toLowerCase()))).join(' ')
       // Prepare the email data
       const emailData = {
         survey: thisSurvey,
         member: member,
-        host: config.host
+        host: config.host,
+        surveyURL: [config.host, 'cohorts', thisSurvey.cohort._id, 'surveys', thisSurvey.surveySet._id, 'respond', thisSurvey._id].join('/') + `?email=${encodeURIComponent(member)}&hash=${generateSurveyAccessHash(thisSurvey.cohort._id, thisSurvey.surveySet._id, thisSurvey._id, member)}`,
+        emailTopic: emailTopic
       }
 
       // Render the HTML email
-      const emailHEML = ejs.render(emailTemplateHEML, emailData)
+      const emailHTML = ejs.render(emailTemplateSimpleHTML, emailData)
 
       // Render the plaintext email
-      const emailPlaintext = ejs.render(emailTemplatePlaintext, emailData)
+      const emailPlaintext = ejs.render(emailTemplateSimplePlaintext, emailData)
 
-      return renderHEML(emailHEML).then(emailHTML => {
-        const emailConfiguration = {
-          from: {
-            name: 'Keep Asking',
-            address: config.OUTBOUND_EMAIL_ADDRESS
-          },
-          to: member,
-          subject: [thisSurvey.cohort.name, thisSurvey.name, 'Feedback'].join(' '),
-          text: emailPlaintext,
-          html: emailHTML.html
-        }
+      const emailConfiguration = {
+        from: {
+          name: 'Keep Asking',
+          address: config.OUTBOUND_EMAIL_ADDRESS
+        },
+        to: member,
+        subject: [thisSurvey.cohort.name, emailTopic, 'Feedback'].join(' '),
+        text: emailPlaintext,
+        html: emailHTML
+      }
 
-        if (dryRun) {
-          return member
-        }
+      if (dryRun) {
+        console.log(emailConfiguration)
+        return member
+      }
 
-        return mailer.sendMail(emailConfiguration)
-      }).then(info => {
+      return mailer.sendMail(emailConfiguration).then(info => {
+        sentSurveys.add(thisSurvey._id)
         return member
       })
     })
@@ -106,7 +118,22 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
   return Promise.all(allSurveyEmailSendingPromises)
 }).then(results => {
   console.log(`Successfully sent emails to ${results.length} recipients.`)
+  if (sentSurveys.size === 0) {
+    return
+  }
   console.log('Recipients:', results.join(', '))
+  console.log('Saving sent survey details to database')
+  return Survey.updateMany(
+    {
+      _id: {
+        $in: Array.from(sentSurveys)
+      }
+    },
+    {
+      sent: true
+    })
+}).then(() => {
+  console.log('Done. Quitting.')
   process.exit(0)
 }).catch(function (err) {
   console.error('Fatal error caught:', err)
