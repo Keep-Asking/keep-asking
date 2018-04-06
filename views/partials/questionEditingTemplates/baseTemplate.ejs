@@ -27,5 +27,15 @@
         <%- include(question.kind + 'QuestionTemplate'); %>
       <% } %>
     </div>
+    <div class="form-group row">
+      <label for="inputEmail3" class="col-sm-2 col-form-label">Manage Question</label>
+      <div class="col-sm-10 mt-1">
+        <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteQuestionModal">Delete Question</button>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-outline-secondary btn-sm btn-move-question" data-move-direction="up">Move Question Up</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm btn-move-question" data-move-direction="down">Move Question Down</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
