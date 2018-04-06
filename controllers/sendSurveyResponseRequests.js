@@ -23,7 +23,7 @@ if (dryRun) {
 
 const mailer = nodemailer.createTransport(sparkPostTransport({
   options: {
-    open_tracking: true,
+    open_tracking: false,
     click_tracking: false,
     transactional: true
   }
