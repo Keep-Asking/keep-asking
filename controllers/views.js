@@ -1,9 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const moment = require('moment')
 
 // Helpers
-const auth = require('./authentication.js')
 const hash = require('./hash.js')
 
 // Required models
@@ -37,20 +35,21 @@ const displayError = function (req, res, errorNumber, errorMessage) {
 // Homepage
 router.get('/', async function (req, res, next) {
   // Check whether the user sending this request is authenticated
-  if (!auth.userIsAuthenticated(req)) {
+
+  if (!req.isAuthenticated()) {
     return res.render('splash', req.session)
   }
 
   const showArchived = typeof (req.query.archived) !== 'undefined'
 
   const promises = [
-    res.locals.user.getCohorts(showArchived),
-    res.locals.user.getCohortCount({archived: true})
+    req.user.getCohorts(showArchived),
+    req.user.getCohortCount({archived: true})
   ]
 
   Promise.all(promises).then(results => {
     return res.render('dashboard', {
-      username: req.session.username,
+      username: req.user.username,
       cohorts: results[0],
       archivedCount: results[1],
       pageTitle: 'Home'
@@ -63,11 +62,11 @@ router.get('/', async function (req, res, next) {
 
 // Edit cohort page
 router.get('/cohorts/:id/edit', function (req, res, next) {
-  if (!auth.userIsAuthenticated(req)) {
+  if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
   Cohort.findOne({
-    owner: res.locals.user.username,
+    owner: req.user.username,
     _id: req.params.id
   }, function (err, cohort) {
     if (err) {
@@ -78,7 +77,7 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
       return displayError(req, res, 404)
     }
     return res.render('edit', {
-      username: req.session.username,
+      username: req.user.username,
       cohort: cohort,
       formName: 'Cohort',
       pageTitle: 'Edit Cohort ' + cohort.name
@@ -88,11 +87,11 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
 
 // Edit survey page
 router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next) {
-  if (!auth.userIsAuthenticated(req)) {
+  if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
   SurveySet.findOne({
-    owner: res.locals.user.username,
+    owner: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).then(survey => {
@@ -101,7 +100,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
     }
 
     return res.render('edit', {
-      username: req.session.username,
+      username: req.user.username,
       survey: survey,
       formName: 'Survey',
       pageTitle: 'Edit Survey ' + survey.name
@@ -114,12 +113,12 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
 
 // Survey Results Page
 router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, next) {
-  if (!auth.userIsAuthenticated(req)) {
+  if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
 
   SurveySet.findOne({ // Find the specified surveySet
-    owner: res.locals.user.username,
+    owner: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).populate('cohort').then(surveySet => {
@@ -175,9 +174,9 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
 
     // console.log('surveySet', surveySet)
     return res.render('results', {
-      username: req.session.username,
+      username: req.user.username,
       surveySet: surveySet,
-      pageTitle: surveySet.name + ' Results',
+      pageTitle: surveySet.name + ' Results'
     })
   }).catch(err => {
     console.error(err)
@@ -186,11 +185,11 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
 })
 
 router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, next) {
-  if (!auth.userIsAuthenticated(req)) {
+  if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
   Survey.findOne({
-    owner: req.session.username,
+    owner: req.user.username,
     cohort: req.params.cohortID,
     surveySet: req.params.surveyID
   }).populate('cohort').then(function (survey) {
@@ -253,7 +252,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
-    if (req.session.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
+    if (req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
@@ -280,7 +279,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     return res.render('survey', {
-      username: req.session.username,
+      username: req.user.username,
       survey: thisSurvey,
       respondentEmail: req.query.email,
       responseHash: req.query.hash,

@@ -18,7 +18,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   if (req.body.cohort) {
     const cohortCount = await Cohort.count({
       _id: req.body.cohort,
-      owner: res.locals.user.username
+      owner: req.user.username
     })
     if (cohortCount === 0) {
       return res.status(404).json({
@@ -29,7 +29,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
 
   // Create the owners surveySetDocument
   let surveySetDocument = {
-    owner: res.locals.user.username
+    owner: req.user.username
   }
 
   // Map keys and values from req.body to surveySetDocument
@@ -48,7 +48,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   let surveySetID
   SurveySet.update({
     _id: req.body.survey || {$exists: false},
-    owner: res.locals.user.username
+    owner: req.user.username
   }, surveySetDocument, {
     upsert: true
   }).then(function (query) {
@@ -68,7 +68,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
       return {
         surveySet: surveySetID,
         cohort: req.body.cohort,
-        owner: res.locals.user.username,
+        owner: req.user.username,
         sendDate: date,
         sent: false
       }

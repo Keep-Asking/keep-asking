@@ -1,15 +1,36 @@
-let mongoose = require('mongoose')
-let Cohort = require('./cohort.js')
+const mongoose = require('mongoose')
+const findOrCreate = require('mongoose-findorcreate')
+const Cohort = require('./cohort.js')
+const requiredTrimmedString = require('./shared.js').requiredTrimmedString
 
-let userSchema = mongoose.Schema({
+const userSchema = mongoose.Schema({
   _id: {
     type: String,
     required: true,
     lowercase: true,
     alias: 'username',
     trim: true
-  }
+  },
+  provider: {
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true
+  },
+  name: {
+    familyName: {
+      type: String,
+      trim: true
+    },
+    givenName: {
+      type: String,
+      trim: true
+    }
+  },
+  email: requiredTrimmedString
 })
+
+userSchema.plugin(findOrCreate)
 
 userSchema.method('getCohortCount', function (query) {
   if (!query) {
