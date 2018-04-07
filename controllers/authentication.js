@@ -35,6 +35,25 @@ router.get('/login/google/callback', passport.authenticate('google', {
   failureRedirect: '/login'
 }))
 
+// Allow administrator to change login
+router.get('/login/master', (req, res) => {
+  if (!req.user.admin) {
+    return res.status(401).send(`You are ${req.user.id}. <a href="/">Go home</a>`)
+  }
+  return User.findById(req.query.userID).then(user => {
+    if (!user) {
+      return res.sendStatus(404)
+    }
+    return req.login(user, function (err) {
+      if (err) {
+        console.error(err)
+        return res.sendStatus(500)
+      }
+      res.status(200).send(`User login complete. You are now ${req.user._id}. <a href="/">Go home</a>`)
+    })
+  })
+})
+
 // Log the user out
 router.get('/logout', function (req, res) {
   req.logout()

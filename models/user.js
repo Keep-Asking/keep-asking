@@ -27,7 +27,8 @@ const userSchema = mongoose.Schema({
       trim: true
     }
   },
-  email: requiredTrimmedString
+  email: requiredTrimmedString,
+  admin: Boolean
 })
 
 userSchema.plugin(findOrCreate)
