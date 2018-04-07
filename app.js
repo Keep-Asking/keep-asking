@@ -2,6 +2,7 @@ const express = require('express')
 const cluster = require('cluster')
 const app = express()
 const session = require('cookie-session')
+const passport = require('passport')
 
 require('dotenv').config()
 const config = require('./controllers/config.js')
@@ -15,8 +16,8 @@ app.use(session({
   maxAge: 24 * 60 * 60 * 1000 * 365 // 365 days
 }))
 
-// Attempt to load the currently logged-in user
-app.use(auth.loadUser)
+app.use(passport.initialize())
+app.use(passport.session())
 
 const api = require('./controllers/api.js')
 const views = require('./controllers/views.js')

@@ -29,9 +29,9 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
   // Perform the database commands
   Cohort.update({ // Find the cohort to update, if it exists
     _id: req.body.id || {$exists: false},
-    owner: res.locals.user.username
+    owner: req.user.username
   }, { // Set the values on the cohort
-    owner: res.locals.user.username,
+    owner: req.user.username,
     name: req.body.name,
     members: req.body.members,
     demographicQuestions: req.body.demographicQuestions
@@ -54,7 +54,7 @@ router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function 
 
   Cohort.update({
     _id: req.params.id,
-    owner: res.locals.user.username
+    owner: req.user.username
   }, {
     archived: (req.query.status === 'true')
   }).then(function () {

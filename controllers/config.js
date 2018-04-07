@@ -33,3 +33,8 @@ if (!process.env.HASH_SECRET) {
   console.error('No HASH_SECRET environment variable has been set, so hashes cannot be computed.')
   process.exit(1)
 }
+
+module.exports.GOOGLE_API = {
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET
+}
