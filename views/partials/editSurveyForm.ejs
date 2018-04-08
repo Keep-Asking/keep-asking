@@ -5,7 +5,7 @@
     <div class="form-group">
       <label for="surveyName">Survey Name</label>
       <input type="text" class="form-control" id="surveyName" aria-describedby="surveyNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…" value="<%= (typeof survey !=='undefined' && typeof survey.name === 'string') ? survey.name : '' %>">
-      <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name.</small>
+      <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name. This name will be visible to the respondents of your survey.</small>
     </div>
     <div class="form-group">
       <label for="surveyScheduleDatepicker">When should your survey be sent?</label>
