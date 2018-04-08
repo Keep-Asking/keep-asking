@@ -138,7 +138,6 @@ $(function () {
     // Construct data obejct to send to server
     let surveySetData = {
       name: $('#surveyName').val().trim(),
-      surveyURL: $('#surveyURL').val().trim(),
       sendDates: sendDates,
       questions: serializeQuestions($(this))
     }

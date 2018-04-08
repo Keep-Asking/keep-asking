@@ -16,11 +16,6 @@ const surveySetSchema = mongoose.Schema({
   },
   owner: shared.requiredTrimmedString,
   name: shared.requiredTrimmedString,
-  surveyURL: {
-    type: String,
-    lowercase: true,
-    trim: true
-  },
   sendDates: [Date],
   questions: [shared.question]
 })
