@@ -9,7 +9,7 @@
       <table class="table">
         <tr>
           <td>Survey Date</td>
-          <% for (survey of surveySet.surveys) { %>
+          <% for (let survey of surveySet.surveys) { %>
             <td>
               <%= survey.sendDateText %>
             </td>
@@ -17,12 +17,24 @@
         </tr>
         <tr>
           <td>Response Rate</td>
-          <% for (survey of surveySet.surveys) { %>
+          <% for (let survey of surveySet.surveys) { %>
             <td>
               <% if (survey.sendDate > new Date()) { %>
                 <span class="font-italic text-muted">Future</span>
               <% } else { %>
                 <%= (survey.responses.length / surveySet.cohort.members.length * 100).toFixed(0) %>&nbsp;%
+              <% }%>
+            </td>
+          <% } %>
+        </tr>
+        <tr>
+          <td></td>
+          <% for (let survey of surveySet.surveys) { %>
+            <td>
+              <% if (survey.sendDate <= new Date()) { %>
+                <div class="btn btn-outline-primary btn-sm resend-survey-email-trigger" data-cohort-id="<%= surveySet.cohort._id %>" data-surveyset-id="<%= surveySet._id %>" data-survey-id="<%= survey._id %>">Remind Members</div>
+              <% } else { %>
+                <span class="font-italic text-muted">Future</span>
               <% }%>
             </td>
           <% } %>

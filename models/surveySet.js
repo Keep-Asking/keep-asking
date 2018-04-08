@@ -1,12 +1,12 @@
-let mongoose = require('mongoose')
-let ObjectId = mongoose.Schema.Types.ObjectId
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Schema.Types.ObjectId
 
 const moment = require('moment')
 
 const shared = require('./shared.js')
-const Survey = require('./survey.js')
-const Respondent = require('./respondent.js')
-const Response = require('./response.js')
+const Survey = mongoose.model('Survey')
+const Respondent = mongoose.model('Respondent')
+const Response = mongoose.model('Response')
 
 const surveySetSchema = mongoose.Schema({
   cohort: {

@@ -63,12 +63,12 @@
       </div>
     <% } %>
   <% } %>
-    <div class="text-center my-4">
-      <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
-      <% if (archivedCount > 0) { %>
-        <a href="/?archived" class="btn btn-outline-secondary">Show <%=archivedCount%> Archived Cohort<%=(archivedCount !== 0)?'s':'';%></a>
-      <% } %>
-    </div>
+  <div class="text-center my-4">
+    <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#newCohortModal">Create New Cohort</button>
+    <% if (archivedCount > 0) { %>
+      <a href="/?archived" class="btn btn-outline-secondary">Show <%=archivedCount%> Archived Cohort<%=(archivedCount !== 0)?'s':'';%></a>
+    <% } %>
+  </div>
 </div>
 
 <!-- Modal For Creating New Cohort -->

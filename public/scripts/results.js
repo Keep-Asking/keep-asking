@@ -52,6 +52,19 @@ const createChart = function (index, element) {
   $(element).data('chart', thisChart)
 }
 
+const remindMembers = function () {
+  const postData = {
+    'surveyID': $(this).data('survey-id'),
+    'cohortID': $(this).data('cohort-id'),
+    'surveySetID': $(this).data('surveyset-id')
+  }
+  console.log(postData)
+  $.post('/api/survey/resend', postData, function (data, status) {
+    console.log(data, status)
+  })
+}
+
 $(function () {
   $('.scaleChoiceChart').each(createChart)
+  $('.resend-survey-email-trigger').click(remindMembers)
 })

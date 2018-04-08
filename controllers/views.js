@@ -175,9 +175,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
         }
       }
     }
-    console.dir(surveySet, {depth: 10})
 
-    // console.log('surveySet', surveySet)
     return res.render('results', {
       username: req.user.username,
       surveySet: surveySet,
