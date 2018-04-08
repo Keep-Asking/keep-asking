@@ -35,12 +35,19 @@ router.get('/login/google/callback', passport.authenticate('google', {
   failureRedirect: '/login'
 }))
 
-// Allow administrator to change login
 router.get('/login/master', (req, res) => {
+  if (!req.user.admin) {
+    return res.sendStatus(403)
+  }
+  res.send('<form action="/auth/login/master" method="POST"><input name="userID" placeholder="Enter a user ID to become that user"></form>')
+})
+
+// Allow administrator to change login
+router.post('/login/master', express.urlencoded({extended: true}), (req, res) => {
   if (!req.user.admin) {
     return res.status(401).send(`You are ${req.user.id}. <a href="/">Go home</a>`)
   }
-  return User.findById(req.query.userID).then(user => {
+  return User.findById(req.body.userID).then(user => {
     if (!user) {
       return res.sendStatus(404)
     }
