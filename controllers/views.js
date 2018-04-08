@@ -279,7 +279,6 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     return res.render('survey', {
-      username: req.user.username || null,
       survey: thisSurvey,
       respondentEmail: req.query.email,
       responseHash: req.query.hash,
