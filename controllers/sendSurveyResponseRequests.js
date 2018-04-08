@@ -53,7 +53,10 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
     $lte: new Date()
   },
   sent: false
-}).populate('cohort').populate('surveySet').then(function (surveysToSend) {
+}).populate('cohort').populate('surveySet').populate({
+  path: 'cohort',
+  populate: { path: 'owner' }
+}).then(function (surveysToSend) {
   console.log('Found %d surveys needing sending.', surveysToSend.length)
 
   // Calculate the number of emails to send
@@ -78,6 +81,7 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
       // Prepare the email data
       const emailData = {
         survey: thisSurvey,
+        owner: thisSurvey.cohort.owner,
         member: member,
         host: config.host,
         surveyURL: [config.host, 'cohorts', thisSurvey.cohort._id, 'surveys', thisSurvey.surveySet._id, 'respond', thisSurvey._id].join('/') + `?email=${encodeURIComponent(member)}&hash=${generateSurveyAccessHash(thisSurvey.cohort._id, thisSurvey.surveySet._id, thisSurvey._id, member)}`,
