@@ -1,0 +1,24 @@
+<style>
+  .table-sortable {
+      position: relative;
+  }
+  .table-sortable .sortable-placeholder {
+      height: 37px;
+  }
+  .table-sortable .sortable-placeholder:after {
+      position: absolute;
+      z-index: 10;
+      content: " ";
+      height: 37px;
+      background: #f9f9f9;
+      left: 0;
+      right: 0;
+  }
+</style>
+<div class="form-group">
+  <ul class="list-group list-group-sortable">
+    <% for (let option of question.options) { %>
+      <li class="list-group-item" draggable="true"><%= option %></li>
+    <% } %>
+  </ul>
+</div>
