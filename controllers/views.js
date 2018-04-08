@@ -40,6 +40,11 @@ router.get('/', async function (req, res, next) {
     return res.render('splash', req.session)
   }
 
+  // Set profile if name is missing
+  if (!req.user.name || !req.user.name.givenName || req.user.name.givenName.length === 0 || !req.user.name.familyName || req.user.name.familyName.length === 0) {
+    return res.redirect('/profile?setupProfile=true')
+  }
+
   const showArchived = typeof (req.query.archived) !== 'undefined'
 
   const promises = [
@@ -287,6 +292,46 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     })
   }).catch(error => {
     console.error(error)
+    return displayError(req, res, 500)
+  })
+})
+
+// Manage the profile page
+const showProfilePage = function (req, res, next) {
+  if (!req.isAuthenticated()) {
+    return displayError(req, res, 403)
+  }
+
+  return res.render('profile', {
+    user: req.user,
+    username: req.user.username,
+    profileSaved: res.locals.profileSaved,
+    setupProfile: req.query.setupProfile === 'true'
+  })
+}
+
+router.get('/profile', showProfilePage)
+
+router.post('/profile', express.urlencoded({extended: true}), function (req, res, next) {
+  if (!req.isAuthenticated() || !req.user._id === req.body._id) {
+    return displayError(req, res, 403)
+  }
+  req.user.email = req.body.email
+  if (!req.user.name) {
+    req.user.name = {}
+  }
+  req.user.name.givenName = req.body.name.givenName
+  req.user.name.familyName = req.body.name.familyName
+
+  return req.user.save().then(user => {
+    res.locals.profileSaved = true
+
+    if (req.body.destination) {
+      return res.redirect(req.body.destination)
+    }
+    return showProfilePage(req, res, next)
+  }).catch(err => {
+    console.error(err)
     return displayError(req, res, 500)
   })
 })
