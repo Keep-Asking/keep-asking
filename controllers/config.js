@@ -23,9 +23,9 @@ if (!process.env.SPARKPOST_API_KEY) {
   console.error('No SparkPost API Key environment variable has been set, so emails cannot be sent.')
 }
 
-module.exports.OUTBOUND_EMAIL_ADDRESS = process.env.OUTBOUND_EMAIL_ADDRESS
-if (!process.env.OUTBOUND_EMAIL_ADDRESS) {
-  console.error('No OUTBOUND_EMAIL_ADDRESS environment variable has been set, so emails cannot be sent.')
+module.exports.OUTBOUND_EMAIL_DOMAIN = process.env.OUTBOUND_EMAIL_DOMAIN
+if (!process.env.OUTBOUND_EMAIL_DOMAIN) {
+  console.error('No OUTBOUND_EMAIL_DOMAIN environment variable has been set, so emails cannot be sent.')
 }
 
 module.exports.HASH_SECRET = process.env.HASH_SECRET

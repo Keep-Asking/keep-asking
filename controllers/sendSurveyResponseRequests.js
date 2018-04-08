@@ -94,10 +94,15 @@ Survey.find({ // Find all the survey requests that should have been sent that ha
       // Render the plaintext email
       const emailPlaintext = ejs.render(emailTemplateSimplePlaintext, emailData)
 
+      const ownerFullName = [thisSurvey.cohort.owner.name.givenName, thisSurvey.cohort.owner.name.familyName].join(' ')
       const emailConfiguration = {
         from: {
-          name: 'Keep Asking',
-          address: config.OUTBOUND_EMAIL_ADDRESS
+          name: ownerFullName,
+          address: ownerFullName.split(' ').join('.').toLowerCase() + '@' + config.OUTBOUND_EMAIL_DOMAIN
+        },
+        replyTo: {
+          name: ownerFullName,
+          address: thisSurvey.cohort.owner.email
         },
         to: member,
         subject: [thisSurvey.cohort.name, emailTopic, 'Feedback'].join(' '),
