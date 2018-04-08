@@ -252,7 +252,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
-    if (req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
+    if (req.user && req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
