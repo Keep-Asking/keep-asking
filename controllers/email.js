@@ -77,6 +77,7 @@ const sendSurveyResponseRequestEmail = function (cohort, surveySet, survey, reci
   const emailConfiguration = generateSurveyResponseRequestEmailConfiguration(cohort, surveySet, survey, recipientEmail)
   if (process.env.SKIP_SENDING_EMAILS === 'true') {
     console.log('Skipping sending emails')
+    console.log(emailConfiguration)
     return Promise.resolve(recipientEmail)
   }
   return mailer.sendMail(emailConfiguration)
