@@ -53,6 +53,7 @@ const createChart = function (index, element) {
 }
 
 const remindMembers = function () {
+  console.log('Reminding members')
   const postData = {
     'surveyID': $(this).data('survey-id'),
     'cohortID': $(this).data('cohort-id'),

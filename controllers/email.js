@@ -121,6 +121,8 @@ const resendSurveyResponseRequestEmails = function (cohortID, surveySetID, surve
     const respondents = responses.map(response => response.respondent)
     const notYetResponded = cohort.members.filter(member => !respondents.includes(member))
 
+    console.log('Re-sending emails to', notYetResponded)
+
     return sendSurveyResponseRequestEmailToEmails(cohort, surveySet, survey, notYetResponded)
   })
 }
