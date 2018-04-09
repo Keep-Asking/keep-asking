@@ -3,43 +3,54 @@
 <div class="container my-5">
   <h1><%= surveySet.name %> <span class="text-muted">Results</span></h1>
   <h5><span class="text-muted">Cohort:</span> <%= surveySet.cohort.name %></h5>
+  <div class="alert alert-success alert-reminder" style="display: none;" role="alert">
+    Reminder emails were successfully sent to the <span id="emailSendCount"></span> member<span id="emailSendCountPlural">s</span> of this cohort who have not responded to the <span id="emailSendSurveyLabel"></span> survey.
+  </div>
+  <div class="alert alert-danger alert-reminder" style="display: none;" role="alert">
+    An error occured and reminder emails could not be sent.
+  </div>
   <div class="card my-4">
     <div class="card-body">
       <h3>Response Frequency</h3>
       <table class="table">
-        <tr>
-          <td>Survey Date</td>
-          <% for (let survey of surveySet.surveys) { %>
-            <td>
-              <%= survey.sendDateText %>
-            </td>
-          <% } %>
-        </tr>
-        <tr>
-          <td>Response Rate</td>
-          <% for (let survey of surveySet.surveys) { %>
-            <td>
-              <% if (survey.sendDate > new Date()) { %>
-                <span class="font-italic text-muted">Future</span>
-              <% } else { %>
-                <%= (survey.responses.length / surveySet.cohort.members.length * 100).toFixed(0) %>&nbsp;%
-              <% }%>
-            </td>
-          <% } %>
-        </tr>
-        <tr>
-          <td></td>
-          <% for (let survey of surveySet.surveys) { %>
-            <td>
-              <% if (survey.sendDate <= new Date()) { %>
-                <div class="btn btn-outline-primary btn-sm resend-survey-email-trigger" data-cohort-id="<%= surveySet.cohort._id %>" data-surveyset-id="<%= surveySet._id %>" data-survey-id="<%= survey._id %>">Remind Members</div>
-              <% } else { %>
-                <span class="font-italic text-muted">Future</span>
-              <% }%>
-            </td>
-          <% } %>
-        </tr>
+        <thead>
+          <tr>
+            <th>Survey Date</th>
+            <% for (let survey of surveySet.surveys) { %>
+              <th>
+                <%= survey.sendDateText %>
+              </th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Response Rate</th>
+            <% for (let survey of surveySet.surveys) { %>
+              <td>
+                <% if (survey.sendDate > new Date()) { %>
+                  <span class="font-italic text-muted">Future</span>
+                <% } else { %>
+                  <%= (survey.responses.length / surveySet.cohort.members.length * 100).toFixed(0) %>&nbsp;%
+                <% }%>
+              </td>
+            <% } %>
+          </tr>
+          <tr>
+            <td></td>
+            <% for (let survey of surveySet.surveys) { %>
+              <td>
+                <% if (survey.sendDate <= new Date()) { %>
+                  <div class="btn btn-outline-primary btn-sm resend-survey-email-trigger" data-cohort-id="<%= surveySet.cohort._id %>" data-surveyset-id="<%= surveySet._id %>" data-survey-id="<%= survey._id %>">Remind Members</div>
+                <% } else { %>
+                  <span class="font-italic text-muted">Future</span>
+                <% }%>
+              </td>
+            <% } %>
+          </tr>
+        </tbody>
       </table>
+      <small class="text-muted">Clicking "Remind Members" will send an email reminding the members of this cohort who have not yet responded to the survey to submit their response.</small>
     </div>
   </div>
   <div class="card my-4">

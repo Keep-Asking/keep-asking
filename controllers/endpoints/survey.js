@@ -58,8 +58,9 @@ router.post('/resend', express.urlencoded({extended: true}), function (req, res)
     }
 
     return email.resendSurveyResponseRequestEmails(req.body.cohortID, req.body.surveySetID, req.body.surveyID)
-  }).then(() => {
-    res.sendStatus(200)
+  }).then(sentEmailPromises => {
+    console.log('Re-sending emails complete')
+    return res.status(200).json({emailsSent: sentEmailPromises.length})
   }).catch(err => {
     console.error(err)
     res.sendStatus(500)

@@ -53,15 +53,30 @@ const createChart = function (index, element) {
 }
 
 const remindMembers = function () {
-  console.log('Reminding members')
   const postData = {
     'surveyID': $(this).data('survey-id'),
     'cohortID': $(this).data('cohort-id'),
     'surveySetID': $(this).data('surveyset-id')
   }
-  console.log(postData)
-  $.post('/api/survey/resend', postData, function (data, status) {
-    console.log(data, status)
+  const button = $(this)
+  $.post('/api/survey/resend', postData).done(function (data) {
+    const thisAlert = $('.alert-reminder.alert-success')
+    thisAlert.find('#emailSendCount').text(data.emailsSent)
+    thisAlert.find('#emailSendCountPlural').toggle(data.emailsSent !== 0)
+    const thisSurveyLabel = button.closest('table').find('thead th').eq(button.parent().index()).text().trim()
+    thisAlert.find('#emailSendSurveyLabel').text(thisSurveyLabel)
+
+    thisAlert.slideDown(200, function () {
+      setTimeout(function () {
+        thisAlert.slideUp()
+      }, 10000)
+    })
+  }).fail(function () {
+    $('.alert-reminder.alert-danger').slideDown(200, function () {
+      setTimeout(function () {
+        $(this).slideUp()
+      }, 10000)
+    })
   })
 }
 
