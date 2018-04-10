@@ -1,12 +1,17 @@
 const createChart = function (index, element) {
   const thisCanvas = element.getContext('2d')
+  const data = $(element).data('responses')
+  const maxDataPoint = data.reduce(function (a, b) {
+    return Math.max(a, b)
+  })
+  const stepSize = Math.floor(maxDataPoint / 5)
   const thisChart = new Chart(thisCanvas, {
     type: 'bar',
     data: {
       labels: $(element).data('options'),
       datasets: [{
         label: 'Response Count',
-        data: $(element).data('responses'),
+        data: data,
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(255, 206, 86, 0.2)',
@@ -35,7 +40,7 @@ const createChart = function (index, element) {
         yAxes: [{
           ticks: {
             beginAtZero: true,
-            stepSize: 1
+            stepSize: stepSize
           },
           scaleLabel: {
             display: true,
@@ -106,6 +111,7 @@ const displayDemographicQuestionOptions = function () {
 }
 
 const fetchFilteredSurveyResults = function () {
+  console.log('Asked')
   let query = [
     'cohortID=' + $('#surveyResults').data('cohort-id'),
     'surveySetID=' + $('#surveyResults').data('surveyset-id')
