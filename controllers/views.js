@@ -122,64 +122,24 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
     return displayError(req, res, 403)
   }
 
-  SurveySet.findOne({ // Find the specified surveySet
+  return SurveySet.count({ // Find the specified surveySet
     owner: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
-  }).populate('cohort').then(surveySet => {
-    if (!surveySet) {
-      return null
-    }
-    return surveySet.getSurveys()
-  }).then(surveySet => {
-    if (!surveySet) {
+  }).then(surveySetCount => {
+    if (surveySetCount === 0) {
       return displayError(req, res, 404)
     }
 
-    for (let question of surveySet.questions) {
-      if (!question.responses) {
-        question.responses = {}
-      }
-      for (let survey of surveySet.surveys) {
-        for (let response of survey.responses) {
-          for (let questionAnswer of response.questionAnswers) {
-            if (questionAnswer.id === question.id) {
-              switch (question.kind) {
-                case 'text':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = []
-                  }
-                  question.responses[survey.sendDateText].push(questionAnswer.answer)
-                  break
-                case 'scale':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = new Array(5).fill(0)
-                  }
-                  question.responses[survey.sendDateText][parseInt(questionAnswer.answer) - 1]++
-                  break
-                case 'choice':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = {}
-                    for (let option of question.options) {
-                      question.responses[survey.sendDateText][option] = 0
-                    }
-                  }
-                  for (let answerOption of questionAnswer.answer) {
-                    question.responses[survey.sendDateText][answerOption]++
-                  }
-                  break
-              }
-              break
-            }
-          }
-        }
-      }
-    }
-
-    return res.render('results', {
-      username: req.user.username,
-      surveySet: surveySet,
-      pageTitle: surveySet.name + ' Results'
+    return SurveySet.fetchSurveyResultData(req.params.cohortID, req.params.surveyID).then(surveySet => {
+      return res.render('results', {
+        username: req.user.username,
+        surveySet: surveySet,
+        pageTitle: surveySet.name + ' Results'
+      })
+    }).catch(err => {
+      console.error(err)
+      return displayError(req, res, 500)
     })
   }).catch(err => {
     console.error(err)

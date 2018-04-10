@@ -80,7 +80,55 @@ const remindMembers = function () {
   })
 }
 
+const displayDemographicQuestionOptions = function () {
+  const options = $(this).find('option:selected').data('response-values') || []
+  const questionType = $(this).find('option:selected').data('question-type')
+
+  var elementHTML = ''
+  if (questionType === 'scale') {
+    elementHTML += '<div class="form-check form-check-inline">'
+    let rand = Math.random()
+    elementHTML += '<label style="padding-right:10px" class="form-check-label" for="' + rand + '">' + options[0] + '</label><div><input class="form-check-input" type="checkbox" name="filter-options" value="1" id="' + rand + '">'
+    for (let index = 2; index <= 4; index++) {
+      rand = Math.random()
+      elementHTML += '<input class="form-check-input" type="checkbox" name="filter-options" value="' + index + '" id="' + rand + '">'
+    }
+    rand = Math.random()
+    elementHTML += '<input sclass="form-check-input" type="checkbox" name="filter-options" value="5" id="' + rand + '"></div><label class="form-check-label" for="' + rand + '" style="padding-left:10px">' + options[1] + '</label>'
+  } else {
+    elementHTML = options.map((option, index, array) => {
+      const rand = Math.random()
+      return '<div class="form-check"><input class="form-check-input" type="checkbox" name="filter-options" value="' + option + '" id="' + rand + '"><label class="form-check-label" for="' + rand + '">' + option + '</label>' + '</div>'
+    }).join('')
+  }
+  $('#demographicQuestionFilterOptions').html(elementHTML)
+  fetchFilteredSurveyResults()
+}
+
+const fetchFilteredSurveyResults = function () {
+  let query = [
+    'cohortID=' + $('#surveyResults').data('cohort-id'),
+    'surveySetID=' + $('#surveyResults').data('surveyset-id')
+  ]
+  const filterQuestionID = $('#demographicQuestionFilter option:selected').val()
+  if (filterQuestionID.length !== 0) {
+    query.push('filterQuestionID=' + filterQuestionID)
+    const filterQuestionValues = $('[name="filter-options"]:checked').map(function (i, el) { return el.value }).get()
+    query.push('filterQuestionValues=' + encodeURIComponent(JSON.stringify(filterQuestionValues)))
+  }
+  query = query.join('&')
+
+  $.get('/api/surveysets/results?' + query).done(function (data) {
+    $('#surveyResults').html(data)
+    $('#surveyResults .scaleChoiceChart').each(createChart)
+  }).fail(function (err) {
+    console.error(err)
+  })
+}
+
 $(function () {
   $('.scaleChoiceChart').each(createChart)
   $('.resend-survey-email-trigger').click(remindMembers)
+  $('#demographicQuestionFilter').change(displayDemographicQuestionOptions)
+  $('#demographicQuestionFilterOptions').on('change', 'input', fetchFilteredSurveyResults)
 })

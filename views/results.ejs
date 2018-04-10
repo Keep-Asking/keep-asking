@@ -11,7 +11,7 @@
   </div>
   <div class="card my-4">
     <div class="card-body">
-      <h3>Response Frequency</h3>
+      <h3 class="card-title">Response Frequency</h3>
       <table class="table">
         <thead>
           <tr>
@@ -55,7 +55,7 @@
   </div>
   <div class="card my-4">
     <div class="card-body">
-      <h3>Cohort Member Demographics</h3>
+      <h3 class="card-title">Cohort Member Demographics</h3>
       <div class="text-muted">[Under construction]</div>
       <!-- <table class="table">
         <tr>
@@ -82,12 +82,58 @@
     </div>
   </div>
   <hr>
-  <h2>Survey Questions</h2>
-  <% for (let question of surveySet.questions) { %>
-    <%- include('./partials/questionResponseTemplates/baseTemplate', {question, surveySet}) %>
-  <% } %>
-  <div>
-    <code><%= JSON.stringify(surveySet) %></code>
+  <h2>Survey Responses</h2>
+  <div class="card bg-light my-4">
+    <div class="card-body">
+      <h3 class="card-title">Filter Survey Results</h3>
+      <p class="text-muted">
+        You can filter survey results based on the cohort's demographic questions.
+      </p>
+      <form class="form">
+        <div class="row">
+          <div class="col">
+            <h5>Demographic Question</h5>
+            <select class="custom-select" id="demographicQuestionFilter">
+              <option val="" label="Do Not Filter Responses"></option>
+              <% for (let question of surveySet.cohort.demographicQuestions) {
+                let filterOptions = []
+
+                switch (question.kind) {
+                  case 'text':
+                    filterOptions = surveySet.respondents.map(respondent => {
+                      if (!respondent.demographicQuestionResponses) return
+                      const thisDemographicQuestionAnswer = respondent.demographicQuestionResponses.find(response => response.id === question.id)
+                      if (thisDemographicQuestionAnswer && thisDemographicQuestionAnswer.answer){
+                        return thisDemographicQuestionAnswer.answer
+                      }
+                    }).filter(val => typeof val !== 'undefined')
+                    break
+                  case 'choice':
+                    filterOptions = question.options
+                    break
+                  case 'scale':
+                    filterOptions = [question.options[0], question.options[1]]
+                    break
+                }
+                %>
+                <option value="<%=question.id%>" label="<%=question.title%>" data-response-values="<%= JSON.stringify(filterOptions) %>" data-question-type="<%=question.kind%>"></option>
+              <% } %>
+            </select>
+          </div>
+          <div class="col">
+            <h5>Included Demographic Question Answers</h5>
+            <small class="text-muted">
+              Respondents who answered with any of the answers you select will be included in the survey results displayed below.
+            </small>
+            <div id="demographicQuestionFilterOptions">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="surveyResults" data-cohort-id="<%= surveySet.cohort._id %>" data-surveyset-id="<%= surveySet._id %>">
+    <%- include('./partials/resultsQuestionAnswers.ejs', {surveySet}) %>
   </div>
 </div>
 

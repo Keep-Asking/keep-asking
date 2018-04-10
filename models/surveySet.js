@@ -79,6 +79,91 @@ surveySetSchema.method('getSurveys', function (callback) {
   })
 })
 
+surveySetSchema.statics.fetchSurveyResultData = function (cohortID, surveySetID, filter) {
+  return SurveySet.findOne({ // Find the specified surveySet
+    cohort: cohortID,
+    _id: surveySetID
+  }).populate('cohort').then(surveySet => {
+    if (!surveySet) {
+      return null
+    }
+    return surveySet.getSurveys()
+  }).then(surveySet => {
+    if (!surveySet) {
+      return Promise.reject(new Error(404))
+    }
+
+    let respondentsIncludedByFilter
+    if (filter) {
+      respondentsIncludedByFilter = surveySet.respondents.filter(respondent => {
+        if (!respondent.demographicQuestionResponses) {
+          return false
+        }
+
+        const responseToFilteredQuestion = respondent.demographicQuestionResponses.find(questionResponse => questionResponse.id === filter.questionID)
+
+        if (responseToFilteredQuestion && responseToFilteredQuestion.answer) {
+          if (Array.isArray(responseToFilteredQuestion.answer)) {
+            const responseToFilteredQuestionIncludesOneOfFilteredAnswers = responseToFilteredQuestion.answer.some(answer => filter.questionValues.includes(answer))
+            if (responseToFilteredQuestionIncludesOneOfFilteredAnswers) {
+              return true
+            }
+          } else if (typeof responseToFilteredQuestion.answer === 'string') {
+            if (filter.questionValues.includes(responseToFilteredQuestion.answer)) {
+              return true
+            }
+          }
+        }
+        return false
+      }).map(respondent => respondent._id)
+    }
+
+    for (let question of surveySet.questions) {
+      if (!question.responses) {
+        question.responses = {}
+      }
+      for (let survey of surveySet.surveys) {
+        let responsesToProcess
+        if (respondentsIncludedByFilter) {
+          responsesToProcess = survey.responses.filter(response => respondentsIncludedByFilter.includes(response.respondent))
+        } else {
+          responsesToProcess = survey.responses
+        }
+        for (let response of responsesToProcess) {
+          const questionAnswer = response.questionAnswers.find(questionAnswer => questionAnswer.id === question.id)
+          switch (question.kind) {
+            case 'text':
+              if (!question.responses[survey.sendDateText]) {
+                question.responses[survey.sendDateText] = []
+              }
+              question.responses[survey.sendDateText].push(questionAnswer.answer)
+              break
+            case 'scale':
+              if (!question.responses[survey.sendDateText]) {
+                question.responses[survey.sendDateText] = new Array(5).fill(0)
+              }
+              question.responses[survey.sendDateText][parseInt(questionAnswer.answer) - 1]++
+              break
+            case 'choice':
+              if (!question.responses[survey.sendDateText]) {
+                question.responses[survey.sendDateText] = {}
+                for (let option of question.options) {
+                  question.responses[survey.sendDateText][option] = 0
+                }
+              }
+              for (let answerOption of questionAnswer.answer) {
+                question.responses[survey.sendDateText][answerOption]++
+              }
+              break
+          }
+        }
+      }
+    }
+
+    return Promise.resolve(surveySet)
+  })
+}
+
 let SurveySet = mongoose.model('SurveySet', surveySetSchema)
 
 module.exports = SurveySet
