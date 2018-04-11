@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const ObjectId = mongoose.Schema.Types.ObjectId
 const questionResponse = require('./shared.js').questionResponse
 
-let responseSchema = mongoose.Schema({
+const responseSchema = mongoose.Schema({
   respondent: {
     type: String,
     ref: 'Respondent',

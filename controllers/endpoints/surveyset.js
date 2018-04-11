@@ -33,7 +33,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   }
 
   // Map keys and values from req.body to surveySetDocument
-  const keysToMap = ['name', 'surveyURL', 'sendDates', 'cohort', 'questions']
+  const keysToMap = ['name', 'sendDates', 'cohort', 'questions']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
       surveySetDocument[key] = req.body[key]
@@ -77,6 +77,49 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   }).then(function () {
     res.sendStatus(200)
   }).catch(function (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  })
+})
+
+router.get('/results', function (req, res) {
+  if (!req.isAuthenticated()) {
+    return res.sendStatus(403)
+  }
+
+  return SurveySet.count({ // Find the specified surveySet
+    owner: req.user.username,
+    cohort: req.query.cohortID,
+    _id: req.query.surveySetID
+  }).then(surveySetCount => {
+    if (surveySetCount === 0) {
+      return res.sendStatus(404)
+    }
+
+    // Constuct requested filter, if any
+    try {
+      if (req.query.filterQuestionID && req.query.filterQuestionValues) {
+        const filterQuestionValues = JSON.parse(req.query.filterQuestionValues)
+        if (filterQuestionValues.length > 0) {
+          var filter = {
+            questionID: req.query.filterQuestionID,
+            questionValues: filterQuestionValues
+          }
+        }
+      }
+    } catch (error) {
+      // Silently ignore this error. The JSON was malformed
+    }
+
+    return SurveySet.fetchSurveyResultData(req.query.cohortID, req.query.surveySetID, filter).then(surveySet => {
+      return res.render('partials/resultsQuestionAnswers.ejs', {
+        surveySet: surveySet
+      })
+    }).catch(err => {
+      console.error(err)
+      return res.sendStatus(500)
+    })
+  }).catch(err => {
     console.error(err)
     return res.sendStatus(500)
   })

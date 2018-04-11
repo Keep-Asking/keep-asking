@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const findOrCreate = require('mongoose-findorcreate')
-const Cohort = require('./cohort.js')
+const Cohort = mongoose.model('Cohort')
 const requiredTrimmedString = require('./shared.js').requiredTrimmedString
 
 const userSchema = mongoose.Schema({

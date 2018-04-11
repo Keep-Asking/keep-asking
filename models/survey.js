@@ -1,12 +1,7 @@
-let mongoose = require('mongoose')
-let ObjectId = mongoose.Schema.Types.ObjectId
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Schema.Types.ObjectId
 
-// Require SurveySet for getting Cohort Members
-require('./surveySet.js')
-require('./cohort.js')
-require('./user.js')
-
-let surveySchema = mongoose.Schema({
+const surveySchema = mongoose.Schema({
   surveySet: {
     type: ObjectId,
     ref: 'SurveySet',

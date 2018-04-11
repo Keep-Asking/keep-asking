@@ -5,12 +5,7 @@
     <div class="form-group">
       <label for="surveyName">Survey Name</label>
       <input type="text" class="form-control" id="surveyName" aria-describedby="surveyNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…" value="<%= (typeof survey !=='undefined' && typeof survey.name === 'string') ? survey.name : '' %>">
-      <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name.</small>
-    </div>
-    <div class="form-group">
-      <label for="surveyURL">Survey URL</label>
-      <input type="text" class="form-control" id="surveyURL" aria-describedby="surveyURLHelp" placeholder="https://www.example.com/form?id=abc123" value="<%= (typeof survey !=='undefined' && typeof survey.surveyURL === 'string') ? survey.surveyURL : '' %>">
-      <small id="surveyURLHelp" class="form-text text-muted">The web address where your users can find your survey. Use Google Forms, Typeform, or some other system for online forms.</small>
+      <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name. This name will be visible to the respondents of your survey.</small>
     </div>
     <div class="form-group">
       <label for="surveyScheduleDatepicker">When should your survey be sent?</label>

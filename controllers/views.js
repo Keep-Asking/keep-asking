@@ -40,6 +40,11 @@ router.get('/', async function (req, res, next) {
     return res.render('splash', req.session)
   }
 
+  // Set profile if name is missing
+  if (!req.user.name || !req.user.name.givenName || req.user.name.givenName.length === 0 || !req.user.name.familyName || req.user.name.familyName.length === 0) {
+    return res.redirect('/profile?setupProfile=true')
+  }
+
   const showArchived = typeof (req.query.archived) !== 'undefined'
 
   const promises = [
@@ -117,66 +122,24 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
     return displayError(req, res, 403)
   }
 
-  SurveySet.findOne({ // Find the specified surveySet
+  return SurveySet.count({ // Find the specified surveySet
     owner: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
-  }).populate('cohort').then(surveySet => {
-    if (!surveySet) {
-      return null
-    }
-    return surveySet.getSurveys()
-  }).then(surveySet => {
-    if (!surveySet) {
+  }).then(surveySetCount => {
+    if (surveySetCount === 0) {
       return displayError(req, res, 404)
     }
 
-    for (let question of surveySet.questions) {
-      if (!question.responses) {
-        question.responses = {}
-      }
-      for (let survey of surveySet.surveys) {
-        for (let response of survey.responses) {
-          for (let questionAnswer of response.questionAnswers) {
-            if (questionAnswer.id === question.id) {
-              switch (question.kind) {
-                case 'text':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = []
-                  }
-                  question.responses[survey.sendDateText].push(questionAnswer.answer)
-                  break
-                case 'scale':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = new Array(5).fill(0)
-                  }
-                  question.responses[survey.sendDateText][parseInt(questionAnswer.answer) - 1]++
-                  break
-                case 'choice':
-                  if (!question.responses[survey.sendDateText]) {
-                    question.responses[survey.sendDateText] = {}
-                    for (let option of question.options) {
-                      question.responses[survey.sendDateText][option] = 0
-                    }
-                  }
-                  for (let answerOption of questionAnswer.answer) {
-                    question.responses[survey.sendDateText][answerOption]++
-                  }
-                  break
-              }
-              break
-            }
-          }
-        }
-      }
-    }
-    console.dir(surveySet, {depth: 10})
-
-    // console.log('surveySet', surveySet)
-    return res.render('results', {
-      username: req.user.username,
-      surveySet: surveySet,
-      pageTitle: surveySet.name + ' Results'
+    return SurveySet.fetchSurveyResultData(req.params.cohortID, req.params.surveyID).then(surveySet => {
+      return res.render('results', {
+        username: req.user.username,
+        surveySet: surveySet,
+        pageTitle: surveySet.name + ' Results'
+      })
+    }).catch(err => {
+      console.error(err)
+      return displayError(req, res, 500)
     })
   }).catch(err => {
     console.error(err)
@@ -252,7 +215,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
-    if (req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
+    if (req.user && req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
@@ -279,7 +242,6 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     return res.render('survey', {
-      username: req.user.username,
       survey: thisSurvey,
       respondentEmail: req.query.email,
       responseHash: req.query.hash,
@@ -288,6 +250,46 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     })
   }).catch(error => {
     console.error(error)
+    return displayError(req, res, 500)
+  })
+})
+
+// Manage the profile page
+const showProfilePage = function (req, res, next) {
+  if (!req.isAuthenticated()) {
+    return displayError(req, res, 403)
+  }
+
+  return res.render('profile', {
+    user: req.user,
+    username: req.user.username,
+    profileSaved: res.locals.profileSaved,
+    setupProfile: req.query.setupProfile === 'true'
+  })
+}
+
+router.get('/profile', showProfilePage)
+
+router.post('/profile', express.urlencoded({extended: true}), function (req, res, next) {
+  if (!req.isAuthenticated() || !req.user._id === req.body._id) {
+    return displayError(req, res, 403)
+  }
+  req.user.email = req.body.email
+  if (!req.user.name) {
+    req.user.name = {}
+  }
+  req.user.name.givenName = req.body.name.givenName
+  req.user.name.familyName = req.body.name.familyName
+
+  return req.user.save().then(user => {
+    res.locals.profileSaved = true
+
+    if (req.body.destination) {
+      return res.redirect(req.body.destination)
+    }
+    return showProfilePage(req, res, next)
+  }).catch(err => {
+    console.error(err)
     return displayError(req, res, 500)
   })
 })

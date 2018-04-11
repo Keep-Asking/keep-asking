@@ -1,11 +1,11 @@
-Hi <%= member.split('@')[0] %>,
+Hello,
 
-<%= locals.survey.owner %> would like your feedback about <%= emailTopic %> as part of <%= locals.survey.cohort.name %>. <%= locals.survey.owner %> is using Keep Asking to ask for your feedback on a regular basis. Your feedback is highly valued and will help <%= locals.survey.owner %> to make improvements.
+I am conducting a periodic survey about <%= emailTopic %> as part of <%= locals.survey.cohort.name %>. I would like to learn about your experiences and opinions with respect to this topic.
 
-Please complete <%= locals.survey.owner %>'s survey within the next 48 hours: <%- surveyURL %>
+Please complete the <%= emailTopic %> survey within the next 48 hours: <%- surveyURL %>
 
-Thanks,
+Thank you,
 
-The Keep Asking Team
+<%= locals.owner.name.givenName + ' ' + locals.owner.name.familyName %>
 
-(You're receiving this email because <%= locals.survey.owner %> added you to a Keep Asking survey cohort. To stop receiving these emails, please contact <%= locals.survey.owner %>. Keep Asking is located at 35 Olden Street, Princeton, New Jersey, USA.)
+(You are receiving this email because <%= locals.owner.name.givenName + ' ' + locals.owner.name.familyName %> added you to a Keep Asking survey cohort. To stop receiving these emails, please contact <%= locals.owner.name.givenName + ' ' + locals.owner.name.familyName %>. Keep Asking is located at 35 Olden Street, Princeton, New Jersey, USA.)

@@ -6,9 +6,12 @@ const passport = require('passport')
 
 require('dotenv').config()
 const config = require('./controllers/config.js')
-const auth = require('./controllers/authentication.js')
 
 require('./controllers/database.js')
+
+require('./controllers/loadModels.js')
+
+const auth = require('./controllers/authentication.js')
 
 // Configure session cookies
 app.use(session({
