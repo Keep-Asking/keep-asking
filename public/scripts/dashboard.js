@@ -45,6 +45,9 @@ const serializeQuestions = function (form) {
         thisQuestion.options = $(questionElement).find('[data-question-attribute="options"]').tokenfield('getTokens').map(val => val.value)
         thisQuestion.multipleChoice = $(questionElement).find('[data-question-attribute="multipleChoice"]:checked').val().trim() === 'multiple'
         break
+      case 'rank':
+        thisQuestion.options = $(questionElement).find('[data-question-attribute="options"]').tokenfield('getTokens').map(val => val.value)
+        break
     }
 
     serializedQuestions.push(thisQuestion)

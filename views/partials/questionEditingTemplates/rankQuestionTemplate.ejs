@@ -1,0 +1,13 @@
+<div class="form-group row">
+  <div class="col col-sm-10 offset-sm-2 text-muted">
+    A rank question asks the respondent to sort the items you specify based on criteria you specify. For example, you could ask your respondents to rank a list of fruit in order of preference.
+  </div>
+</div>
+<% const rand = Math.random(); %>
+<div class="form-group row">
+  <label for="<%= rand %>" class="col-sm-2 col-form-label">Items to Rank</label>
+  <div class="col-sm-10">
+    <input id="<%= rand %>" type="text" class="form-control tokenfield options" data-question-attribute="options" aria-describedby="cohortNameHelp" placeholder="Apples, Bananas, Oranges, etc…" data-tokens="<%= (typeof question !== 'undefined' && typeof question.options === 'object' && Array.isArray(question.options)) ? question.options.join(',') : ''; %>">
+    <small id="cohortNameHelp" class="form-text text-muted">Type the items that you want your respondents to rank, separated by commas. The items will be displayed to each respondent in a random initial order.</small>
+  </div>
+</div>

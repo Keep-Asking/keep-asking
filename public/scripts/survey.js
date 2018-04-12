@@ -15,7 +15,10 @@ const serializeResponse = function (form) {
         questionResponse.answer = parseInt($(question).find('input:checked').val())
         break
       case 'choice':
-        questionResponse.answer = $(question).find('input:checked').toArray().map(option => $(option).val()) || []
+        questionResponse.answer = $(question).find('input:checked').map((i, e) => $(e).val()).get() || []
+        break
+      case 'rank':
+        questionResponse.answer = $(question).find('.list-group-sortable li').map((i, e) => $(e).text()).get()
         break
     }
 
@@ -29,17 +32,16 @@ const serializeResponse = function (form) {
   return {demographicQuestionResponses, surveyQuestionResponses}
 }
 
+// Initialise all sortables
+sortable('.list-group-sortable', {
+  placeholder: '<li class="list-group-item">&nbsp;</li>'
+})
+
 $(function () {
-  console.log('Running')
   $('#survey').submit(function (event) {
     event.preventDefault()
 
     const form = $(this)
-
-    // Prevent submitting preview forms
-    if ($('[data-survey-preview]').length) {
-      return $('#survey, .survey-completion-alert.alert-info').slideToggle()
-    }
 
     const questionAnswers = serializeResponse(form)
 
@@ -52,10 +54,13 @@ $(function () {
       demographicQuestionResponses: questionAnswers.demographicQuestionResponses,
       surveyQuestionResponses: questionAnswers.surveyQuestionResponses
     }
-    const dataToSubmit = JSON.parse(JSON.stringify(data))
-    console.log(dataToSubmit)
 
-    $.post('/api/survey/submit', dataToSubmit).done(function () {
+    // Prevent submitting preview forms
+    if ($('[data-survey-preview]').length) {
+      return $('#survey, .survey-completion-alert.alert-info').slideToggle()
+    }
+
+    $.post('/api/survey/submit', data).done(function () {
       console.log('done')
       $('#survey, .survey-completion-alert.alert-success').slideToggle()
     }).fail(function () {

@@ -155,6 +155,17 @@ surveySetSchema.statics.fetchSurveyResultData = function (cohortID, surveySetID,
                 question.responses[survey.sendDateText][answerOption]++
               }
               break
+            case 'rank':
+              if (!question.responses[survey.sendDateText]) {
+                question.responses[survey.sendDateText] = {}
+                for (let option of question.options) {
+                  question.responses[survey.sendDateText][option] = []
+                }
+              }
+              questionAnswer.answer.forEach((item, index) => {
+                question.responses[survey.sendDateText][item].push(index + 1)
+              })
+              break
           }
         }
       }

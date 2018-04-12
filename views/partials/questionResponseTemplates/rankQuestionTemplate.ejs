@@ -1,0 +1,29 @@
+<%
+  const averageOfArray = function (array) {
+    return array.reduce((sum, item) => sum + item, 0) / array.length
+  }
+%>
+<table class="table table-sm sortable">
+  <caption>Average item rank by survey</caption>
+  <thead>
+    <tr>
+      <th scope="col">Item</th>
+      <% const keys = Object.keys(question.responses) %>
+      <% const lastResponseDate = keys[keys.length - 1]
+      for (let responseDate in question.responses) { %>
+        <th scope="col" <%- (responseDate === lastResponseDate) ? 'data-defaultsort="desc"' : '';%>><%= responseDate %></th>
+      <% } %>
+    </tr>
+  </thead>
+  <tbody>
+    <% for (let item of question.options) { %>
+      <tr>
+        <td><%= item %></th>
+        <% for (let responseDate in question.responses) { %>
+          <% const itemAverageRanking = averageOfArray(question.responses[responseDate][item]) %>
+          <td><%= itemAverageRanking.toFixed(1) %></td>
+        <% } %>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

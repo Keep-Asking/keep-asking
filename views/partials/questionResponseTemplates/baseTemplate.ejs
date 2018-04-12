@@ -1,23 +1,27 @@
 <div class="card my-4">
   <div class="card-body">
-    <h3><%= question.title %></h3>
-    <table class="table">
-      <thead>
-        <th style="width: 200px">Survey Date</th>
-        <th>Responses</th>
-      </thead>
-      <tbody>
-        <% for (let responseDate in question.responses) { %>
-          <tr>
-            <td>
-              <%= responseDate %>
-            </td>
-            <td>
-              <%- include('./' + question.kind + 'QuestionTemplate', {responseDate}) %>
-            </td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
+    <h3 class="card-title"><%= question.title %></h3>
+    <% if (question.kind === 'rank') { %>
+      <%- include('./' + question.kind + 'QuestionTemplate') %>
+    <% } else { %>
+      <table class="table">
+        <thead>
+          <th style="width: 200px">Survey Date</th>
+          <th>Responses</th>
+        </thead>
+        <tbody>
+          <% for (let responseDate in question.responses) { %>
+            <tr>
+              <td>
+                <%= responseDate %>
+              </td>
+              <td>
+                <%- include('./' + question.kind + 'QuestionTemplate', {responseDate}) %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } %>
   </div>
 </div>

@@ -11,7 +11,7 @@ const question = {
   id: requiredTrimmedString,
   kind: {
     type: String,
-    enum: ['text', 'scale', 'choice']
+    enum: ['text', 'scale', 'choice', 'rank']
   },
   options: [String],
   textAreaSize: {

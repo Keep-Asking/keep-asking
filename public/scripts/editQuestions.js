@@ -8,7 +8,8 @@ const questionTemplatesHTML = {
   basic: $('#question-template div[data-question-type="basic"]').html(),
   text: $('#question-template div[data-question-type="text"]').html(),
   scale: $('#question-template div[data-question-type="scale"]').html(),
-  choice: $('#question-template div[data-question-type="choice"]').html()
+  choice: $('#question-template div[data-question-type="choice"]').html(),
+  rank: $('#question-template div[data-question-type="rank"]').html()
 }
 
 const populateConfirmDeleteQuestion = function (event) {
