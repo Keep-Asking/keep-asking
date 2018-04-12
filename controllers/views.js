@@ -85,6 +85,7 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
       username: req.user.username,
       cohort: cohort,
       formName: 'Cohort',
+      formDescription: 'A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company.',
       pageTitle: 'Edit Cohort ' + cohort.name
     })
   })
@@ -108,6 +109,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
       username: req.user.username,
       survey: survey,
       formName: 'Survey',
+      formDescription: 'A survey is what you use to ask questions to your respondents. At the date(s) and time you specify, your cohort members will be emailed asking them to complete your survey. You can create multiple surveys to ask your cohort members about different topics at different times.',
       pageTitle: 'Edit Survey ' + survey.name
     })
   }).catch(err => {
