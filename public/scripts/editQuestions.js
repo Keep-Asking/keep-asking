@@ -87,10 +87,6 @@ const moveQuestion = function (event) {
 $(function () {
   initialiseOptionsTokenField()
 
-  $('.list-group-sortable').sortable({
-    placeholderClass: 'list-group-item'
-  })
-
   // Add a new question
   $('[data-action="add-question"]').click(addNewQuestion)
 

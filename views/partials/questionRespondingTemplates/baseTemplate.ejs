@@ -2,7 +2,7 @@
   <div class="card-body">
     <div class="form-group row">
       <div class="col">
-        <label class="h3" for="<%=question.id%>"><%= question.title %></label>
+        <label class="h3 card-title" for="<%=question.id%>"><%= question.title %></label>
         <%- include('./' + question.kind + 'QuestionTemplate') %>
       </div>
     </div>

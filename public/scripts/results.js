@@ -111,7 +111,6 @@ const displayDemographicQuestionOptions = function () {
 }
 
 const fetchFilteredSurveyResults = function () {
-  console.log('Asked')
   let query = [
     'cohortID=' + $('#surveyResults').data('cohort-id'),
     'surveySetID=' + $('#surveyResults').data('surveyset-id')
