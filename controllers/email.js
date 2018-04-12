@@ -10,30 +10,44 @@ const config = require('./config.js')
 require('./database.js')
 const generateSurveyAccessHash = require('./hash.js').generateSurveyAccessHash
 
-const Survey = require('./../models/survey.js')
-const Response = require('./../models/response.js')
+const mongoose = require('mongoose')
+require('./loadModels.js')
+const Survey = mongoose.model('Survey')
+const Response = mongoose.model('Response')
+
 const emailTemplateSimplePlaintext = fs.readFileSync('./emails/surveyRequestSimplePlaintext.ejs', 'utf-8')
 const emailTemplateSimpleHTML = fs.readFileSync('./emails/surveyRequestSimple.ejs', 'utf-8')
 
 // Configure the third-party transport service
-let thirdPartyTransport
-if (config.transport === 'mailgun') {
-  thirdPartyTransport = mailgunTransport({
-    auth: {
-      api_key: config.mailgun.apiKey,
-      domain: config.mailgun.domain
+let transportPlugin
+switch (config.transport) {
+  case 'mailgun':
+    console.log('You are using the MailGun transport.')
+    transportPlugin = mailgunTransport({
+      auth: {
+        api_key: config.mailgun.apiKey,
+        domain: config.mailgun.domain
+      }
+    })
+    break
+  case 'sparkpost':
+    console.log('You are using the SparkPost transport.')
+    transportPlugin = sparkPostTransport({
+      options: {
+        open_tracking: false,
+        click_tracking: false,
+        transactional: true
+      }
+    })
+    break
+  default:
+    // Mock Transport (does not actually send messages)
+    console.log('You are using a mock transport. Emails will not actually be sent.')
+    transportPlugin = {
+      jsonTransport: true
     }
-  })
-} else {
-  thirdPartyTransport = sparkPostTransport({
-    options: {
-      open_tracking: false,
-      click_tracking: false,
-      transactional: true
-    }
-  })
 }
-const mailer = nodemailer.createTransport(thirdPartyTransport)
+const mailer = nodemailer.createTransport(transportPlugin)
 
 const generateSurveyResponseRequestEmailConfiguration = function (cohort, surveySet, survey, recipientEmail) {
   // Generate the beautified email topic
@@ -75,11 +89,6 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
 
 const sendSurveyResponseRequestEmail = function (cohort, surveySet, survey, recipientEmail) {
   const emailConfiguration = generateSurveyResponseRequestEmailConfiguration(cohort, surveySet, survey, recipientEmail)
-  if (process.env.SKIP_SENDING_EMAILS === 'true') {
-    console.log('Skipping sending emails')
-    console.log(emailConfiguration)
-    return Promise.resolve(recipientEmail)
-  }
   return mailer.sendMail(emailConfiguration)
 }
 
@@ -97,6 +106,7 @@ const sendSurveyResponseRequestEmailToCohort = function (cohort, surveySet, surv
 }
 
 const resendSurveyResponseRequestEmails = function (cohortID, surveySetID, surveyID) {
+  console.log(`Re-sending response request emails for survey ${surveyID}`)
   const promises = [
     Response.find({
       cohort: cohortID,
@@ -122,7 +132,7 @@ const resendSurveyResponseRequestEmails = function (cohortID, surveySetID, surve
     const respondents = responses.map(response => response.respondent)
     const notYetResponded = cohort.members.filter(member => !respondents.includes(member))
 
-    console.log('Re-sending emails to', notYetResponded)
+    console.log('Re-sending emails to the following respondents:', notYetResponded)
 
     return sendSurveyResponseRequestEmailToEmails(cohort, surveySet, survey, notYetResponded)
   })
@@ -139,7 +149,7 @@ const sendUnsentSurveyResponseRequestEmails = function () {
     path: 'cohort',
     populate: { path: 'owner' }
   }).then(function (surveysToSend) {
-    console.log('Found %d surveys needing sending.', surveysToSend.length)
+    console.log(`Found ${surveysToSend.length} surveys whose sendDates are in the past and for which survey request emails have not been sent.`)
 
     // Calculate the number of emails to send
     const totalEmailsToSend = surveysToSend.reduce((accumulator, currentValue) => accumulator + currentValue.cohort.members.length, 0)
@@ -157,13 +167,14 @@ const sendUnsentSurveyResponseRequestEmails = function () {
         continue
       }
 
-      const thisSurveyEmailSendingPromises = sendSurveyResponseRequestEmailToCohort(thisSurvey.cohort, thisSurvey.surveySet, thisSurvey)
-
-      // Save the "sent" state of this survey
-      thisSurveyEmailSendingPromises.then(function () {
+      let originalPromiseResult
+      const thisSurveyEmailSendingPromises = sendSurveyResponseRequestEmailToCohort(thisSurvey.cohort, thisSurvey.surveySet, thisSurvey).then(result => {
+        originalPromiseResult = result
         return Survey.findByIdAndUpdate(thisSurvey._id, {
           sent: true
         })
+      }).then(() => {
+        return originalPromiseResult
       }).catch(err => {
         console.err(err)
         console.log(`Failed to set sent: true on survey with id ${thisSurvey._id}.`)
@@ -183,9 +194,47 @@ const sendUnsentSurveyResponseRequestEmails = function () {
   })
 }
 
+const sendUnsentSurveyResponseReminderEmails = function () {
+  // Find all the survey requests that should have been sent that have not yet been sent
+  let surveysToRemind
+  let finalPromise
+
+  const surveysToRemindQuery = {
+    remindDate: {
+      $lte: new Date()
+    },
+    reminded: {$not: {$eq: true}}
+  }
+  return Survey.find(surveysToRemindQuery).then(surveys => {
+    console.log(`There are ${surveys.length} surveys whose members we need to remind to complete the survey.`)
+    surveysToRemind = surveys
+    const sendReminderEmailsPromises = surveys.map(survey => {
+      console.log(`Sending reminders for survey with id ${survey._id}.`)
+      return resendSurveyResponseRequestEmails(survey.cohort, survey.surveySet, survey._id)
+    })
+    return Promise.all(sendReminderEmailsPromises)
+  }).then(results => {
+    const emailsSent = results.reduce((sum, value) => sum + value.length, 0)
+    console.log(`Successfully sent ${emailsSent} reminder emails from ${results.length} surveys.`)
+    finalPromise = Promise.resolve({emailsSent, surveysSent: results})
+    const updateSurveysPromise = surveysToRemind.map(survey => {
+      survey.reminded = true
+      return survey.save()
+    })
+    return Promise.all(updateSurveysPromise)
+  }).then(() => {
+    console.log('Updated the database to save reminded status.')
+    return finalPromise
+  }).catch(function (err) {
+    console.error('An error occured in the sendUnsentSurveyResponseReminderEmails function. Error:', err)
+    return Promise.reject(err)
+  })
+}
+
 module.exports = {
   sendUnsentSurveyResponseRequestEmails,
   resendSurveyResponseRequestEmails,
   sendSurveyResponseRequestEmailToCohort,
-  sendSurveyResponseRequestEmailToEmails
+  sendSurveyResponseRequestEmailToEmails,
+  sendUnsentSurveyResponseReminderEmails
 }
