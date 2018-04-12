@@ -25,7 +25,9 @@ const surveySchema = mongoose.Schema({
     type: Boolean,
     required: true,
     default: false
-  }
+  },
+  remindDate: Date,
+  reminded: Boolean
 })
 
 const Survey = mongoose.model('Survey', surveySchema)

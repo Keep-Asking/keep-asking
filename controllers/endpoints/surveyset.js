@@ -6,6 +6,8 @@ const SurveySet = require('./../../models/surveySet.js')
 const Cohort = require('./../../models/cohort.js')
 const Survey = require('./../../models/survey.js')
 
+const millisecondsPerDay = 60 * 60 * 24 * 1000
+
 // Handle creating and updating a surveySet
 router.post('/update', bodyParser.urlencoded({ extended: true }), async function (req, res) {
   // Verify that a cohort owned by this user exists if cohort is provided
@@ -61,17 +63,29 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
       sent: false
     })
   }).then(function () { // Create new Surveys for each of the sendDates
+    // Determine whether we should be reminding for this survey
+    if (req.body.responseAcceptancePeriod) {
+      const responseAcceptancePeriod = Number.parseFloat(req.body.responseAcceptancePeriod)
+      if (!Number.isNaN(responseAcceptancePeriod)) {
+        const responseAcceptancePeriodMilliseconds = responseAcceptancePeriod * millisecondsPerDay
+        var remindAfterMilliseconds = responseAcceptancePeriodMilliseconds * 0.5
+      }
+    }
     const surveyDates = req.body.sendDates.map(date => new Date(date))
     const surveyDocuments = surveyDates.filter(function (date) {
       return (date >= new Date())
     }).map(function (date) {
-      return {
+      const surveyDocument = {
         surveySet: surveySetID,
         cohort: req.body.cohort,
         owner: req.user.username,
         sendDate: date,
         sent: false
       }
+      if (remindAfterMilliseconds) {
+        surveyDocument.remindDate = new Date(date.getTime() + remindAfterMilliseconds)
+      }
+      return surveyDocument
     })
     return Survey.insertMany(surveyDocuments)
   }).then(function () {
