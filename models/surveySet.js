@@ -17,6 +17,12 @@ const surveySetSchema = mongoose.Schema({
   owner: shared.requiredTrimmedString,
   name: shared.requiredTrimmedString,
   sendDates: [Date],
+  responseAcceptancePeriod: {
+    type: Number,
+    default: 3,
+    required: true,
+    min: 0
+  },
   questions: [shared.question]
 })
 

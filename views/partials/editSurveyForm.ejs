@@ -2,15 +2,14 @@
   <div class="<%= (typeof survey === 'undefined') ? 'modal-body' : '' ; %>">
     <input type="hidden" id="cohort-id" value="<%= (typeof survey !=='undefined' && typeof survey.cohort !== 'undefined') ? survey.cohort : '' %>">
     <input type="hidden" id="survey-id" value="<%= (typeof survey !=='undefined' && typeof survey._id !== 'undefined') ? survey._id : '' %>">
+    <h4 class="mt-4">Survey Basics</h4>
     <div class="form-group">
       <label for="surveyName">Survey Name</label>
       <input type="text" class="form-control" id="surveyName" aria-describedby="surveyNameHelp" placeholder="Lecture Feedback, Board Meeting Feedback, Half-Time Snacks Feedback, etc…" value="<%= (typeof survey !=='undefined' && typeof survey.name === 'string') ? survey.name : '' %>">
       <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name. This name will be visible to the respondents of your survey.</small>
     </div>
-    <div class="form-group">
-      <label for="surveyScheduleDatepicker">When should your survey be sent?</label>
-    </div>
-    <div class="row form-group">
+    <h4 class="mt-4">Survey Schedule</h4>
+    <div class="form-row">
       <div class="col">
         <label for="surveySendTime">Survey Send Days</label>
         <div id="surveyScheduleDatepicker" aria-describedby="surveyScheduleDatepickerHelp" data-date-multidate="true" data-date-week-start="1" data-date-today-highlight="true" data-date="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined') ? survey.sendDates.map(date => date.toJSON()).join() : '' %>"></div>
@@ -19,14 +18,28 @@
         </small>
       </div>
       <div class="col">
-        <label for="surveySendTime">Survey Send Time</label>
-        <input type="text" class="form-control" id="surveySendTime" aria-describedby="surveySendTimeHelp" data-time="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined' && survey.sendDates.length > 0) ? survey.sendDates[0].toJSON() : '' %>" placeholder="3:15pm, 13:20, 9am, etc…">
-        <small id="surveySendTimeHelp" class="form-text text-muted">
-          Write the time of day that this survey should be sent to the members of this cohort.
-        </small>
+        <div class="form-group">
+          <label for="surveySendTime">Survey Send Time</label>
+          <input type="text" class="form-control" id="surveySendTime" aria-describedby="surveySendTimeHelp" data-time="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined' && survey.sendDates.length > 0) ? survey.sendDates[0].toJSON() : '' %>" placeholder="3:15pm, 13:20, 9am, etc…">
+          <small id="surveySendTimeHelp" class="form-text text-muted">
+            Write the time of day that this survey should be sent to the members of this cohort.
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="surveySendTime">Survey Response Acceptance Period Duration</label>
+          <div class="input-group mb-3">
+            <input type="number" class="form-control" id="surveyResponseAcceptancePeriod" aria-describedby="surveyResponsePeriodHelp" step="0.01" value="<%= (typeof survey !== 'undefined') ? survey.responseAcceptancePeriod : ''; %>">
+            <div class="input-group-append">
+              <span class="input-group-text">days</span>
+            </div>
+          </div>
+          <small id="surveyResponsePeriodHelp" class="form-text text-muted">
+            Write the number of days after sending the survey for which you want the survey to accept responses. Decimal days (such as 2.5) are permitted. A reminder email will automatically be sent half-way through the response acceptance period.
+          </small>
+        </div>
       </div>
     </div>
-    <h6>Survey Questions</h6>
+    <h4 class="mt-4">Survey Questions</h4>
     <p class="form-text text-muted">
       Cohort members will be asked to respond to the questions you define at the time and dates you selected above.
     </p>

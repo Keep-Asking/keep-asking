@@ -138,10 +138,17 @@ $(function () {
       return date.toJSON()
     })
 
+    const responseAcceptancePeriodString = $('#surveyResponseAcceptancePeriod').val()
+    const responseAcceptancePeriod = Number.parseFloat(responseAcceptancePeriodString)
+    if (Number.isNaN(responseAcceptancePeriod)) {
+      return window.alert('The response acceptance period must be a number. "' + responseAcceptancePeriodString + '" cannot be interpreted as a number.')
+    }
+
     // Construct data obejct to send to server
     let surveySetData = {
       name: $('#surveyName').val().trim(),
       sendDates: sendDates,
+      responseAcceptancePeriod: responseAcceptancePeriod,
       questions: serializeQuestions($(this))
     }
 

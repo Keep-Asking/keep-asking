@@ -33,7 +33,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   }
 
   // Map keys and values from req.body to surveySetDocument
-  const keysToMap = ['name', 'sendDates', 'cohort', 'questions']
+  const keysToMap = ['name', 'sendDates', 'cohort', 'questions', 'responseAcceptancePeriod']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
       surveySetDocument[key] = req.body[key]
