@@ -171,6 +171,8 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, n
   })
 })
 
+const millisecondsPerDay = 60 * 60 * 24 * 1000
+
 // Respond to survey
 router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function (req, res, next) {
   if (!req.query.email) {
@@ -219,6 +221,13 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
     if (req.user && req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
+    }
+
+    if (!preview && thisSurvey.surveySet.responseAcceptancePeriod) {
+      const surveyCloseDate = new Date(thisSurvey.sendDate.getTime() + millisecondsPerDay * thisSurvey.surveySet.responseAcceptancePeriod)
+      if (Date.now() > surveyCloseDate) {
+        return displayError(req, res, 410, `Responses to this survey are no longer being accepted.`)
+      }
     }
 
     const responseCount = await Response.count({
