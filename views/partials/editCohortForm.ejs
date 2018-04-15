@@ -10,6 +10,11 @@
       <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.members !== 'undefined') ? cohort.members.join(',') : ''; %>">
       <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma, space, or newline. Any non-email items will be ignored.</small>
     </div>
+    <div class="form-group">
+      <label for="cohortMemberEmails">Cohort Co-Owners</label>
+      <input type="text" class="form-control tokenfield" id="cohortOwnerEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.owners !== 'undefined') ? cohort.owners.join(',') : ''; %>">
+      <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of any other people who you would like to share this cohort with. These cohort co-owners will have full access to everything you have access to with respect to this cohort. New cohort co-owners will receive an email inviting them to join you in managing this cohort.</small>
+    </div>
     <h6>Cohort Demographic Questions</h6>
     <p class="form-text text-muted">
       Cohort members will be asked to respond to any demographic questions you define the first time they respond to your survey. These questions can be used to gather information about your cohort members that will not change. For example, a professor could ask students about their field of study and class year. You can then analyse your survey responses segmented by the responses to the demographic questions.
