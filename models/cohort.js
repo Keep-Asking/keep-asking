@@ -16,6 +16,11 @@ const cohortSchema = mongoose.Schema({
     lowercase: true,
     ref: 'User'
   }],
+  pendingOwners: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }],
   members: [String],
   archived: Boolean,
   demographicQuestions: [shared.question]

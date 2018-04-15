@@ -73,11 +73,7 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
   Cohort.findOne({
     owner: req.user.username,
     _id: req.params.id
-  }, function (err, cohort) {
-    if (err) {
-      console.error(err)
-      return displayError(req, res, 500)
-    }
+  }).populate('owners').then(cohort => {
     if (!cohort) {
       return displayError(req, res, 404)
     }
@@ -88,6 +84,9 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
       formDescription: 'A cohort is a group of people who you want to survey. A cohort could be the students in a class, the members of a sports club, or a team in a company.',
       pageTitle: 'Edit Cohort ' + cohort.name
     })
+  }).catch(err => {
+    console.error(err)
+    return displayError(req, res, 500)
   })
 })
 

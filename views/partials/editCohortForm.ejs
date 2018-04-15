@@ -1,5 +1,7 @@
 <form id="editCohortForm" data-cohort-id="<%=(typeof cohort !== 'undefined' && typeof cohort._id !== 'undefined')? cohort._id : ''; %>">
   <div class="<%= (typeof cohort === 'undefined') ? 'modal-body' : '' ; %>">
+
+    <h4>Cohort Basics</h4>
     <div class="form-group">
       <label for="cohortName">Cohort Name</label>
       <input type="text" class="form-control" id="cohortName" aria-describedby="cohortNameHelp" placeholder="French Class, Management Team, Frisbee Buddies, etc…" value="<%= (typeof cohort !== 'undefined' && typeof cohort.name === 'string') ? cohort.name : '' ; %>">
@@ -10,12 +12,46 @@
       <input type="text" class="form-control tokenfield" id="cohortMemberEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.members !== 'undefined') ? cohort.members.join(',') : ''; %>">
       <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of the members of this cohort, separated by a comma, space, or newline. Any non-email items will be ignored.</small>
     </div>
-    <div class="form-group">
-      <label for="cohortMemberEmails">Cohort Co-Owners</label>
-      <input type="text" class="form-control tokenfield" id="cohortOwnerEmails" aria-describedby="cohortNameHelp" data-inputType="email" placeholder="steve@apple.com, bill@microsoft.com, mark@facebook.com…" data-tokens="<%= (typeof cohort !== 'undefined' && typeof cohort.owners !== 'undefined') ? cohort.owners.join(',') : ''; %>">
-      <small id="cohortNameHelp" class="form-text text-muted">Type or paste the email addresses of any other people who you would like to share this cohort with. These cohort co-owners will have full access to everything you have access to with respect to this cohort. New cohort co-owners will receive an email inviting them to join you in managing this cohort.</small>
-    </div>
-    <h6>Cohort Demographic Questions</h6>
+
+    <% if (typeof cohort !== 'undefined') { %>
+      <h4 class="mt-4">Cohort Ownership</h4>
+      <p id="cohortNameHelp" class="form-text text-muted">
+        You are an owner of this cohort. You can share access of this cohort with anyone else you choose. These cohort co-owners will have full access to everything you have access to with respect to this cohort.
+      </p>
+      <div class="form-group">
+        <label for="cohortMemberEmails">Cohort Co-Owners</label>
+        <ul class="list-group" id="cohortCoOwnersList">
+          <% if (typeof cohort !== 'undefined' && Array.isArray(cohort.owners)) { %>
+            <% for (let coOwner of cohort.owners) { %>
+              <li class="list-group-item">
+                <%= coOwner.fullName %> (<%= coOwner.email %>)
+                <div class="btn btn-outline-primary btn-sm float-right" data-remove-coowner="<%= coOwner._id %>">Remove</div>
+              </li>
+            <% } %>
+            <% for (let pendingCoOwner of cohort.pendingOwners) { %>
+              <li class="list-group-item">
+                <%= pendingCoOwner %> <i class="text-muted">(Invitation Pending)</i>
+                <div class="btn btn-outline-primary btn-sm float-right" data-remove-coowner="<%= pendingCoOwner %>">Remove</div>
+              </li>
+            <% } %>
+            <li class="list-group-item">
+              <label for="cohortMemberEmails">Add New Cohort Co-Cowner</label>
+              <div class="input-group">
+                <input type="email" class="form-control" id="newCohortOwner" placeholder="co-owner@example.com" aria-label="Co-Owner Email" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-primary btn-sm" type="button" id="newCohortOwnerTrigger">Add Co-Owner</button>
+                </div>
+              </div>
+              <small id="cohortNameHelp" class="form-text text-muted">
+                New cohort co-owners will receive an email inviting them to join you in managing this cohort.
+              </small>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    <% } %>
+
+    <h4 class="mt-4">Cohort Demographic Questions</h4>
     <p class="form-text text-muted">
       Cohort members will be asked to respond to any demographic questions you define the first time they respond to your survey. These questions can be used to gather information about your cohort members that will not change. For example, a professor could ask students about their field of study and class year. You can then analyse your survey responses segmented by the responses to the demographic questions.
     </p>

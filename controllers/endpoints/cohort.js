@@ -46,6 +46,73 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
   })
 })
 
+router.use(bodyParser.urlencoded({ extended: true }))
+
+router.put('/:cohortID/owners/:owner', async function (req, res) {
+  console.log(req.params)
+
+  try {
+    var numberOfMatchingCohorts = await Cohort.count({
+      owners: req.user.username,
+      _id: req.params.cohortID
+    })
+  } catch (e) {
+    return res.sendStatus(500)
+  }
+
+  if (numberOfMatchingCohorts !== 1) {
+    return res.sendStatus(404)
+  }
+
+  Cohort.update({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  }, {
+    $addToSet: {
+      pendingOwners: req.params.owner
+    }
+  }).then(() => {
+    console.log('saved ', req.params.owner)
+    return res.sendStatus(200)
+  }).catch(err => {
+    console.error(err)
+    return res.sendStatus(500)
+  })
+})
+
+router.delete('/:cohortID/owners/:owner', async function (req, res) {
+  console.log(req.params)
+
+  try {
+    var numberOfMatchingCohorts = await Cohort.count({
+      owners: req.user.username,
+      _id: req.params.cohortID
+    })
+  } catch (e) {
+    return res.sendStatus(500)
+  }
+
+  if (numberOfMatchingCohorts !== 1) {
+    return res.sendStatus(404)
+  }
+
+  Cohort.update({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  }, {
+    $pull: {
+      pendingOwners: req.params.owner,
+      owners: req.params.owner
+    }
+  }).then(() => {
+    console.log('removed ', req.params.owner)
+    return res.sendStatus(200)
+  }).catch(err => {
+    console.error(err)
+    return res.sendStatus(500)
+  })
+})
+
 // Handle archiving and unarchiving a cohort
 router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function (req, res) {
   if (!(req.params && req.params.id)) {

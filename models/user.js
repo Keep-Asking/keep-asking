@@ -33,6 +33,13 @@ const userSchema = mongoose.Schema({
 
 userSchema.plugin(findOrCreate)
 
+userSchema.virtual('fullName').get(function () {
+  if (this.name && this.name.givenName && this.name.familyName) {
+    return this.name.givenName + ' ' + this.name.familyName
+  }
+  return this.email
+})
+
 userSchema.method('getCohortCount', function (query) {
   if (!query) {
     query = {}

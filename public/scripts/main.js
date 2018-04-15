@@ -1,4 +1,5 @@
 require('./dashboard.js')
 require('./editQuestions.js')
 require('./survey.js')
+require('./editCohort.js')
 require('./results.js')
