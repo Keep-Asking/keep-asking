@@ -83,9 +83,6 @@ router.get('/login', async function (req, res, next) {
 })
 
 router.get('/cohorts/:cohortID/invitation/:email/accept', async function (req, res, next) {
-  console.log(req.params)
-  console.log(req.query)
-
   if (!req.query.hash || !req.query.invitationExpirationTime) {
     return displayError(req, res, 400, 'The query parameters in your URL are malformed.')
   }
@@ -168,12 +165,20 @@ router.get('/cohorts/:id/edit', function (req, res, next) {
 })
 
 // Edit survey page
-router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next) {
+router.get('/cohorts/:cohortID/surveys/:surveyID/edit', async function (req, res, next) {
   if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
+
+  const cohortCount = await Cohort.count({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  })
+  if (cohortCount === 0) {
+    return displayError(req, res, 403, 'No cohort with the provided id exists for this user')
+  }
+
   SurveySet.findOne({
-    owners: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).then(survey => {
@@ -195,13 +200,20 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
 })
 
 // Survey Results Page
-router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, next) {
+router.get('/cohorts/:cohortID/surveys/:surveyID/results', async function (req, res, next) {
   if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
 
+  const cohortCount = await Cohort.count({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  })
+  if (cohortCount === 0) {
+    return displayError(req, res, 403, 'No cohort with the provided id exists for this user')
+  }
+
   return SurveySet.count({ // Find the specified surveySet
-    owners: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).then(surveySetCount => {
@@ -225,12 +237,20 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
   })
 })
 
-router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, next) {
+router.get('/cohorts/:cohortID/surveys/:surveyID/preview', async function (req, res, next) {
   if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
+
+  const cohortCount = await Cohort.count({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  })
+  if (cohortCount === 0) {
+    return displayError(req, res, 403, 'No cohort with the provided id exists for this user')
+  }
+
   Survey.findOne({
-    owners: req.user.username,
     cohort: req.params.cohortID,
     surveySet: req.params.surveyID
   }).populate('cohort').then(function (survey) {
@@ -295,7 +315,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
-    if (req.user && !thisSurvey.owners.includes(req.user.username) && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
+    if (req.user && !thisSurvey.cohort.owners.includes(req.user.username) && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
