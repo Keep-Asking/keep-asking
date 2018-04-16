@@ -4,6 +4,7 @@ let router = express.Router()
 let bodyParser = require('body-parser')
 
 let Cohort = require.main.require('./models/cohort.js')
+const sendCohortCoOwnerInvitationEmail = require('../emailCohortInvitations.js').sendCohortCoOwnerInvitationEmail
 
 const emailRE = /\S+@\S+\.\S+/
 
@@ -29,12 +30,16 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
   // Perform the database commands
   Cohort.update({ // Find the cohort to update, if it exists
     _id: req.body.id || {$exists: false},
-    owner: req.user.username
+    owners: req.user.username
   }, { // Set the values on the cohort
-    owner: req.user.username,
-    name: req.body.name,
-    members: req.body.members,
-    demographicQuestions: req.body.demographicQuestions
+    $set: {
+      name: req.body.name,
+      members: req.body.members,
+      demographicQuestions: req.body.demographicQuestions
+    },
+    $addToSet: {
+      owners: req.user.username
+    }
   }, {
     upsert: true
   }).then(function () {
@@ -46,6 +51,73 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
   })
 })
 
+router.use(bodyParser.urlencoded({ extended: true }))
+
+router.put('/:cohortID/owners/:owner', async function (req, res) {
+  try {
+    var numberOfMatchingCohorts = await Cohort.count({
+      owners: req.user.username,
+      _id: req.params.cohortID
+    })
+  } catch (e) {
+    return res.sendStatus(500)
+  }
+
+  if (numberOfMatchingCohorts !== 1) {
+    return res.sendStatus(404)
+  }
+
+  Cohort.update({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  }, {
+    $addToSet: {
+      pendingOwners: req.params.owner
+    }
+  }).then(() => {
+    console.log('Sending cohort co-owner invitation email to ' + req.params.owner)
+    return sendCohortCoOwnerInvitationEmail(req.params.cohortID, req.user, req.params.owner)
+  }).then(() => {
+    return res.sendStatus(200)
+  }).catch(err => {
+    console.error(err)
+    return res.sendStatus(500)
+  })
+})
+
+router.delete('/:cohortID/owners/:owner', async function (req, res) {
+  console.log(req.params)
+
+  try {
+    var numberOfMatchingCohorts = await Cohort.count({
+      owners: req.user.username,
+      _id: req.params.cohortID
+    })
+  } catch (e) {
+    return res.sendStatus(500)
+  }
+
+  if (numberOfMatchingCohorts !== 1) {
+    return res.sendStatus(404)
+  }
+
+  Cohort.update({
+    _id: req.params.cohortID,
+    owners: req.user.username
+  }, {
+    $pull: {
+      pendingOwners: req.params.owner,
+      owners: req.params.owner
+    }
+  }).then(() => {
+    console.log('removed ', req.params.owner)
+    return res.sendStatus(200)
+  }).catch(err => {
+    console.error(err)
+    return res.sendStatus(500)
+  })
+})
+
 // Handle archiving and unarchiving a cohort
 router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function (req, res) {
   if (!(req.params && req.params.id)) {
@@ -54,7 +126,7 @@ router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function 
 
   Cohort.update({
     _id: req.params.id,
-    owner: req.user.username
+    owners: req.user.username
   }, {
     archived: (req.query.status === 'true')
   }).then(function () {

@@ -1,12 +1,14 @@
 // Load Express
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
 
 const hash = require('./../hash.js')
 
 const Response = require('./../../models/response.js')
 const Respondent = require('./../../models/respondent.js')
 const Survey = require('./../../models/survey.js')
+const Cohort = mongoose.model('Cohort')
 
 const email = require('../email.js')
 
@@ -47,12 +49,25 @@ router.post('/submit', express.urlencoded({extended: true}), async function (req
   })
 })
 
-router.post('/resend', express.urlencoded({extended: true}), function (req, res) {
+router.post('/resend', express.urlencoded({extended: true}), async function (req, res) {
   if (!req.isAuthenticated()) {
     return res.sendStatus(403)
   }
 
-  return Survey.count({_id: req.body.surveyID, owner: req.user.username}).then(surveyCount => {
+  const cohortCount = await Cohort.count({
+    _id: req.body.cohortID,
+    owners: req.user.username
+  })
+  if (cohortCount === 0) {
+    return res.status(404).json({
+      message: 'No cohort with the provided id exists for this user'
+    })
+  }
+
+  return Survey.count({
+    _id: req.body.surveyID,
+    owner: req.user.username
+  }).then(surveyCount => {
     if (surveyCount !== 1) {
       res.sendStatus(404)
     }

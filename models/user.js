@@ -33,16 +33,23 @@ const userSchema = mongoose.Schema({
 
 userSchema.plugin(findOrCreate)
 
+userSchema.virtual('fullName').get(function () {
+  if (this.name && this.name.givenName && this.name.familyName) {
+    return this.name.givenName + ' ' + this.name.familyName
+  }
+  return this.email
+})
+
 userSchema.method('getCohortCount', function (query) {
   if (!query) {
     query = {}
   }
-  query.owner = this.username
+  query.owners = this.username
   return Cohort.count(query).exec()
 })
 
 userSchema.method('getCohorts', function (includeArchivedCohorts) {
-  let matchConditions = {owner: this.username}
+  let matchConditions = {owners: this.username}
   if (includeArchivedCohorts !== true) {
     matchConditions.archived = {$not: {$eq: true}}
   }

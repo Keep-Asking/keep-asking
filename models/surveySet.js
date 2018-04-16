@@ -14,7 +14,6 @@ const surveySetSchema = mongoose.Schema({
     required: true,
     ref: 'Cohort'
   },
-  owner: shared.requiredTrimmedString,
   name: shared.requiredTrimmedString,
   sendDates: [Date],
   responseAcceptancePeriod: {

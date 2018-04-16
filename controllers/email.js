@@ -1,6 +1,3 @@
-const nodemailer = require('nodemailer')
-const sparkPostTransport = require('nodemailer-sparkpost-transport')
-const mailgunTransport = require('nodemailer-mailgun-transport')
 const fs = require('fs')
 const ejs = require('ejs')
 const assert = require('assert').strict
@@ -18,36 +15,8 @@ const Response = mongoose.model('Response')
 const emailTemplateSimplePlaintext = fs.readFileSync('./emails/surveyRequestSimplePlaintext.ejs', 'utf-8')
 const emailTemplateSimpleHTML = fs.readFileSync('./emails/surveyRequestSimple.ejs', 'utf-8')
 
-// Configure the third-party transport service
-let transportPlugin
-switch (config.transport) {
-  case 'mailgun':
-    console.log('You are using the MailGun transport.')
-    transportPlugin = mailgunTransport({
-      auth: {
-        api_key: config.mailgun.apiKey,
-        domain: config.mailgun.domain
-      }
-    })
-    break
-  case 'sparkpost':
-    console.log('You are using the SparkPost transport.')
-    transportPlugin = sparkPostTransport({
-      options: {
-        open_tracking: false,
-        click_tracking: false,
-        transactional: true
-      }
-    })
-    break
-  default:
-    // Mock Transport (does not actually send messages)
-    console.log('You are using a mock transport. Emails will not actually be sent.')
-    transportPlugin = {
-      jsonTransport: true
-    }
-}
-const mailer = nodemailer.createTransport(transportPlugin)
+// Load the third-party transport service
+const mailer = require('./emailManager.js').mailer
 
 const generateSurveyResponseRequestEmailConfiguration = function (cohort, surveySet, survey, recipientEmail) {
   // Generate the beautified email topic
@@ -56,7 +25,7 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
   // Prepare the email data
   const emailData = {
     survey: survey,
-    owner: cohort.owner,
+    owner: cohort.owners[0],
     host: config.host,
     surveyURL: [config.host, 'cohorts', cohort._id, 'surveys', surveySet._id, 'respond', survey._id].join('/') + `?email=${encodeURIComponent(recipientEmail)}&hash=${generateSurveyAccessHash(cohort._id, surveySet._id, survey._id, recipientEmail)}`,
     emailTopic: emailTopic
@@ -68,7 +37,7 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
   // Render the plaintext email
   const emailPlaintext = ejs.render(emailTemplateSimplePlaintext, emailData)
 
-  const ownerFullName = [cohort.owner.name.givenName, cohort.owner.name.familyName].join(' ')
+  const ownerFullName = cohort.owners[0].fullName
   const emailConfiguration = {
     from: {
       name: ownerFullName,
@@ -76,7 +45,7 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
     },
     replyTo: {
       name: ownerFullName,
-      address: cohort.owner.email
+      address: cohort.owners[0].email
     },
     to: recipientEmail,
     subject: [cohort.name, emailTopic, 'Feedback'].join(' '),
@@ -119,7 +88,7 @@ const resendSurveyResponseRequestEmails = function (cohortID, surveySetID, surve
       _id: surveyID
     }).populate('cohort').populate('surveySet').populate({
       path: 'cohort',
-      populate: { path: 'owner' }
+      populate: { path: 'owners' }
     })
   ]
 
@@ -147,7 +116,7 @@ const sendUnsentSurveyResponseRequestEmails = function () {
     sent: false
   }).populate('cohort').populate('surveySet').populate({
     path: 'cohort',
-    populate: { path: 'owner' }
+    populate: { path: 'owners' }
   }).then(function (surveysToSend) {
     console.log(`Found ${surveysToSend.length} surveys whose sendDates are in the past and for which survey request emails have not been sent.`)
 

@@ -58,6 +58,15 @@ const serializeQuestions = function (form) {
 $(function () {
   initialiseEmailsTokenField()
 
+  // Prevent automatic submission of forms
+  $('form').on('keyup keypress', function (e) {
+    var keyCode = e.keyCode || e.which
+    if (keyCode === 13) {
+      e.preventDefault()
+      return false
+    }
+  })
+
   $('#editCohortForm').submit(function (event) {
     if (event) {
       event.preventDefault()
