@@ -4,12 +4,6 @@ const shared = require('./shared.js')
 
 const cohortSchema = mongoose.Schema({
   name: shared.requiredTrimmedString,
-  owner: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    ref: 'User'
-  },
   owners: [{
     type: String,
     trim: true,

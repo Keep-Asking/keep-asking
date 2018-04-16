@@ -20,7 +20,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   if (req.body.cohort) {
     const cohortCount = await Cohort.count({
       _id: req.body.cohort,
-      owner: req.user.username
+      owners: req.user.username
     })
     if (cohortCount === 0) {
       return res.status(404).json({
@@ -29,12 +29,8 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
     }
   }
 
-  // Create the owners surveySetDocument
-  let surveySetDocument = {
-    owner: req.user.username
-  }
-
   // Map keys and values from req.body to surveySetDocument
+  const surveySetDocument = {}
   const keysToMap = ['name', 'sendDates', 'cohort', 'questions', 'responseAcceptancePeriod']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
@@ -50,7 +46,7 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   let surveySetID
   SurveySet.update({
     _id: req.body.survey || {$exists: false},
-    owner: req.user.username
+    cohort: req.body.cohort
   }, surveySetDocument, {
     upsert: true
   }).then(function (query) {
@@ -78,7 +74,6 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
       const surveyDocument = {
         surveySet: surveySetID,
         cohort: req.body.cohort,
-        owner: req.user.username,
         sendDate: date,
         sent: false
       }
@@ -96,13 +91,23 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
   })
 })
 
-router.get('/results', function (req, res) {
+router.get('/results', async function (req, res) {
   if (!req.isAuthenticated()) {
     return res.sendStatus(403)
   }
 
+  // Ensure that the user has permission to access this cohort
+  const cohortCount = await Cohort.count({
+    _id: req.query.cohortID,
+    owners: req.user.username
+  })
+  if (cohortCount === 0) {
+    return res.status(404).json({
+      message: 'No cohort with the provided id exists for this user'
+    })
+  }
+
   return SurveySet.count({ // Find the specified surveySet
-    owner: req.user.username,
     cohort: req.query.cohortID,
     _id: req.query.surveySetID
   }).then(surveySetCount => {

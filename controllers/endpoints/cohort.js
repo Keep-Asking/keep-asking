@@ -4,6 +4,7 @@ let router = express.Router()
 let bodyParser = require('body-parser')
 
 let Cohort = require.main.require('./models/cohort.js')
+const sendCohortCoOwnerInvitationEmail = require('../emailCohortInvitations.js').sendCohortCoOwnerInvitationEmail
 
 const emailRE = /\S+@\S+\.\S+/
 
@@ -29,12 +30,16 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
   // Perform the database commands
   Cohort.update({ // Find the cohort to update, if it exists
     _id: req.body.id || {$exists: false},
-    owner: req.user.username
+    owners: req.user.username
   }, { // Set the values on the cohort
-    owner: req.user.username,
-    name: req.body.name,
-    members: req.body.members,
-    demographicQuestions: req.body.demographicQuestions
+    $set: {
+      name: req.body.name,
+      members: req.body.members,
+      demographicQuestions: req.body.demographicQuestions
+    },
+    $addToSet: {
+      owners: req.user.username
+    }
   }, {
     upsert: true
   }).then(function () {
@@ -49,8 +54,6 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), function (req,
 router.use(bodyParser.urlencoded({ extended: true }))
 
 router.put('/:cohortID/owners/:owner', async function (req, res) {
-  console.log(req.params)
-
   try {
     var numberOfMatchingCohorts = await Cohort.count({
       owners: req.user.username,
@@ -72,7 +75,9 @@ router.put('/:cohortID/owners/:owner', async function (req, res) {
       pendingOwners: req.params.owner
     }
   }).then(() => {
-    console.log('saved ', req.params.owner)
+    console.log('Sending cohort co-owner invitation email to ' + req.params.owner)
+    return sendCohortCoOwnerInvitationEmail(req.params.cohortID, req.user, req.params.owner)
+  }).then(() => {
     return res.sendStatus(200)
   }).catch(err => {
     console.error(err)
@@ -121,7 +126,7 @@ router.get('/:id/archive', bodyParser.urlencoded({ extended: false }), function 
 
   Cohort.update({
     _id: req.params.id,
-    owner: req.user.username
+    owners: req.user.username
   }, {
     archived: (req.query.status === 'true')
   }).then(function () {

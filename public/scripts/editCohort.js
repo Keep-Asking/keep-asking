@@ -14,7 +14,8 @@ const addNewCohortOwner = function () {
     url: '/api/cohorts/' + cohortID + '/owners/' + encodeURIComponent(newCohortOwnerEmail),
     type: 'PUT'
   }).done(function (data) {
-    $('#cohortCoOwnersList').prepend('<li class="list-group-item">' + newCohortOwnerEmail + ' <i class="text-muted">(Invitation Pending)</i></li>')
+    $('#newCohortOwnerTrigger').closest('.list-group-item').before('<li class="list-group-item">' + newCohortOwnerEmail + ' <i class="text-muted">(Invitation Pending)</i></li>')
+    $('#newCohortOwner').val('')
   }).fail(function (err) {
     console.error(err)
   })

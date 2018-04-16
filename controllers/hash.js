@@ -22,7 +22,27 @@ const verifySurveyAccessHash = function (hash, cohortID, surveySetID, surveyID, 
   return hash === generateSurveyAccessHash(cohortID, surveySetID, surveyID, email)
 }
 
+const generateCohortInvitationHash = function (cohortID, email, expirationTime) {
+  assert.ok(cohortID)
+  assert.ok(email)
+  assert.ok(expirationTime)
+  const plaintextToHash = [cohortID, email, expirationTime].join()
+  const hmac = crypto.createHmac('sha256', config.HASH_SECRET)
+  hmac.update(plaintextToHash)
+  return hmac.digest('hex')
+}
+
+const verifyCohortInvitationHash = function (hash, cohortID, email, expirationTime) {
+  assert.ok(hash)
+  assert.ok(cohortID)
+  assert.ok(email)
+  assert.ok(expirationTime)
+  return hash === generateCohortInvitationHash(cohortID, email, expirationTime)
+}
+
 module.exports = {
   generateSurveyAccessHash,
-  verifySurveyAccessHash
+  verifySurveyAccessHash,
+  generateCohortInvitationHash,
+  verifyCohortInvitationHash
 }

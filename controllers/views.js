@@ -40,6 +40,13 @@ router.get('/', async function (req, res, next) {
     return res.render('splash', req.session)
   }
 
+  // Redirect to requested ultimate destination
+  if (req.session.loginDestinationURL) {
+    const loginDestinationURL = req.session.loginDestinationURL
+    delete req.session.loginDestinationURL
+    return res.redirect(loginDestinationURL)
+  }
+
   // Set profile if name is missing
   if (!req.user.name || !req.user.name.givenName || req.user.name.givenName.length === 0 || !req.user.name.familyName || req.user.name.familyName.length === 0) {
     return res.redirect('/profile?setupProfile=true')
@@ -65,13 +72,83 @@ router.get('/', async function (req, res, next) {
   })
 })
 
+router.get('/login', async function (req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect('/')
+  }
+
+  return res.render('login', {
+    pageTitle: 'Login'
+  })
+})
+
+router.get('/cohorts/:cohortID/invitation/:email/accept', async function (req, res, next) {
+  console.log(req.params)
+  console.log(req.query)
+
+  if (!req.query.hash || !req.query.invitationExpirationTime) {
+    return displayError(req, res, 400, 'The query parameters in your URL are malformed.')
+  }
+
+  const expirationTime = Number.parseInt(req.query.invitationExpirationTime)
+  if (Number.isNaN(expirationTime)) {
+    return displayError(req, res, 400, 'The expirationTime URL query parameter must be a number.')
+  }
+
+  if (expirationTime < Date.now()) {
+    return displayError(req, res, 400, 'This invitation has expired.')
+  }
+
+  try {
+    var hashIsValid = hash.verifyCohortInvitationHash(req.query.hash, req.params.cohortID, req.params.email, expirationTime)
+  } catch (err) {
+    console.error(err)
+    return displayError(req, res, 500, 'An error occured while evaluating the request hash.')
+  }
+  if (!hashIsValid) {
+    return displayError(req, res, 400, 'The hash on this request is invalid.')
+  }
+
+  try {
+    var cohort = await Cohort.findById(req.params.cohortID)
+  } catch (e) {
+    console.error(e)
+    return displayError(req, res, 500, 'An error occured while retrieving the requested cohort.')
+  }
+
+  if (!cohort) {
+    return displayError(req, res, 404, 'The cohort you requested could not be found.')
+  }
+
+  if (!(cohort.pendingOwners && cohort.pendingOwners.includes(req.params.email))) {
+    return displayError(req, res, 400, `The email address ${req.params.email} does not currently have a pending invitation to join the cohort ${cohort.name}.`)
+  }
+
+  // Enforce login
+  if (!req.isAuthenticated()) {
+    req.session.loginDestinationURL = req.originalUrl
+    return res.redirect('/login')
+  }
+
+  Cohort.findByIdAndUpdate(req.params.cohortID, {
+    $addToSet: {
+      owners: req.user.username
+    },
+    $pull: {
+      pendingOwners: req.params.email
+    }
+  }).then(() => {
+    return res.redirect('/')
+  })
+})
+
 // Edit cohort page
 router.get('/cohorts/:id/edit', function (req, res, next) {
   if (!req.isAuthenticated()) {
     return displayError(req, res, 403)
   }
   Cohort.findOne({
-    owner: req.user.username,
+    owners: req.user.username,
     _id: req.params.id
   }).populate('owners').then(cohort => {
     if (!cohort) {
@@ -96,7 +173,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', function (req, res, next
     return displayError(req, res, 403)
   }
   SurveySet.findOne({
-    owner: req.user.username,
+    owners: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).then(survey => {
@@ -124,7 +201,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/results', function (req, res, n
   }
 
   return SurveySet.count({ // Find the specified surveySet
-    owner: req.user.username,
+    owners: req.user.username,
     cohort: req.params.cohortID,
     _id: req.params.surveyID
   }).then(surveySetCount => {
@@ -153,7 +230,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/preview', function (req, res, n
     return displayError(req, res, 403)
   }
   Survey.findOne({
-    owner: req.user.username,
+    owners: req.user.username,
     cohort: req.params.cohortID,
     surveySet: req.params.surveyID
   }).populate('cohort').then(function (survey) {
@@ -218,7 +295,7 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
     }
 
     // Prevent survey from being accessed if the sendDate is in the future and this user is not the survey owner
-    if (req.user && req.user.username !== thisSurvey.owner && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
+    if (req.user && !thisSurvey.owners.includes(req.user.username) && (!thisSurvey.sendDate || thisSurvey.sendDate > new Date())) {
       return displayError(req, res, 403, `You do not have permission to access this survey because the survey's send date (${thisSurvey.sendDate.toString()}) is in the future.`)
     }
 
