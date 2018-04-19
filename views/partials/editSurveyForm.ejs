@@ -9,14 +9,36 @@
       <small id="surveyNameHelp" class="form-text text-muted">Give your survey a descriptive name. This name will be visible to the respondents of your survey.</small>
     </div>
     <h4 class="mt-4">Survey Schedule</h4>
-    <div class="form-row">
+    <div class="form-row form-group">
       <div class="col">
         <label for="surveySendTime">Survey Send Days</label>
-        <div id="surveyScheduleDatepicker" aria-describedby="surveyScheduleDatepickerHelp" data-date-multidate="true" data-date-week-start="1" data-date-today-highlight="true" data-date="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined') ? survey.sendDates.map(date => date.toJSON()).join() : '' %>"></div>
+        <div id="surveyScheduleDatepicker" aria-describedby="surveyScheduleDatepickerHelp" data-date-multidate="true" data-date-week-start="1" data-date-today-highlight="true" data-date="<%= (typeof survey !=='undefined' && typeof survey.surveys !== 'undefined') ? survey.surveys.map(survey => survey.date.toJSON()).join() : '' %>"></div>
         <small id="surveyScheduleDatepickerHelp" class="form-text text-muted">
           Select the days on which your survey should be sent.
         </small>
       </div>
+      <div class="col">
+        <div class="form-group">
+          <label>Survey Names</label>
+          <small id="surveyNamesHelp" class="form-text text-muted">
+            You can assign descriptive names to each survey date to provide context to you and your survey respondents. If you do not assign descriptive names, the survey date will be used.
+          </small>
+          <% if (typeof survey !== 'undefined' && survey.surveys) { %>
+            <table style="width: 100%" id="surveyNames">
+              <% for (let thisSurvey of survey.surveys) { %>
+                <tr>
+                  <td><label class="text-nowrap mr-2 mt-1"><%= thisSurvey.displayDate %>:</label></td>
+                  <td>
+                    <input type="text" class="form-control form-control-sm survey-name-item" aria-describedby="surveyNamesHelp" value="<%= thisSurvey.name %>" placeholder="Survey Name" data-date="<%= thisSurvey.date.getTime() %>">
+                  </td>
+                </tr>
+              <% } %>
+            </table>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <div class="form-row form-group">
       <div class="col">
         <div class="form-group">
           <label for="surveySendTime">Survey Send Time</label>
@@ -25,6 +47,8 @@
             Write the time of day that this survey should be sent to the members of this cohort.
           </small>
         </div>
+      </div>
+      <div class="col">
         <div class="form-group">
           <label for="surveySendTime">Survey Response Acceptance Period Duration</label>
           <div class="input-group mb-3">
@@ -39,6 +63,7 @@
         </div>
       </div>
     </div>
+
     <h4 class="mt-4">Survey Questions</h4>
     <p class="form-text text-muted">
       Cohort members will be asked to respond to the questions you define at the time and dates you selected above.

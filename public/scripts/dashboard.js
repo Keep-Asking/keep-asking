@@ -55,6 +55,41 @@ const serializeQuestions = function (form) {
   return serializedQuestions
 }
 
+const updateSurveyNameFields = function (event) {
+  const calendarSurveyDates = event.dates
+  const oldSurveys = getSurveys()
+  const newSurveys = calendarSurveyDates.map(date => {
+    const survey = {
+      date: date,
+      displayDate: moment(date).format('D MMM YYYY'),
+      name: ''
+    }
+    const thisNamedSurvey = oldSurveys.find(survey => date.getTime() === survey.date.getTime())
+    if (thisNamedSurvey && thisNamedSurvey.name) {
+      survey.name = thisNamedSurvey.name
+    }
+    return survey
+  }).sort((a, b) => a.date - b.date)
+
+  const newSurveysHTML = newSurveys.map(survey => `<tr>
+    <td><label class="text-nowrap mr-2 mt-1">${survey.displayDate}:</label></td>
+    <td>
+      <input type="text" class="form-control form-control-sm survey-name-item" aria-describedby="surveyNamesHelp" value="${survey.name}" placeholder="${survey.displayDate}" data-date="${survey.date.getTime()}">
+    </td>
+  </tr>`)
+
+  $('#surveyNames').empty().append(newSurveysHTML)
+}
+
+const getSurveys = function () {
+  return $('.survey-name-item').map(function (index, element) {
+    return {
+      date: new Date($(element).data('date')),
+      name: $(element).val().trim()
+    }
+  }).get()
+}
+
 $(function () {
   initialiseEmailsTokenField()
 
@@ -119,7 +154,7 @@ $(function () {
     $('#cohort-id').val(cohortID)
   })
 
-  $('#surveyScheduleDatepicker').datepicker()
+  $('#surveyScheduleDatepicker').datepicker().on('changeDate', updateSurveyNameFields)
 
   const timeFormats = ['HH:mm', 'hh:mm a']
   // Parse text time to sendTimeMilliseconds
