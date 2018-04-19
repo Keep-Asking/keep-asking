@@ -15,7 +15,13 @@ const surveySetSchema = mongoose.Schema({
     ref: 'Cohort'
   },
   name: shared.requiredTrimmedString,
-  sendDates: [Date],
+  surveys: [{
+    date: Date,
+    name: {
+      type: String,
+      trim: true
+    }
+  }],
   responseAcceptancePeriod: {
     type: Number,
     default: 3,
