@@ -76,6 +76,11 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
         name: survey.name,
         sent: false
       }
+
+      // Save survey name if provided
+      if (survey.name && survey.name.trim().length > 0) {
+        surveyDocument.name = survey.name.trim()
+      }
       if (remindAfterMilliseconds) {
         surveyDocument.remindDate = new Date(survey.date.getTime() + remindAfterMilliseconds)
       }

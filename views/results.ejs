@@ -15,10 +15,11 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Survey Date</th>
+            <th>Survey</th>
             <% for (let survey of surveySet.surveys) { %>
               <th>
-                <%= survey.sendDateText %>
+                <%= survey.name %>
+                <small class="d-block" data-display-date="<%= survey.sendDate.getTime() %>" data-display-date-format="D MMM Y"></small>
               </th>
             <% } %>
           </tr>
@@ -57,28 +58,6 @@
     <div class="card-body">
       <h3 class="card-title">Cohort Member Demographics</h3>
       <div class="text-muted">[Under construction]</div>
-      <!-- <table class="table">
-        <tr>
-          <td>Survey Date</td>
-          <% for (survey of surveySet.surveys) { %>
-            <td>
-              <%= survey.sendDateText %>
-            </td>
-          <% } %>
-        </tr>
-        <tr>
-          <td>Response Rate</td>
-          <% for (survey of surveySet.surveys) { %>
-            <td>
-              <% if (survey.sendDate > new Date()) { %>
-                <span class="font-italic text-muted">Future</span>
-              <% } else { %>
-                <%= (survey.responses.length / surveySet.cohort.members.length * 100).toFixed(0) %>&nbsp;%
-              <% }%>
-            </td>
-          <% } %>
-        </tr>
-      </table> -->
     </div>
   </div>
   <hr>

@@ -27,7 +27,7 @@
             <table style="width: 100%" id="surveyNames">
               <% for (let thisSurvey of survey.surveys) { %>
                 <tr>
-                  <td><label class="text-nowrap mr-2 mt-1"><%= thisSurvey.displayDate %>:</label></td>
+                  <td><label class="text-nowrap mr-2 mt-1">Survey Name:</label></td>
                   <td>
                     <input type="text" class="form-control form-control-sm survey-name-item" aria-describedby="surveyNamesHelp" value="<%= thisSurvey.name %>" placeholder="Survey Name" data-date="<%= thisSurvey.date.getTime() %>">
                   </td>
@@ -42,7 +42,8 @@
       <div class="col">
         <div class="form-group">
           <label for="surveySendTime">Survey Send Time</label>
-          <input type="text" class="form-control" id="surveySendTime" aria-describedby="surveySendTimeHelp" data-time="<%= (typeof survey !=='undefined' && typeof survey.sendDates !== 'undefined' && survey.sendDates.length > 0) ? survey.sendDates[0].toJSON() : '' %>" placeholder="3:15pm, 13:20, 9am, etc…">
+          <% console.log(survey) %>
+          <input type="text" class="form-control" id="surveySendTime" aria-describedby="surveySendTimeHelp" placeholder="3:15pm, 13:20, 9am, etc…">
           <small id="surveySendTimeHelp" class="form-text text-muted">
             Write the time of day that this survey should be sent to the members of this cohort.
           </small>

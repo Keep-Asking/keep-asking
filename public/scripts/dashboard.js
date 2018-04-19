@@ -58,11 +58,14 @@ const serializeQuestions = function (form) {
 const updateSurveyNameFields = function (event) {
   const calendarSurveyDates = event.dates
   const oldSurveys = getSurveys()
+
+  // Generate the objects representing the surveys
   const newSurveys = calendarSurveyDates.map(date => {
+    const displayDate = moment(date).format('D MMM Y')
     const survey = {
       date: date,
-      displayDate: moment(date).format('D MMM YYYY'),
-      name: ''
+      displayDate: displayDate,
+      name: displayDate
     }
     const thisNamedSurvey = oldSurveys.find(survey => date.getTime() === survey.date.getTime())
     if (thisNamedSurvey && thisNamedSurvey.name) {
@@ -71,6 +74,7 @@ const updateSurveyNameFields = function (event) {
     return survey
   }).sort((a, b) => a.date - b.date)
 
+  // Generate HTML for each survey
   const newSurveysHTML = newSurveys.map(survey => `<tr>
     <td><label class="text-nowrap mr-2 mt-1">${survey.displayDate}:</label></td>
     <td>
@@ -78,6 +82,7 @@ const updateSurveyNameFields = function (event) {
     </td>
   </tr>`)
 
+  // Update the view with the new items
   $('#surveyNames').empty().append(newSurveysHTML)
 }
 
@@ -173,13 +178,13 @@ $(function () {
     event.preventDefault()
     $('#surveySendTime').blur()
 
-    const selectedDates = $('#surveyScheduleDatepicker').datepicker('getDates')
+    // const selectedDates = $('#surveyScheduleDatepicker').datepicker('getDates')
     const sendTimeMilliseconds = $('#surveySendTime').data('sendTimeMilliseconds')
 
-    let sendDates = selectedDates.map(function (selectedDate) {
-      return moment(selectedDate).startOf('day').add(sendTimeMilliseconds, 'ms').toDate()
-    }).map(function (date) {
-      return date.toJSON()
+    // Normalise survey send dates with specific send time
+    const surveys = getSurveys().map(survey => {
+      survey.date = moment(survey.date).startOf('day').add(sendTimeMilliseconds, 'ms').toDate()
+      return survey
     })
 
     const responseAcceptancePeriodString = $('#surveyResponseAcceptancePeriod').val()
@@ -189,9 +194,9 @@ $(function () {
     }
 
     // Construct data obejct to send to server
-    let surveySetData = {
+    const surveySetData = {
       name: $('#surveyName').val().trim(),
-      sendDates: sendDates,
+      surveys: surveys,
       responseAcceptancePeriod: responseAcceptancePeriod,
       questions: serializeQuestions($(this))
     }

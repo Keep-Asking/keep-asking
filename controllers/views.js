@@ -191,7 +191,7 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', async function (req, res
     // Format Date strings
     if (surveySet.surveys) {
       surveySet.surveys = surveySet.surveys.map(survey => {
-        survey.displayDate = moment(survey.date).format('D MMM YYYY')
+        survey.displayDate = moment(survey.date).format('D MMM Y')
         return survey
       })
     }

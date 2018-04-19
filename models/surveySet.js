@@ -1,8 +1,6 @@
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Schema.Types.ObjectId
 
-const moment = require('moment')
-
 const shared = require('./shared.js')
 const Survey = mongoose.model('Survey')
 const Respondent = mongoose.model('Respondent')
@@ -51,11 +49,7 @@ surveySetSchema.method('getSurveys', function (callback) {
   return new Promise((resolve, reject) => {
     Promise.all(initialPromises).then(results => {
       // Convert the surveys into regular JavaScript obejcts
-      thisSurveySet.surveys = results[0].map(survey => {
-        const thisSurvey = survey.toObject()
-        thisSurvey.sendDateText = moment(thisSurvey.sendDate).format('D MMM Y')
-        return thisSurvey
-      })
+      thisSurveySet.surveys = results[0].map(survey => survey.toObject())
 
       // Convert the respondents into regular JavaScript obejcts
       thisSurveySet.respondents = results[1].map(respondent => respondent.toObject())
@@ -134,6 +128,7 @@ surveySetSchema.statics.fetchSurveyResultData = function (cohortID, surveySetID,
         question.responses = {}
       }
       for (let survey of surveySet.surveys) {
+        const surveyTime = survey.sendDate.getTime()
         let responsesToProcess
         if (respondentsIncludedByFilter) {
           responsesToProcess = survey.responses.filter(response => respondentsIncludedByFilter.includes(response.respondent))
@@ -144,37 +139,37 @@ surveySetSchema.statics.fetchSurveyResultData = function (cohortID, surveySetID,
           const questionAnswer = response.questionAnswers.find(questionAnswer => questionAnswer.id === question.id)
           switch (question.kind) {
             case 'text':
-              if (!question.responses[survey.sendDateText]) {
-                question.responses[survey.sendDateText] = []
+              if (!question.responses[surveyTime]) {
+                question.responses[surveyTime] = []
               }
-              question.responses[survey.sendDateText].push(questionAnswer.answer)
+              question.responses[surveyTime].push(questionAnswer.answer)
               break
             case 'scale':
-              if (!question.responses[survey.sendDateText]) {
-                question.responses[survey.sendDateText] = new Array(5).fill(0)
+              if (!question.responses[surveyTime]) {
+                question.responses[surveyTime] = new Array(5).fill(0)
               }
-              question.responses[survey.sendDateText][parseInt(questionAnswer.answer) - 1]++
+              question.responses[surveyTime][parseInt(questionAnswer.answer) - 1]++
               break
             case 'choice':
-              if (!question.responses[survey.sendDateText]) {
-                question.responses[survey.sendDateText] = {}
+              if (!question.responses[surveyTime]) {
+                question.responses[surveyTime] = {}
                 for (let option of question.options) {
-                  question.responses[survey.sendDateText][option] = 0
+                  question.responses[surveyTime][option] = 0
                 }
               }
               for (let answerOption of questionAnswer.answer) {
-                question.responses[survey.sendDateText][answerOption]++
+                question.responses[surveyTime][answerOption]++
               }
               break
             case 'rank':
-              if (!question.responses[survey.sendDateText]) {
-                question.responses[survey.sendDateText] = {}
+              if (!question.responses[surveyTime]) {
+                question.responses[surveyTime] = {}
                 for (let option of question.options) {
-                  question.responses[survey.sendDateText][option] = []
+                  question.responses[surveyTime][option] = []
                 }
               }
               questionAnswer.answer.forEach((item, index) => {
-                question.responses[survey.sendDateText][item].push(index + 1)
+                question.responses[surveyTime][item].push(index + 1)
               })
               break
           }
