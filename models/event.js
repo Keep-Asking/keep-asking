@@ -6,7 +6,7 @@ const options = {
 }
 
 const eventSchema = new mongoose.Schema({
-  time: {
+  date: {
     type: Date,
     default: Date.now,
     required: true
