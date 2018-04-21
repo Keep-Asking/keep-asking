@@ -89,6 +89,18 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
     return Survey.insertMany(surveyDocuments)
   }).then(function () {
     res.sendStatus(200)
+
+    if (req.body.survey && surveySetDocument.surveys) {
+      for (let survey of surveySetDocument.surveys) {
+        Survey.update({
+          sendDate: survey.date,
+          cohort: req.body.cohort,
+          surveySet: req.body.survey
+        }, {
+          name: survey.name
+        }).exec()
+      }
+    }
   }).catch(function (err) {
     console.error(err)
     return res.sendStatus(500)
