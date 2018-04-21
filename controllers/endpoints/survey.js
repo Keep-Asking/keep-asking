@@ -9,6 +9,7 @@ const Response = require('./../../models/response.js')
 const Respondent = require('./../../models/respondent.js')
 const Survey = require('./../../models/survey.js')
 const Cohort = mongoose.model('Cohort')
+const SurveySubmittedEvent = mongoose.model('SurveySubmittedEvent')
 
 const email = require('../email.js')
 
@@ -20,33 +21,65 @@ router.post('/submit', express.urlencoded({extended: true}), async function (req
     return res.status(403).send('The response hash is invalid for the specified cohortID, surveySetID, surveyID, and email combination.')
   }
 
-  const promises = []
-
   if (req.body.demographicQuestionResponses && req.body.demographicQuestionResponses.length > 0) {
-    promises.push(Respondent.create({
-      _id: req.body.respondentEmail,
-      cohort: req.body.cohortID,
-      demographicQuestionResponses: req.body.demographicQuestionResponses
-    }))
+    try {
+      await Respondent.create({
+        _id: req.body.respondentEmail,
+        cohort: req.body.cohortID,
+        demographicQuestionResponses: req.body.demographicQuestionResponses
+      })
+    } catch (err) {
+      console.error(err)
+      return res.sendStatus(500)
+    }
   }
 
-  console.log('req.body.surveyQuestionResponses', req.body.surveyQuestionResponses)
+  try {
+    var response = await Response.create({
+      respondent: req.body.respondentEmail,
+      cohort: req.body.cohortID,
+      surveySet: req.body.surveySetID,
+      survey: req.body.surveyID,
+      responseTime: Date.now(),
+      questionAnswers: req.body.surveyQuestionResponses
+    })
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
 
-  promises.push(Response.create({
-    respondent: req.body.respondentEmail,
-    cohort: req.body.cohortID,
-    surveySet: req.body.surveySetID,
-    survey: req.body.surveyID,
-    responseTime: Date.now(),
-    questionAnswers: req.body.surveyQuestionResponses
-  }))
+  res.sendStatus(200)
 
-  Promise.all(promises).then(result => {
-    return res.sendStatus(200)
-  }).catch(err => {
-    console.log('err!', err)
-    return res.status(500).send(err)
-  })
+  try {
+    SurveySubmittedEvent.create({
+      response: response._id,
+      respondent: req.body.respondentEmail,
+      cohort: req.body.cohortID,
+      surveySet: req.body.surveySetID,
+      survey: req.body.surveyID
+    })
+  } catch (err) {
+    console.error('Error while creating survey submitted event:', err)
+  }
+  //
+  // console.log('req.body.surveyQuestionResponses', req.body.surveyQuestionResponses)
+  //
+  // promises.push(Response.create({
+  //   respondent: req.body.respondentEmail,
+  //   cohort: req.body.cohortID,
+  //   surveySet: req.body.surveySetID,
+  //   survey: req.body.surveyID,
+  //   responseTime: Date.now(),
+  //   questionAnswers: req.body.surveyQuestionResponses
+  // }))
+  //
+  // Promise.all(promises).then(result => {
+  //   res.sendStatus(200)
+  //
+  // }).catch(err => {
+  //   console.log('err!', err)
+  //   return res.status(500).send(err)
+  // })
 })
 
 router.post('/resend', express.urlencoded({extended: true}), async function (req, res) {

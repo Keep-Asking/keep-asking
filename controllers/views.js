@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
 
 const moment = require('moment')
 
@@ -12,6 +13,7 @@ const SurveySet = require('./../models/surveySet.js')
 const Survey = require('./../models/survey.js')
 const Respondent = require('./../models/respondent.js')
 const Response = require('./../models/response.js')
+const SurveyOpenedEvent = mongoose.model('SurveyOpenedEvent')
 
 const errorMessages = {
   403: 'You do not have permission to access the requested item. Ensure you are logged in to the correct account.',
@@ -358,13 +360,24 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
       demographicQuestionsToAsk = thisSurvey.cohort.demographicQuestions
     }
 
-    return res.render('survey', {
+    res.render('survey', {
       survey: thisSurvey,
       respondentEmail: req.query.email,
       responseHash: req.query.hash,
       demographicQuestionsToAsk,
       preview: preview
     })
+
+    try {
+      SurveyOpenedEvent.create({
+        respondent: req.query.email,
+        cohort: req.params.cohortID,
+        surveySet: req.params.surveySetID,
+        survey: req.params.surveyID
+      })
+    } catch (err) {
+      console.error('Error while creating survey opened event:', err)
+    }
   }).catch(error => {
     console.error(error)
     return displayError(req, res, 500)
