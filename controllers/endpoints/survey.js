@@ -54,6 +54,7 @@ router.post('/resend', express.urlencoded({extended: true}), async function (req
     return res.sendStatus(403)
   }
 
+  // Ensure the user is an owner of this cohort
   const cohortCount = await Cohort.count({
     _id: req.body.cohortID,
     owners: req.user.username
@@ -64,16 +65,21 @@ router.post('/resend', express.urlencoded({extended: true}), async function (req
     })
   }
 
-  return Survey.count({
-    _id: req.body.surveyID,
-    owner: req.user.username
-  }).then(surveyCount => {
+  // Ensure the survey is within the cohort
+  try {
+    const surveyCount = await Survey.count({
+      _id: req.body.surveyID,
+      cohort: req.body.cohortID
+    })
     if (surveyCount !== 1) {
-      res.sendStatus(404)
+      return res.sendStatus(404)
     }
+  } catch (e) {
+    return res.sendStatus(500)
+  }
 
-    return email.resendSurveyResponseRequestEmails(req.body.cohortID, req.body.surveySetID, req.body.surveyID)
-  }).then(sentEmailPromises => {
+  // Send the emails
+  email.resendSurveyResponseRequestEmails(req.body.cohortID, req.body.surveySetID, req.body.surveyID).then(sentEmailPromises => {
     console.log('Re-sending emails complete')
     return res.status(200).json({emailsSent: sentEmailPromises.length})
   }).catch(err => {

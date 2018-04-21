@@ -21,7 +21,6 @@ const mailer = require('./emailManager.js').mailer
 const generateSurveyResponseRequestEmailConfiguration = function (cohort, surveySet, survey, recipientEmail) {
   // Generate the beautified email topic
   const emailTopic = surveySet.name.split(' ').filter(word => (!['survey', 'feedback'].includes(word.toLowerCase()))).join(' ')
-
   // Prepare the email data
   const emailData = {
     survey: survey,
@@ -48,7 +47,7 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
       address: cohort.owners[0].email
     },
     to: recipientEmail,
-    subject: [cohort.name, emailTopic, 'Feedback'].join(' '),
+    subject: `${cohort.name} Feedback About ${emailTopic} (${survey.name})`,
     text: emailPlaintext,
     html: emailHTML
   }
