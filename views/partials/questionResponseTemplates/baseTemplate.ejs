@@ -6,14 +6,16 @@
     <% } else { %>
       <table class="table">
         <thead>
-          <th style="width: 200px">Survey Date</th>
+          <th style="width: 200px">Survey</th>
           <th>Responses</th>
         </thead>
         <tbody>
           <% for (let responseDate in question.responses) { %>
             <tr>
               <td>
-                <%= responseDate %>
+                <% const survey = surveySet.surveys.find(survey => survey.sendDate.getTime() === Number.parseInt(responseDate)) %>
+                <%= survey.name %>
+                <small class="d-block" data-display-date="<%= responseDate %>" data-display-date-format="D MMM Y"></small>
               </td>
               <td>
                 <%- include('./' + question.kind + 'QuestionTemplate', {responseDate}) %>

@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+const moment = require('moment')
+
 // Helpers
 const hash = require('./hash.js')
 
@@ -181,17 +183,25 @@ router.get('/cohorts/:cohortID/surveys/:surveyID/edit', async function (req, res
   SurveySet.findOne({
     cohort: req.params.cohortID,
     _id: req.params.surveyID
-  }).then(survey => {
-    if (!survey) {
+  }).then(surveySet => {
+    if (!surveySet) {
       return displayError(req, res, 404)
+    }
+
+    // Format Date strings
+    if (surveySet.surveys) {
+      surveySet.surveys = surveySet.surveys.map(survey => {
+        survey.displayDate = moment(survey.date).format('D MMM Y')
+        return survey
+      })
     }
 
     return res.render('edit', {
       username: req.user.username,
-      survey: survey,
+      survey: surveySet,
       formName: 'Survey',
       formDescription: 'A survey is what you use to ask questions to your respondents. At the date(s) and time you specify, your cohort members will be emailed asking them to complete your survey. You can create multiple surveys to ask your cohort members about different topics at different times.',
-      pageTitle: 'Edit Survey ' + survey.name
+      pageTitle: 'Edit Survey ' + surveySet.name
     })
   }).catch(err => {
     console.error(err)

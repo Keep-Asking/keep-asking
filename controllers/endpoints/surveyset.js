@@ -31,17 +31,12 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
 
   // Map keys and values from req.body to surveySetDocument
   const surveySetDocument = {}
-  const keysToMap = ['name', 'sendDates', 'cohort', 'questions', 'responseAcceptancePeriod']
+  const keysToMap = ['name', 'surveys', 'cohort', 'questions', 'responseAcceptancePeriod']
   keysToMap.forEach(function (key) {
     if (req.body[key]) {
       surveySetDocument[key] = req.body[key]
     }
   })
-
-  // If no change to sendDates, we're done!
-  if (!req.body.sendDates) {
-    return res.sendStatus(200)
-  }
 
   let surveySetID
   SurveySet.update({
@@ -67,24 +62,45 @@ router.post('/update', bodyParser.urlencoded({ extended: true }), async function
         var remindAfterMilliseconds = responseAcceptancePeriodMilliseconds * 0.5
       }
     }
-    const surveyDates = req.body.sendDates.map(date => new Date(date))
-    const surveyDocuments = surveyDates.filter(function (date) {
-      return (date >= new Date())
-    }).map(function (date) {
+    const surveys = req.body.surveys.map(survey => {
+      survey.date = new Date(survey.date)
+      return survey
+    })
+    const surveyDocuments = surveys.filter(function (survey) {
+      return (survey.date >= new Date())
+    }).map(function (survey) {
       const surveyDocument = {
         surveySet: surveySetID,
         cohort: req.body.cohort,
-        sendDate: date,
+        sendDate: survey.date,
+        name: survey.name,
         sent: false
       }
+
+      // Save survey name if provided
+      if (survey.name && survey.name.trim().length > 0) {
+        surveyDocument.name = survey.name.trim()
+      }
       if (remindAfterMilliseconds) {
-        surveyDocument.remindDate = new Date(date.getTime() + remindAfterMilliseconds)
+        surveyDocument.remindDate = new Date(survey.date.getTime() + remindAfterMilliseconds)
       }
       return surveyDocument
     })
     return Survey.insertMany(surveyDocuments)
   }).then(function () {
     res.sendStatus(200)
+
+    if (req.body.survey && surveySetDocument.surveys) {
+      for (let survey of surveySetDocument.surveys) {
+        Survey.update({
+          sendDate: survey.date,
+          cohort: req.body.cohort,
+          surveySet: req.body.survey
+        }, {
+          name: survey.name
+        }).exec()
+      }
+    }
   }).catch(function (err) {
     console.error(err)
     return res.sendStatus(500)

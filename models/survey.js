@@ -21,6 +21,10 @@ const surveySchema = mongoose.Schema({
     required: true,
     default: false
   },
+  name: {
+    type: String,
+    trim: true
+  },
   remindDate: Date,
   reminded: Boolean
 })
