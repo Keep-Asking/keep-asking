@@ -3,7 +3,12 @@ const mongoose = require('mongoose')
 const shared = require('./shared.js')
 
 const cohortSchema = mongoose.Schema({
-  name: shared.requiredTrimmedString,
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    default: 'Unnamed Cohort'
+  },
   owners: [{
     type: String,
     trim: true,

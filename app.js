@@ -11,7 +11,10 @@ require('./controllers/database.js')
 
 require('./controllers/loadModels.js')
 
-const auth = require('./controllers/authentication.js')
+app.use(express.urlencoded({extended: true}))
+
+// Configure routing to the public folder
+app.use(express.static('public'))
 
 // Configure session cookies
 app.use(session({
@@ -23,6 +26,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 const api = require('./controllers/api.js')
+const auth = require('./controllers/authentication.js')
 const views = require('./controllers/views.js')
 app.use('/api', api.router)
 app.use('/auth', auth.router)
@@ -30,9 +34,6 @@ app.use(views.router)
 
 // Configure the EJS templating system (http://www.ejs.co)
 app.set('view engine', 'ejs')
-
-// Configure routing to the public folder
-app.use(express.static('public'))
 
 // Catch 404 NOT FOUND errors
 app.use(function (req, res, next) {

@@ -5,6 +5,7 @@ const User = require.main.require('./models/user.js')
 // Load Strategies
 const CasStrategy = require('passport-cas2').Strategy
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const CustomStrategy = require('passport-custom').Strategy
 
 // Prepare Princeton CAS Strategy
 const princetonCASURL = 'https://fed.princeton.edu/cas/'
@@ -40,7 +41,26 @@ const preparedGoogleStrategy = new GoogleStrategy({
   })
 })
 
+// Authenticate using an API key
+const preparedAPIKeyStrategy = new CustomStrategy(
+  function (req, done) {
+    if (req.isAuthenticated()) {
+      return done(null, req.user)
+    }
+    const apikey = req.query.apikey || req.body.apikey
+    if (!apikey) {
+      return done(null, false)
+    }
+    User.findOne({
+      apikey: apikey
+    }, function (err, user) {
+      done(err, user)
+    })
+  }
+)
+
 module.exports = {
   princeton: preparedPrincetonStrategy,
-  google: preparedGoogleStrategy
+  google: preparedGoogleStrategy,
+  apikey: preparedAPIKeyStrategy
 }

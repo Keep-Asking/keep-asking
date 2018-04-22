@@ -1,34 +1,28 @@
-let express = require('express')
-let router = express.Router()
-
-router.use('/survey', require('./endpoints/survey.js'))
+const express = require('express')
+const router = express.Router()
+const passport = require('passport')
 
 // Allow submission without authenticating
 router.use('/survey', require('./endpoints/survey.js'))
 
+// Authenticate using API Key, if present
+router.use(passport.authenticate('apikey', { session: false }))
+
 // Check that the user is authenticated
-router.all('*', function (req, res, next) {
+router.use(function (req, res, next) {
   if (req.isAuthenticated()) {
     return next()
   }
   res.sendStatus(401)
 })
 
-// Prevent caching of PUT requests
-router.put('*', function (req, res, next) {
-  res.set('Cache-Control', 'no-cache')
-  next()
-})
-
-// Prevent caching of DELETE requests
-router.delete('*', function (req, res, next) {
-  res.set('Cache-Control', 'no-cache')
-  next()
-})
-
 // Handle requests to all the API endpoints
-router.use('/cohorts', require('./endpoints/cohort.js'))
+router.use('/cohorts', require('./apiEndpoints/cohorts.js'))
 router.use('/surveysets', require('./endpoints/surveyset.js'))
+
+router.use(function (req, res, next) {
+  return res.sendStatus(404)
+})
 
 // Export the routes on this router
 module.exports.router = router
