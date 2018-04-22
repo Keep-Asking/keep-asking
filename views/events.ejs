@@ -1,0 +1,71 @@
+<%- include('./partials/head'); %>
+<%- include('./partials/header'); %>
+<div class="container my-5">
+  <h1>Events</h1>
+  <p>
+    This page shows a history of events related to your cohorts. An event will be logged every time Keep Asking sends an email to a member of one of your cohorts, one of your cohort members opens your survey, or one of your surveys receives a submission.
+  </p>
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>
+          Date
+        </th>
+        <th>
+          Type
+        </td>
+        <th>
+          Cohort
+        </th>
+        <th>
+          Survey
+        </th>
+        <th>
+          Sub-Survey
+        </th>
+        <th>
+          Respondent
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (typeof events !== 'undefined') { %>
+        <% for (let event of events) { %>
+          <tr>
+            <td data-display-date="<%= event.date.getTime() %>" data-display-date-format="HH:mm, D MMM" data-display-date-format-tooltip="HH:mm:ss on D MMM Y" data-toggle="tooltip"></td>
+            <td>
+              <%= event.eventType.split(/(?=[A-Z])/).slice(0, -1).join(' ') %>
+            </td>
+            <td>
+              <%= event.cohort.name %>
+            </td>
+            <td>
+              <a href="/cohorts/<%= event.cohort._id %>/surveys/<%= event.surveySet._id %>/results"><%= event.surveySet.name %></a>
+            </td>
+            <td>
+              <%= event.survey.name %>
+            </td>
+            <td>
+              <%= event.respondent %>
+            </td>
+          </tr>
+        <% } %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<% const thisPageIndex = Math.floor(skip / limit) + 1 %>
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <li class="page-item <%= (skip === 0) ? 'disabled' : '' %>">
+      <a class="page-link" href="?skip=<%= Math.max(0, skip - limit) %>&limit=<%=limit%>">Show Newer Events</a>
+    </li>
+    <li class="page-item <%= (thisPageIndex * limit >= eventsCount) ? 'disabled' : '' %>">
+      <a class="page-link" href="?skip=<%= skip + limit %>&limit=<%=limit%>">Show Older Events</a>
+    </li>
+  </ul>
+</nav>
+<p class="text-center">Showing events <%= skip + 1 %> through <%= skip + events.length %> of <%= eventsCount %> events.</p>
+
+<%- include('./partials/feet'); %>
