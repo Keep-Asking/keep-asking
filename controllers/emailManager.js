@@ -35,7 +35,9 @@ switch (config.transport) {
     }
 }
 const mailer = nodemailer.createTransport(transportPlugin)
+const transport = config.transport || 'mock'
 
 module.exports = {
-  mailer: mailer
+  mailer: mailer,
+  transport
 }

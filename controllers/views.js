@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
 
 const moment = require('moment')
 
@@ -12,6 +13,7 @@ const SurveySet = require('./../models/surveySet.js')
 const Survey = require('./../models/survey.js')
 const Respondent = require('./../models/respondent.js')
 const Response = require('./../models/response.js')
+const SurveyOpenedEvent = mongoose.model('SurveyOpenedEvent')
 
 const errorMessages = {
   403: 'You do not have permission to access the requested item. Ensure you are logged in to the correct account.',
@@ -358,13 +360,28 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
       demographicQuestionsToAsk = thisSurvey.cohort.demographicQuestions
     }
 
-    return res.render('survey', {
+    res.render('survey', {
       survey: thisSurvey,
       respondentEmail: req.query.email,
       responseHash: req.query.hash,
       demographicQuestionsToAsk,
       preview: preview
     })
+
+    if (preview) {
+      return
+    }
+
+    try {
+      SurveyOpenedEvent.create({
+        respondent: req.query.email,
+        cohort: req.params.cohortID,
+        surveySet: req.params.surveySetID,
+        survey: req.params.surveyID
+      })
+    } catch (err) {
+      console.error('Error while creating survey opened event:', err)
+    }
   }).catch(error => {
     console.error(error)
     return displayError(req, res, 500)
@@ -381,7 +398,8 @@ const showProfilePage = function (req, res, next) {
     user: req.user,
     username: req.user.username,
     profileSaved: res.locals.profileSaved,
-    setupProfile: req.query.setupProfile === 'true'
+    setupProfile: req.query.setupProfile === 'true',
+    pageTitle: 'Profile'
   })
 }
 
@@ -408,6 +426,65 @@ router.post('/profile', express.urlencoded({extended: true}), function (req, res
   }).catch(err => {
     console.error(err)
     return displayError(req, res, 500)
+  })
+})
+
+const Event = mongoose.model('Event')
+router.get('/events', express.urlencoded({extended: true}), async function (req, res, next) {
+  if (!req.isAuthenticated()) {
+    return displayError(req, res, 403)
+  }
+
+  try {
+    var cohorts = await Cohort.find({
+      owners: req.user.username
+    }, {
+      name: true
+    })
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
+
+  const cohortIDs = cohorts.map(cohort => cohort._id)
+  if (req.query.skip) {
+    req.query.skip = Number.parseInt(req.query.skip)
+  }
+  if (req.query.limit) {
+    req.query.limit = Number.parseInt(req.query.limit)
+  }
+  const skip = req.query.skip || 0
+  const limit = req.query.limit || 50
+
+  const events = await Event.find({
+    cohort: {
+      $in: cohortIDs
+    }
+  }).sort({ date: -1 }).skip(skip).limit(limit).populate({
+    path: 'cohort',
+    select: 'name'
+  }).populate({
+    path: 'surveySet',
+    select: 'name'
+  }).populate({
+    path: 'survey',
+    select: 'name'
+  })
+
+  const eventsCount = await Event.count({
+    cohort: {
+      $in: cohortIDs
+    }
+  })
+
+  return res.render('events', {
+    user: req.user,
+    username: req.user.username,
+    events: events,
+    pageTitle: 'Events',
+    skip,
+    limit,
+    eventsCount
   })
 })
 

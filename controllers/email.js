@@ -11,12 +11,15 @@ const mongoose = require('mongoose')
 require('./loadModels.js')
 const Survey = mongoose.model('Survey')
 const Response = mongoose.model('Response')
+const SurveyRequestEmailSentEvent = mongoose.model('SurveyRequestEmailSentEvent')
 
 const emailTemplateSimplePlaintext = fs.readFileSync('./emails/surveyRequestSimplePlaintext.ejs', 'utf-8')
 const emailTemplateSimpleHTML = fs.readFileSync('./emails/surveyRequestSimple.ejs', 'utf-8')
 
 // Load the third-party transport service
-const mailer = require('./emailManager.js').mailer
+const emailManager = require('./emailManager.js')
+const mailer = emailManager.mailer
+const transportName = emailManager.transport
 
 const generateSurveyResponseRequestEmailConfiguration = function (cohort, surveySet, survey, recipientEmail) {
   // Generate the beautified email topic
@@ -57,7 +60,20 @@ const generateSurveyResponseRequestEmailConfiguration = function (cohort, survey
 
 const sendSurveyResponseRequestEmail = function (cohort, surveySet, survey, recipientEmail) {
   const emailConfiguration = generateSurveyResponseRequestEmailConfiguration(cohort, surveySet, survey, recipientEmail)
-  return mailer.sendMail(emailConfiguration)
+  return mailer.sendMail(emailConfiguration).then(result => {
+    try {
+      SurveyRequestEmailSentEvent.create({
+        transport: transportName,
+        cohort: cohort._id,
+        surveySet: surveySet._id,
+        survey: survey._id,
+        respondent: recipientEmail
+      })
+    } catch (err) {
+      console.error('Error occured while logging SurveyRequestEmailSentEvent event:', err)
+    }
+    return result
+  })
 }
 
 const sendSurveyResponseRequestEmailToEmails = function (cohort, surveySet, survey, emails) {
