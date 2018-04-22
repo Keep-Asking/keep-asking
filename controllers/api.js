@@ -20,6 +20,7 @@ router.use(function (req, res, next) {
 router.use('/cohorts', require('./apiEndpoints/cohorts.js'))
 router.use('/surveysets', require('./endpoints/surveyset.js'))
 
+// Catch 404 NOT FOUND errors
 router.use(function (req, res, next) {
   return res.sendStatus(404)
 })

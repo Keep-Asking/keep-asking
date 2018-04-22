@@ -125,31 +125,41 @@ $(function () {
       demographicQuestions: serializeQuestions($(this))
     }
 
+    // Determine request parameters
+    var method = 'POST'
+    var url = '/api/cohorts'
+
+    // Update an existing cohort
     if ($(this).data('cohort-id')) {
       cohortData.id = $(this).data('cohort-id')
+      method = 'PATCH'
+      url = '/api/cohorts/' + cohortData.id
     }
 
-    $.post('/api/cohorts/update', cohortData).done(function () {
+    $.ajax({
+      method: method,
+      url: url,
+      data: cohortData
+    }).done(function () {
       window.location.href = '/'
     }).fail(function (err) {
-      if (err && err.status === 400) {
-        if (err.responseJSON) {
-          console.log('switching')
-          switch (err.responseJSON.invalidField) {
-            case 'name':
-              $('#cohortName').addClass('is-invalid')
-              $('#cohortNameHelp').removeClass('text-muted').addClass('text-danger')
-              break
-            case 'members':
-              $('#cohortMemberEmails').addClass('is-invalid')
-              $('#cohortMemberEmailsHelp').removeClass('text-muted').addClass('text-danger')
-              break
-            default:
-              window.alert('Sadface')
-          }
-        }
+      window.alert('An error occured and the cohort may not have been created.')
+      console.error(err)
+    })
+  })
+
+  $('.archive-toggle').click(function () {
+    console.log('sending', !$(this).data('cohort-archived'))
+    $.ajax({
+      url: '/api/cohorts/' + $(this).data('cohort-id'),
+      method: 'PATCH',
+      data: {
+        archived: !$(this).data('cohort-archived')
       }
-      console.log(err)
+    }).done(() => {
+      window.location.reload()
+    }).fail(err => {
+      console.error(err)
     })
   })
 

@@ -98,12 +98,12 @@ router.get('/:cohortID', ensureCohortOwnership, async (req, res) => {
 router.patch('/:cohortID', ensureCohortOwnership, async (req, res) => {
   const updateDocument = {}
 
-  if (typeof req.body.archive === 'string') {
-    req.body.archive = req.body.archive === 'true'
+  if (typeof req.body.archived === 'string') {
+    req.body.archived = req.body.archived === 'true'
   }
 
-  for (let key of ['name', 'members', 'demographicQuestions', 'archive']) {
-    if (req.body[key]) {
+  for (let key of ['name', 'members', 'demographicQuestions', 'archived']) {
+    if (req.body.hasOwnProperty(key)) {
       updateDocument[key] = req.body[key]
     }
   }
