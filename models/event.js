@@ -34,7 +34,8 @@ const surveyRequestEmailSentEventSchema = new mongoose.Schema({
   cohort: {
     type: ObjectId,
     ref: 'Cohort',
-    required: true
+    required: true,
+    index: true
   },
   transport: {
     type: String,
@@ -63,7 +64,8 @@ const surveyOpenedEventSchema = new mongoose.Schema({
   cohort: {
     type: ObjectId,
     ref: 'Cohort',
-    required: true
+    required: true,
+    index: true
   }
 }, options)
 const surveyOpenedEvent = Event.discriminator('SurveyOpenedEvent', surveyOpenedEventSchema)
@@ -93,7 +95,8 @@ const surveySubmittedEventSchema = new mongoose.Schema({
   cohort: {
     type: ObjectId,
     ref: 'Cohort',
-    required: true
+    required: true,
+    index: true
   }
 }, options)
 const surveySubmittedEvent = Event.discriminator('SurveySubmittedEvent', surveySubmittedEventSchema)
