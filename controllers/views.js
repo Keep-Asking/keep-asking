@@ -454,7 +454,7 @@ router.get('/events', express.urlencoded({extended: true}), async function (req,
     req.query.limit = Number.parseInt(req.query.limit)
   }
   const skip = req.query.skip || 0
-  const limit = req.query.limit || 20
+  const limit = req.query.limit || 50
 
   const events = await Event.find({
     cohort: {

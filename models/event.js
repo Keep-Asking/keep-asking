@@ -42,7 +42,7 @@ const surveyRequestEmailSentEventSchema = new mongoose.Schema({
     trimmed: true
   }
 }, options)
-const SurveyRequestEmailSentEvent = Event.discriminator('SurveyRequestEmailSentEvent', surveyRequestEmailSentEventSchema)
+Event.discriminator('SurveyRequestEmailSentEvent', surveyRequestEmailSentEventSchema)
 
 const surveyOpenedEventSchema = new mongoose.Schema({
   respondent: {
@@ -68,7 +68,7 @@ const surveyOpenedEventSchema = new mongoose.Schema({
     index: true
   }
 }, options)
-const surveyOpenedEvent = Event.discriminator('SurveyOpenedEvent', surveyOpenedEventSchema)
+Event.discriminator('SurveyOpenedEvent', surveyOpenedEventSchema)
 
 const surveySubmittedEventSchema = new mongoose.Schema({
   response: {
@@ -99,4 +99,4 @@ const surveySubmittedEventSchema = new mongoose.Schema({
     index: true
   }
 }, options)
-const surveySubmittedEvent = Event.discriminator('SurveySubmittedEvent', surveySubmittedEventSchema)
+Event.discriminator('SurveySubmittedEvent', surveySubmittedEventSchema)
