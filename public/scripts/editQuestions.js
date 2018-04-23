@@ -1,3 +1,5 @@
+const uuid = require('uuid')
+
 const initialiseOptionsTokenField = function () {
   $('.tokenfield.options').tokenfield({
     createTokensOnBlur: true
@@ -84,6 +86,44 @@ const moveQuestion = function (event) {
   }
 }
 
+const serializeQuestions = function (form) {
+  let serializedQuestions = []
+  form.find('.form-question').not('#question-template .form-question').each(function (questionIndex, questionElement) {
+    console.log(questionElement)
+    let thisQuestion = {
+      id: $(questionElement).find('[data-question-attribute="id"]').val().trim(),
+      title: $(questionElement).find('[data-question-attribute="title"]').val().trim(),
+      kind: $(questionElement).find('[data-question-attribute="kind"]').val().trim()
+    }
+
+    if (thisQuestion.id.length === 0) {
+      thisQuestion.id = uuid.v4()
+    }
+
+    switch (thisQuestion.kind) {
+      case 'text':
+        thisQuestion.textAreaSize = $(questionElement).find('[data-question-attribute="textAreaSize"]:checked').val().trim()
+        break
+      case 'scale':
+        thisQuestion.options = [
+          $(questionElement).find('[data-question-attribute="options[0]"]').val().trim(),
+          $(questionElement).find('[data-question-attribute="options[1]"]').val().trim()
+        ]
+        break
+      case 'choice':
+        thisQuestion.options = $(questionElement).find('[data-question-attribute="options"]').tokenfield('getTokens').map(val => val.value)
+        thisQuestion.multipleChoice = $(questionElement).find('[data-question-attribute="multipleChoice"]:checked').val().trim() === 'multiple'
+        break
+      case 'rank':
+        thisQuestion.options = $(questionElement).find('[data-question-attribute="options"]').tokenfield('getTokens').map(val => val.value)
+        break
+    }
+
+    serializedQuestions.push(thisQuestion)
+  })
+  return serializedQuestions
+}
+
 $(function () {
   initialiseOptionsTokenField()
 
@@ -100,3 +140,7 @@ $(function () {
 
   $('#confirmDeleteQuestion').on('click', deleteQuestion)
 })
+
+module.exports = {
+  serializeQuestions
+}
