@@ -23,18 +23,18 @@
           <small id="surveyNamesHelp" class="form-text text-muted">
             You can assign descriptive names to each survey date to provide context to you and your survey respondents. If you do not assign descriptive names, the survey date will be used.
           </small>
-          <% if (typeof survey !== 'undefined' && survey.surveys) { %>
-            <table style="width: 100%" id="surveyNames">
-              <% for (let thisSurvey of survey.surveys) { %>
-                <tr>
-                  <td><label class="text-nowrap mr-2 mt-1">Survey Name:</label></td>
-                  <td>
-                    <input type="text" class="form-control form-control-sm survey-name-item" aria-describedby="surveyNamesHelp" value="<%= thisSurvey.name %>" placeholder="Survey Name" data-date="<%= thisSurvey.date.getTime() %>">
-                  </td>
-                </tr>
-              <% } %>
-            </table>
-          <% } %>
+          <table style="width: 100%" id="surveyNames">
+            <% if (typeof survey !== 'undefined' && survey.surveys) { %>
+                <% for (let thisSurvey of survey.surveys) { %>
+                  <tr>
+                    <td><label class="text-nowrap mr-2 mt-1">Survey Name:</label></td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm survey-name-item" aria-describedby="surveyNamesHelp" value="<%= thisSurvey.name %>" placeholder="Survey Name" data-date="<%= thisSurvey.date.getTime() %>">
+                    </td>
+                  </tr>
+                <% } %>
+            <% } %>
+          </table>
         </div>
       </div>
     </div>
