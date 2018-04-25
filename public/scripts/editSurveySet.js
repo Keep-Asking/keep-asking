@@ -42,6 +42,9 @@ const updateSurveyNameFields = function (event) {
 }
 
 const submitEditSurveySetForm = function (event) {
+  if (event) {
+    event.preventDefault()
+  }
   $('#surveySendTime').blur()
 
   const sendTimeMilliseconds = $('#surveySendTime').data('sendTimeMilliseconds')
@@ -78,12 +81,6 @@ const submitEditSurveySetForm = function (event) {
     url += '/' + surveySetID
     method = 'PATCH'
   }
-
-  console.log({
-    url: url,
-    method: method,
-    data: surveySetData
-  })
 
   $.ajax({
     url: url,
