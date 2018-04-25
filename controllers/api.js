@@ -10,18 +10,15 @@ router.use(passport.authenticate('apikey', { session: false }))
 
 // Check that the user is authenticated
 router.use(function (req, res, next) {
-  console.log('Request to', req.originalUrl)
   if (req.isAuthenticated()) {
-    console.log('Request is authenticated', req.originalUrl)
     return next()
   }
-  console.log('Request is not authenticated', req.originalUrl)
   res.sendStatus(401)
 })
 
 // Handle requests to all the API endpoints
 router.use('/cohorts', require('./apiEndpoints/cohorts.js'))
-// router.use('/surveysets', require('./endpoints/surveyset.js'))
+router.use('/surveysets', require('./apiEndpoints/surveyset.js'))
 
 // Catch 404 NOT FOUND errors
 router.use(function (req, res, next) {

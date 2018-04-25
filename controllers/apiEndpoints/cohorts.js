@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const Cohort = mongoose.model('Cohort')
 const SurveySet = mongoose.model('SurveySet')
 const Survey = mongoose.model('Survey')
+const Response = mongoose.model('Response')
 const sendCohortCoOwnerInvitationEmail = require('../emailCohortInvitations.js').sendCohortCoOwnerInvitationEmail
 
 const emailRE = /\S+@\S+\.\S+/
@@ -23,6 +24,33 @@ const ensureCohortOwnership = async function (req, res, next) {
       owners: req.user.username
     })
     if (cohortCount !== 1) {
+      return res.sendStatus(404)
+    }
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
+  next()
+}
+
+// Middleware to ensure that the authenticated user is an owner of the surveySet
+const ensureSurveySetOwnership = async function (req, res, next) {
+  if (!req.params.cohortID) {
+    return res.status(400).json({
+      message: 'No cohort ID provided in the request'
+    })
+  }
+  if (!req.params.surveySetID) {
+    return res.status(400).json({
+      message: 'No survey set ID provided in the request'
+    })
+  }
+  try {
+    const surveySetCount = await SurveySet.count({
+      _id: req.params.surveySetID,
+      cohort: req.params.cohortID
+    })
+    if (surveySetCount !== 1) {
       return res.sendStatus(404)
     }
   } catch (err) {
@@ -216,6 +244,19 @@ const updateSurveys = async function (req, res, surveySet, callback) {
   return callback(null)
 }
 
+// List the surveySets within a given cohort
+router.get('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => {
+  try {
+    const surveySets = await SurveySet.find({
+      cohort: req.params.cohortID
+    })
+    return res.json(surveySets)
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
+})
+
 // Create a new surveySet
 router.post('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => {
   // Map keys and values from req.body to surveySetDocument
@@ -245,12 +286,20 @@ router.post('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => 
 })
 
 // Modify an existing surveySet
-router.patch('/:cohortID/surveySets/:surveySetID', ensureCohortOwnership, async (req, res) => {
+router.patch('/:cohortID/surveySets/:surveySetID', ensureCohortOwnership, ensureSurveySetOwnership, async (req, res) => {
   try {
-    var surveySet = await SurveySet.findById(req.params.surveySetID)
+    var surveySet = await SurveySet.findOne({
+      _id: req.params.surveySetID,
+      cohort: req.params.cohortID
+    })
   } catch (err) {
     console.error(err)
     return res.sendStatus(500)
+  }
+
+  // Check the surveySet exists
+  if (!surveySet) {
+    return res.sendStatus(404)
   }
 
   // Map keys and values from req.body to the surveySet
@@ -277,5 +326,51 @@ router.patch('/:cohortID/surveySets/:surveySetID', ensureCohortOwnership, async 
   })
 })
 
+router.get('/:cohortID/surveySets/:surveySetID', ensureCohortOwnership, ensureSurveySetOwnership, async function (req, res) {
+  try {
+    let surveySet = await SurveySet.findOne({
+      _id: req.params.surveySetID,
+      cohort: req.params.cohortID
+    }, {
+      cohort: true,
+      name: true,
+      surveys: true,
+      responseAcceptancePeriod: true,
+      questions: true
+    }).populate('cohort')
+
+    if (!surveySet) {
+      return res.sendStatus(404)
+    }
+
+    surveySet = surveySet.toObject()
+
+    // Insert responses
+    surveySet.responses = await Response.find({
+      cohort: req.params.cohortID,
+      surveySet: req.params.surveySetID
+    }, {
+      respondent: true,
+      questionAnswers: true,
+      responseTime: true,
+      _id: false
+    }).populate({
+      path: 'respondent',
+      select: {
+        cohort: false,
+        __v: false
+      }
+    })
+
+    if (req.query.download === 'true') {
+      res.attachment(`${surveySet.name}.json`)
+    }
+
+    return res.json(surveySet)
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
+})
 
 module.exports = router
