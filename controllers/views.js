@@ -310,7 +310,6 @@ router.get('/cohorts/:cohortID/surveys/:surveySetID/respond/:surveyID', function
   Promise.all(promises).then(async function (result) {
     const thisSurvey = result[0]
     const thisRespondent = result[1]
-    console.log('thisSurvey', thisSurvey)
 
     if (!thisSurvey) {
       return displayError(req, res, 404)
