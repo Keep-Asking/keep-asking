@@ -27,3 +27,21 @@ Add `owner` as a co-owner of the cohort `cohortID`. `owner` should be a URL comp
 
 ### DELETE /cohorts/:cohortID/owners/:owner
 Remove `owner` as a co-owner of the cohort `cohortID`. `owner` should be a URL component encoded email address.
+
+### POST /cohorts/:cohortID/surveySets
+Create a new survey set within the cohort `cohortID`.
+* `name`: String
+* `responseAcceptancePeriod`: Number representing the number of days after the survey is sent for which responses will be accepted.
+* `surveys`: Array of survey objects
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* `date`: a JavaScript-parsable date representation, such as the number of milliseconds since 1 January 1970 00:00:00 UTC or an ISO 8601 compliant date string (such as `2018-04-25T01:45:33+00:00`).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* `name`: a String representing the name of the survey on this date (such as "Homework 1")
+* `questions`: Array of question objects
+
+### PATCH /cohorts/:cohortID/surveySets/:surveySetID
+Modify an existing survey set within the cohort `cohortID`. Request with one or more of the following attributes to modify.
+* `name`: String
+* `responseAcceptancePeriod`: Number representing the number of days after the survey is sent for which responses will be accepted.
+* `surveys`: Array of survey objects
+* `surveys[].date`: a JavaScript-parsable date representation, such as the number of milliseconds since 1 January 1970 00:00:00 UTC or an ISO 8601 compliant date string (such as `2018-04-25T01:45:33+00:00`).
+* `surveys[].name`: a String representing the name of the survey on this date (such as "Homework 1")
+* `questions`: Array of question objects

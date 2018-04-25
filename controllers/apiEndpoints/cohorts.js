@@ -159,7 +159,6 @@ router.delete('/:cohortID/owners/:owner', ensureCohortOwnership, async function 
       owners: req.params.owner
     }
   }).then(() => {
-    console.log('removed ', req.params.owner)
     return res.sendStatus(200)
   }).catch(err => {
     console.error(err)
@@ -214,13 +213,11 @@ const updateSurveys = async function (req, res, surveySet, callback) {
       return callback(err)
     }
   }
-  console.log('Returning from update surveys')
   return callback(null)
 }
 
 // Create a new surveySet
 router.post('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => {
-  console.log('Got post request', req.body)
   // Map keys and values from req.body to surveySetDocument
   const surveySetDocument = {}
   const keysToMap = ['name', 'surveys', 'questions', 'responseAcceptancePeriod']
@@ -238,14 +235,11 @@ router.post('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => 
     return res.sendStatus(500)
   }
 
-  console.log('About to update surveys')
   return updateSurveys(req, res, surveySet, (err) => {
-    console.log('Successfully done')
     if (err) {
       console.error(err)
       return res.sendStatus(500)
     }
-    console.log('res.sendStatus(201)')
     return res.sendStatus(200)
   })
 })
@@ -275,17 +269,13 @@ router.patch('/:cohortID/surveySets/:surveySetID', ensureCohortOwnership, async 
   }
 
   return updateSurveys(req, res, surveySet, (err) => {
-    console.log('Successfully done')
     if (err) {
       console.error(err)
       return res.sendStatus(500)
     }
-    console.log('res.sendStatus(201)')
     return res.sendStatus(200)
   })
 })
 
-// const surveySetRouter = require('./surveyset.js')
-// router.use('/:cohortID/surveySets', surveySetRouter)
 
 module.exports = router

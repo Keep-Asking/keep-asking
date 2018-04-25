@@ -8,11 +8,6 @@ const Survey = require('./../../models/survey.js')
 
 const millisecondsPerDay = 60 * 60 * 24 * 1000
 
-router.get('/:surveySetID', function (req, res) {
-  console.log(req)
-  res.json(req.params)
-})
-
 // Create a new surveySet
 router.post('/cohorts/:cohortID/surveySet/', async (req, res) => {
   if (!req.params.cohort) {
