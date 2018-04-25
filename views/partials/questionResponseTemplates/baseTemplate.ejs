@@ -18,7 +18,9 @@
                 <small class="d-block" data-display-date="<%= responseDate %>" data-display-date-format="D MMM Y"></small>
               </td>
               <td>
-                <%- include('./' + question.kind + 'QuestionTemplate', {responseDate}) %>
+                <div style="max-height: 200px; overflow-y: scroll;">
+                  <%- include('./' + question.kind + 'QuestionTemplate', {responseDate}) %>
+                </div>
               </td>
             </tr>
           <% } %>

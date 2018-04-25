@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const findOrCreate = require('mongoose-findorcreate')
 const Cohort = mongoose.model('Cohort')
 const requiredTrimmedString = require('./shared.js').requiredTrimmedString
+const uuid = require('uuid/v4')
 
 const userSchema = mongoose.Schema({
   _id: {
@@ -28,7 +29,12 @@ const userSchema = mongoose.Schema({
     }
   },
   email: requiredTrimmedString,
-  admin: Boolean
+  admin: Boolean,
+  apikey: {
+    type: String,
+    trim: true,
+    default: uuid
+  }
 })
 
 userSchema.plugin(findOrCreate)

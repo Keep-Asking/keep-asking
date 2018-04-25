@@ -8,6 +8,40 @@ const Survey = require('./../../models/survey.js')
 
 const millisecondsPerDay = 60 * 60 * 24 * 1000
 
+// Create a new surveySet
+router.post('/cohorts/:cohortID/surveySet/', async (req, res) => {
+  if (!req.params.cohort) {
+    return res.status(400).json({
+      message: 'No cohort ID provided in the request'
+    })
+  }
+
+  // Verify that a cohort owned by this user exists if cohort is provided
+  try {
+    const cohortCount = await Cohort.count({
+      _id: req.params.cohort,
+      owners: req.user.username
+    })
+    if (cohortCount === 0) {
+      return res.status(404).json({
+        message: 'No cohort with the provided id exists for this user'
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    return res.sendStatus(500)
+  }
+
+  // Map keys and values from req.body to surveySetDocument
+  const surveySetDocument = {}
+  const keysToMap = ['name', 'surveys', 'cohort', 'questions', 'responseAcceptancePeriod']
+  keysToMap.forEach(function (key) {
+    if (req.body[key]) {
+      surveySetDocument[key] = req.body[key]
+    }
+  })
+})
+
 // Handle creating and updating a surveySet
 router.post('/update', bodyParser.urlencoded({ extended: true }), async function (req, res) {
   // Verify that a cohort owned by this user exists if cohort is provided

@@ -1,3 +1,5 @@
+const displayDate = require('./displayDate.js')
+
 const createChart = function (index, element) {
   const thisCanvas = element.getContext('2d')
   const data = $(element).data('responses')
@@ -126,6 +128,9 @@ const fetchFilteredSurveyResults = function () {
   $.get('/api/surveysets/results?' + query).done(function (data) {
     $('#surveyResults').html(data)
     $('#surveyResults .scaleChoiceChart').each(createChart)
+
+    // Update displayed dates
+    displayDate()
   }).fail(function (err) {
     console.error(err)
   })

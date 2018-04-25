@@ -12,7 +12,8 @@ router.use(passport.session())
 
 // Load Authentication Strategies
 passport.use('princeton', preparedStrategies.princeton)
-passport.use(preparedStrategies.google)
+passport.use('google', preparedStrategies.google)
+passport.use('apikey', preparedStrategies.apikey)
 
 // Define methods for serializing and deserializing users from the session cookie
 passport.serializeUser((user, done) => {

@@ -25,7 +25,7 @@
             </div>
             <div class="mx-md-2 my-1">
               <a href="/cohorts/<%=cohort._id%>/edit" class="btn btn-outline-primary btn-sm">Edit Cohort</a>
-              <a href="/api/cohorts/<%=cohort._id%>/archive?status=<%=(cohort.archived)?'false':'true';%>" class="btn btn-outline-primary btn-sm"><%=(cohort.archived)?'Unarchive':'Archive';%> Cohort</a>
+              <div class="btn btn-outline-primary btn-sm archive-toggle" data-cohort-id="<%=cohort._id%>" data-cohort-archived="<%=(cohort.archived)?'true':'false';%>"><%=(cohort.archived)?'Unarchive':'Archive';%> Cohort</div>
               <a href="/cohorts/<%=cohort._id%>/survey/new" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#newSurveyModal" data-cohort-id="<%=cohort._id%>">Create New Survey</a>
             </div>
           </div>

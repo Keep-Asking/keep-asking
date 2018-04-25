@@ -30,6 +30,16 @@
         <label for="last-name">Last Name</label>
         <input type="text" class="form-control" name="name[familyName]" id="last-name" value="<%= (user && user.name && user.name.familyName) ? user.name.familyName : ''; %>" autocomplete="family-name">
       </div>
+      <% if (!setupProfile) { %>
+        <div class="form-group">
+          <label for="apikey">API Key</label>
+          <div>
+            <code><%= user.apikey %></code>
+            <div class="btn btn-outline-primary btn-sm ml-3">Generate New API Key</div>
+          </div>
+          <small id="emailHelp" class="form-text text-muted">Your API key can be used for programmatic access to Keep Asking. Generating a new API key will invalidate any previously generated API keys.</small>
+        </div>
+      <% } %>
       <button type="submit" class="btn btn-primary">Save Profile</button>
     </form>
   </div>

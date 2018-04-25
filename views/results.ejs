@@ -3,6 +3,11 @@
 <div class="container my-5">
   <h1><%= surveySet.name %> <span class="text-muted">Results</span></h1>
   <h5><span class="text-muted">Cohort:</span> <%= surveySet.cohort.name %></h5>
+  <p>
+    <small>
+      <a href="/api/cohorts/<%= surveySet.cohort._id %>/surveySets/<%= surveySet._id %>?download=true" title="Download the results of this survey in JSON format">Download Survey Results</a>
+    </small>
+  </p>
   <div class="alert alert-success alert-reminder" style="display: none;" role="alert">
     Reminder emails were successfully sent to the <span id="emailSendCount"></span> member<span id="emailSendCountPlural">s</span> of this cohort who have not responded to the <span id="emailSendSurveyLabel"></span> survey.
   </div>

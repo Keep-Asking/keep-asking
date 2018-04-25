@@ -16,3 +16,5 @@ const displayDate = function () {
 $(function () {
   displayDate()
 })
+
+module.exports = displayDate
