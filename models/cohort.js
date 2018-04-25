@@ -20,7 +20,12 @@ const cohortSchema = mongoose.Schema({
     trim: true,
     lowercase: true
   }],
-  members: [String],
+  members: [{
+    type: String,
+    trim: true,
+    lowercase: true,
+    ref: 'Respondent'
+  }],
   archived: Boolean,
   demographicQuestions: [shared.question]
 })

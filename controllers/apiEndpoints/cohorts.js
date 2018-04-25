@@ -110,6 +110,20 @@ router.get('/:cohortID', ensureCohortOwnership, async (req, res) => {
     var cohort = await Cohort.findOne({
       _id: req.params.cohortID,
       owners: req.user.username
+    }, {
+      name: true,
+      owners: true,
+      pendingOwners: true,
+      members: true,
+      archived: true,
+      demographicQuestions: true
+    }).populate({
+      path: 'members',
+      select: {
+        cohort: false,
+        __v: false,
+        'demographicQuestionResponses._id': false
+      }
     })
   } catch (err) {
     console.error(err)
@@ -249,6 +263,9 @@ router.get('/:cohortID/surveySets', ensureCohortOwnership, async (req, res) => {
   try {
     const surveySets = await SurveySet.find({
       cohort: req.params.cohortID
+    }, {
+      name: true,
+      _id: true
     })
     return res.json(surveySets)
   } catch (err) {
