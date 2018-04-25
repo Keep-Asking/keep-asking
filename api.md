@@ -1,6 +1,65 @@
 # Keep Asking API
+The Keep Asking RESTful API allows for programmatic access to the Keep Asking system over the Internet.
 
-## /cohorts
+## API Root
+The root address of the API is `/api`. For the main Keep Asking server, this means that API requests should be to resources starting with `https://www.keepasking.io/api/`.
+
+## API Authentication
+All requests require authentication using an API key. A user of Keep Asking can find their API key on their [profile](https://www.keepasking.io/profile) page. The API key can either be transmitted as the `apikey` URL parameter or as URL-encoded data in the body of the message with the key `apikey`.
+
+## Examples
+In this example we seek to get a listing of the members of the cohort with the cohort ID `abc123` using the API key `def456`:
+```bash
+curl -X GET https://www.keepasking.io/api/cohorts/abc123?apikey=def456
+```
+
+In this example we seek to rename the survey with ID `ghi789`:
+
+```bash
+curl -X PATCH https://www.keepasking.io/api/cohorts/abc123/surveySets/ghi789 --data 'apikey=def456' --data-urlencode 'name=My Amazing Survey'
+```
+
+In this example we seek to create a new survey set using the [jQuery.ajax()](https://api.jquery.com/jquery.ajax/) method, as one might do in a web browser. (Note that this request would likely be blocked by the browser due to [cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting) concerns.)
+```javascript
+$.ajax({
+  url: 'https://www.keepasking.io/api/cohorts/abc123/surveySets',
+  method: 'POST',
+  data: {
+    apikey: 'def456',
+    name: 'Science Course Survey',
+    responseAcceptancePeriod: 4,
+    surveys: [{
+      name: 'Homework 1',
+      date: '2018-04-25T20:00:00+00:00'
+    }, {
+      name: 'Homework 2',
+      date: '2018-05-10T20:00:00+00:00'
+    }],
+    questions: [{
+      title: 'How happy are you?',
+      id: 'abcdefg1234567', // A unique identifier of your choosing
+      kind: 'scale',
+      options: ['Very Happy', 'Very Sad']
+    }, {
+      title: 'What did you eat most recently',
+      id: 'ldignei32953',
+      kind: 'text',
+      textAreaSize: 'large'
+    }, {
+      title: 'Sort these according to your preference',
+      id: 'woeirtuy32345',
+      kind: 'rank',
+      options: ['Apple', 'Orange', 'Banana']
+    }]
+  }
+}).done(() => {
+  // Take some action once the survey set has been created
+}).fail((xhr, err1, err2) => {
+  // Take some action if the survey set creation fails
+})
+```
+
+## API Endpoints
 
 ### POST /cohorts
 Create a new cohort. Body:
