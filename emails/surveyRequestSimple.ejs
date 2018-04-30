@@ -2,7 +2,7 @@
   Hello,
 </p>
 <p>
-  I am conducting a periodic survey about <%= emailTopic %> <%= (typeof survey !== 'undefined' && survey.name)? `(${survey.name}) ` : ''; %>as part of <%= locals.survey.cohort.name %>. I would like to learn about your experiences and opinions with respect to this topic.
+  I am conducting a periodic survey about <%= emailTopic %> <%= (typeof survey !== 'undefined' && survey.name)? `(${survey.name}) ` : ''; %>as part of <%= locals.survey.cohort.name %>. I would like to learn about your experiences and opinions with respect to this topic. Your response is important for identifying areas of improvement and tracking progress.
 </p>
 <p>
   Please <a href="<%- surveyURL %>">complete the <%= emailTopic %> survey</a> within the next <%= survey.surveySet.responseAcceptancePeriod %> day<%= (survey.surveySet.responseAcceptancePeriod !== 1) ? 's' : ''; %>.
