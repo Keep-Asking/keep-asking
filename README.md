@@ -1,5 +1,5 @@
 # Keep Asking
-Keep Asking is a web system for administering recurring surveys developed by [Sebastian Hallum Clarke](https://www.sebthedev.com) as an Independent Work project at Princeton University's Department of Computer Science.
+Keep Asking is a web system for administering recurring surveys developed by [Sebastian Hallum Clarke](https://www.sebthedev.com) as an Independent Work project at Princeton University's Department of Computer Science. This project was advised by Professor Jérémie Lumbroso ([jlumbroso](https://github.com/jlumbroso), lumbroso@cs.princeton.edu).
 
 You can experience Keep Asking at [keepasking.io](https://www.keepasking.io) or build your own instance from source.
 
