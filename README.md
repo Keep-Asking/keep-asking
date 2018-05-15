@@ -3,6 +3,10 @@ Keep Asking is a web system for administering recurring surveys developed by [Se
 
 You can experience Keep Asking at [keepasking.io](https://www.keepasking.io) or build your own instance from source.
 
+## System Overview
+Keep Asking makes it easy to design, manage, and analyse the results of recurring feedback surveys. The workflow of the system is depicted in the flowchart below.
+<img src="./schematic_drawing.svg" alt="A schematic drawing of the Keep Asking workflow.">
+
 ## Installation Instructions
 To build your own instance of Keep Asking:
 1. Download the source code and `cd` into the `keep-asking` directory:
