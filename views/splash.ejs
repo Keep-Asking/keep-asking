@@ -2,22 +2,50 @@
 <%- include('./partials/header'); %>
   <div class="container">
     <div class="jumbotron mt-5">
-      <div class="row">
-        <div class="col-md-8">
-          <h1 class="display-4">What do people think?</h1>
+
+      <div class="d-flex align-items-center">
+        <div>
+          <h1 class="display-3">Keep Asking</h1>
+          <p class="lead">A free system that makes it easy to create, manage, and analyse the results of recurring surveys.</p>
         </div>
-        <div class="col-md-4 text-md-right align-middle d-flex flex-column">
-          <div class="my-1">
-            <a class="btn btn-primary" href="/auth/login/google" role="button">Login with Google</a>
-          </div>
-          <div class="my-1">
-            <a class="btn btn-primary" href="/auth/login/princeton" role="button">Login with Princeton CAS</a>
-          </div>
+        <div>
+          <a class="btn btn-primary btn-lg" href="/login" role="button" class="align-middle">Sign up or Login</a>
         </div>
       </div>
-      <p class="lead">Keep Asking helps you gather and analyse feedback from groups on a regular basis.</p>
+
       <hr class="my-4">
-      <h3>Use Cases for Keep Asking</h3>
+
+      <div class="row">
+        <div class="col-md">
+          <h2>Motivation</h2>
+          <p>
+            Constructive and timely feedback is important for any person or organisation seeking to improve. Surveys are an excellent tool for gathering feedback from large groups.
+          </p>
+          <p>
+            Managing recurring feedback surveys using existing survey platforms (such as Google Docs or SurveyMonkey) is time-consuming and stressful. Keep Asking uses automation to relieve these burdens and help respondents to build the habit of regularly providing feedback.
+          </p>
+          <p>
+            Keep Asking seeks to:
+          </p>
+          <ul>
+            <li>
+              Empower surveyors to administer recurring surveys with minimal, constant-time effort.
+            </li>
+            <li>
+              Achieve high survey response rates without overly annoying respondents.
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-md">
+          <h2>Approach</h2>
+          <img src="/img/schematic_drawing.svg" class="img-fluid" alt="A schematic drawing of the Keep Asking workflow.">
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <h2>Use Cases for Keep Asking</h2>
       <div class="card-deck my-3">
         <div class="card">
           <img class="card-img-top" src="/img/teach.jpeg" alt="Students throwing their mortarboards into the air">
@@ -41,6 +69,31 @@
           </div>
         </div>
       </div>
+
+      <hr class="my-4">
+
+      <div class="row">
+        <div class="col-md-8">
+          <h2>Keep Asking's Origin</h2>
+          <p>
+            Keep Asking was built in early 2018 by <a href="https://www.sebthedev.com">Sebastian Hallum&nbsp;Clarke</a> as the capstone project of his undergraduate degree in computer science at Princeton&nbsp;University. In designing and creating Keep Asking, Sebastian was advised by <a href="https://github.com/jlumbroso">Dr&nbsp;Jérémie Lumbroso</a>.
+          </p>
+          <p>
+            Dr Lumbroso used Keep Asking with the students of his Princeton University <a href="https://registrar.princeton.edu/course-offerings/course_details.xml?courseid=002065&term=1184">Advanced Programming Techniques</a> course.
+          <p>
+            For further information about Keep Asking you can read the <a href="/docs/report.pdf" target="_blank">project report</a>, view the <a href="/docs/poster.pdf" target="_blank">poster</a>, or contact <a href="https://www.sebthedev.com">Sebastian</a>.
+          </p>
+        </div>
+        <div class="col-md-4">
+          <figure class="figure">
+            <a href="/docs/poster.pdf" target="_blank">
+              <img src="/img/poster.png" alt="The Keep Asking poster. See the linked poster.pdf." class="img-fluid figure-img border">
+            </a>
+            <figcaption class="figure-caption text-center">A poster explaining the rationale and approach of Keep&nbsp;Asking.</figcaption>
+          </figure>
+        </div>
+      </div>
+
     </div>
   </div>
 
