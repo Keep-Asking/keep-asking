@@ -9,7 +9,16 @@
           <p class="lead">A free system that makes it easy to create, manage, and analyse the results of recurring surveys.</p>
         </div>
         <div>
-          <a class="btn btn-primary btn-lg" href="/login" role="button" class="align-middle">Sign up or Login</a>
+          <!-- <a class="btn btn-primary btn-lg" href="/login" role="button" class="align-middle">Sign up or Login</a> -->
+          <div class="dropdown">
+            <button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Sign up or Login
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="/auth/login/google" role="button">Google Account</a>
+              <a class="dropdown-item" href="/auth/login/princeton" role="button">Princeton University Account</a>
+            </div>
+          </div>
         </div>
       </div>
 

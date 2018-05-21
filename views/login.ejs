@@ -1,11 +1,22 @@
 <%- include('./partials/head'); %>
 <%- include('./partials/header'); %>
   <div class="container">
-    <div class="my-1">
-      <a class="btn btn-primary" href="/auth/login/google" role="button">Login with Google</a>
+    <div class="jumbotron mt-5">
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">
+          Sign up or Login to Keep Asking
+        </h1>
+        <div class="d-flex justify-content-around flex-column align-items-center">
+          <a class="btn btn-primary mx-2 my-2" href="/auth/login/google" role="button">Sign up or Login with Google Account</a>
+          <a class="btn btn-primary mx-2 my-2" href="/auth/login/princeton" role="button">Signup or Login with Princeton University Account</a>
+        </div>
+      </div>
     </div>
     <div class="my-1">
-      <a class="btn btn-primary" href="/auth/login/princeton" role="button">Login with Princeton CAS</a>
+    </div>
+    <div class="my-1">
     </div>
   </div>
 
