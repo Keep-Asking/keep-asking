@@ -62,3 +62,7 @@ typings/
 
 # browserify output
 public/scripts/script.js
+
+# sass
+public/styles/style.css
+public/styles/style.css.map

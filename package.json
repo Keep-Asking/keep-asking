@@ -6,10 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-styles": "./node_modules/node-sass/bin/node-sass --output-style compressed public/styles/style.scss -o public/styles/ --source-map
- true",
-    "watch-styles": "./node_modules/node-sass/bin/node-sass --output-style compressed public/styles/style.scss -o public/styles/ --source-map
- true -w",
+    "build-styles": "./node_modules/node-sass/bin/node-sass --output-style compressed public/styles/style.scss -o public/styles/ --source-map true",
+    "watch-styles": "./node_modules/node-sass/bin/node-sass --output-style compressed public/styles/style.scss -o public/styles/ --source-map true -w",
     "watch-js": "watchify ./public/scripts/main.js -o ./public/scripts/script.js",
     "build-js": "browserify ./public/scripts/main.js -o ./public/scripts/script.js",
     "build": "npm run build-js; npm run build-styles",
