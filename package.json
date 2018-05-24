@@ -15,17 +15,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sebthedev/keep-asking.git"
+    "url": "git+https://github.com/Keep-Asking/keep-asking.git"
   },
   "author": {
     "name": "Sebastian Hallum Clarke",
-    "url": "http://www.sebthedev.com/"
+    "url": "https://www.sebthedev.com/"
   },
-  "license": "ISC",
+  "license": "LGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/sebthedev/keep-asking/issues"
+    "url": "https://github.com/Keep-Asking/keep-asking/issues"
   },
-  "homepage": "https://github.com/sebthedev/keep-asking#readme",
+  "homepage": "https://github.com/Keep-Asking/keep-asking#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
     "browserify": "^16.2.2",
@@ -47,7 +47,6 @@
     "passport-google-oauth": "^1.0.0",
     "uuid": "^3.2.1"
   },
-  "devDependencies": {},
   "standard": {
     "globals": [
       "$",
