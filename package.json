@@ -28,14 +28,12 @@
   "homepage": "https://github.com/sebthedev/keep-asking#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "bootstrap-datepicker": "^1.8.0",
     "browserify": "^16.2.2",
     "cookie-session": "^2.0.0-beta.3",
     "dotenv": "^5.0.1",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "html5sortable": "^0.9.2",
-    "jquery": "^3.3.1",
     "moment": "^2.22.1",
     "mongoose": "^5.1.2",
     "mongoose-findorcreate": "^3.0.0",
@@ -47,7 +45,6 @@
     "passport-cas2": "0.0.9",
     "passport-custom": "^1.0.5",
     "passport-google-oauth": "^1.0.0",
-    "popper.js": "^1.14.3",
     "uuid": "^3.2.1"
   },
   "devDependencies": {},
